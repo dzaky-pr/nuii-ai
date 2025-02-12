@@ -16,8 +16,9 @@ export function UserActions({
   userEmail: string
 }) {
   const [modalOpen, setModalOpen] = useState(false)
-  const [action, setAction] = useState<'admin' | 'user' | 'remove' | null>(null)
-
+  const [action, setAction] = useState<
+    'admin' | 'pengawas' | 'surveyor' | 'remove' | null
+  >(null)
   const [pending, startTransition] = useTransition()
 
   const handleConfirm = () => {
@@ -38,7 +39,7 @@ export function UserActions({
         toast.success('Role updated successfully')
         setTimeout(() => {
           setModalOpen(false)
-          redirect('/dashboard/manage-users') // Refresh data setelah berhasil
+          redirect('/dashboard/manage-users')
         }, 1000)
       } else {
         toast.error(res?.error || 'Unknown error')
@@ -60,12 +61,21 @@ export function UserActions({
         </Button>
         <Button
           onClick={() => {
-            setAction('user')
+            setAction('pengawas')
+            setModalOpen(true)
+          }}
+          className="bg-yellow-500 px-3 py-1 rounded hover:bg-yellow-600"
+        >
+          Make Pengawas
+        </Button>
+        <Button
+          onClick={() => {
+            setAction('surveyor')
             setModalOpen(true)
           }}
           className="bg-green-500 px-3 py-1 rounded hover:bg-green-600"
         >
-          Make Basic User
+          Make Surveyor
         </Button>
         <Button
           onClick={() => {
@@ -92,7 +102,15 @@ export function UserActions({
                   <span className="text-red-500 text-base">{userEmail}</span>?
                 </>
               ) : (
-                `Change role to ${action}?`
+                <>
+                  Change role of
+                  <br />
+                  <span className="text-blue-500">{userName}</span>
+                  <br />
+                  <span className="text-blue-500">{userEmail}</span>
+                  <br />
+                  to <span className="font-bold">{action}</span>?
+                </>
               )}
             </h3>
 
@@ -109,7 +127,9 @@ export function UserActions({
                 className={`px-4 py-2 rounded-lg ${
                   action === 'admin'
                     ? 'bg-blue-500 hover:bg-blue-600'
-                    : action === 'user'
+                    : action === 'pengawas'
+                    ? 'bg-yellow-500 hover:bg-yellow-600'
+                    : action === 'surveyor'
                     ? 'bg-green-500 hover:bg-green-600'
                     : 'bg-red-500 hover:bg-red-600'
                 }`}

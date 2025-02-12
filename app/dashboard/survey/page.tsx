@@ -1,408 +1,557 @@
+// 'use client'
+
+// import Image from 'next/image'
+// import { useEffect, useRef, useState } from 'react'
+// import type { Option } from './_components/SearchableSelect'
+// import SurveyForm from './_components/SurveyForm'
+
+// import { Button } from '@/components/ui/button'
+// import { Input } from '@/components/ui/input'
+// import { Label } from '@/components/ui/label'
+// import { Sheet, SheetContent } from '@/components/ui/sheet'
+// import MapPicker from './_components/MapPicker'
+// import MapViewer from './_components/MapViewer'
+
+// // Type definition
+// type SurveyData = {
+//   surveyName: string
+//   location: string
+//   penyulang: string
+//   tiang: string
+//   konstruksi: string
+//   panjangJaringan: string
+//   coordinates: { lat: number; lng: number }
+//   photo: string
+//   keterangan: string
+//   petugas: string
+// }
+
+// export default function Page() {
+//   const [submittedSurveys, setSubmittedSurveys] = useState<SurveyData[]>([])
+//   const [surveyNames, setSurveyNames] = useState<Option[]>([])
+//   const [selectedSurvey, setSelectedSurvey] = useState<SurveyData | null>(null)
+//   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+//   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+//   const [selectedMapSurvey, setSelectedMapSurvey] = useState<string | null>(
+//     null
+//   )
+
+//   // Load surveys from localStorage on mount
+//   useEffect(() => {
+//     const storedSurveys = localStorage.getItem('submittedSurveys')
+//     if (storedSurveys) {
+//       setSubmittedSurveys(JSON.parse(storedSurveys))
+//     }
+//   }, [])
+
+//   // Prevent overwriting localStorage on initial mount.
+//   const isInitialMount = useRef(true)
+//   useEffect(() => {
+//     if (isInitialMount.current) {
+//       isInitialMount.current = false
+//     } else {
+//       localStorage.setItem('submittedSurveys', JSON.stringify(submittedSurveys))
+//     }
+//   }, [submittedSurveys])
+
+//   useEffect(() => {
+//     const uniqueNames = Array.from(
+//       new Set(
+//         submittedSurveys.map(survey => survey.surveyName).filter(name => name)
+//       )
+//     )
+//     setSurveyNames(uniqueNames.map(name => ({ value: name, label: name })))
+//   }, [submittedSurveys])
+
+//   // Group surveys by surveyName (includes custom names)
+//   const groupedSurveys = submittedSurveys.reduce(
+//     (acc: Record<string, SurveyData[]>, survey) => {
+//       if (!acc[survey.surveyName]) {
+//         acc[survey.surveyName] = []
+//       }
+//       acc[survey.surveyName].push(survey)
+//       return acc
+//     },
+//     {}
+//   )
+
+//   const handleDelete = () => {
+//     setSubmittedSurveys(prev =>
+//       prev.filter(survey => survey !== selectedSurvey)
+//     )
+//     setIsDeleteModalOpen(false)
+//   }
+
+//   const handleEdit = () => {
+//     if (selectedSurvey) {
+//       setSubmittedSurveys(prev =>
+//         prev.map(survey =>
+//           survey === selectedSurvey ? selectedSurvey : survey
+//         )
+//       )
+//       setIsEditModalOpen(false)
+//     }
+//   }
+
+//   return (
+//     <div className="p-4">
+//       <SurveyForm
+//         onSubmit={data => setSubmittedSurveys(prev => [...prev, data])}
+//         surveyNames={surveyNames}
+//         setSurveyNames={setSurveyNames}
+//       />
+
+//       {Object.keys(groupedSurveys).length > 0 && (
+//         <div className="mt-8">
+//           <h2 className="text-lg font-bold">Data Survey</h2>
+//           {Object.entries(groupedSurveys).map(([surveyName, surveys]) => (
+//             <div key={surveyName} className="mb-4">
+//               <div className="flex items-center gap-4 mb-2">
+//                 <h3 className="text-md font-semibold">{surveyName}</h3>
+//                 <Button
+//                   variant="outline"
+//                   size="sm"
+//                   onClick={() => setSelectedMapSurvey(surveyName)}
+//                 >
+//                   Lihat Map
+//                 </Button>
+//               </div>
+
+//               <table className="w-full border-collapse border border-gray-300">
+//                 <thead>
+//                   <tr>
+//                     <th className="border p-2">#</th>
+//                     <th className="border p-2">Foto</th>
+//                     <th className="border p-2">ULP</th>
+//                     <th className="border p-2">Penyulang</th>
+//                     <th className="border p-2">Nama Tiang</th>
+//                     <th className="border p-2">Konstruksi</th>
+//                     <th className="border p-2">Panjang Jaringan</th>
+//                     <th className="border p-2">Koordinat</th>
+//                     <th className="border p-2">Petugas</th>
+//                     <th className="border p-2">Keterangan</th>
+//                     <th className="border p-2">Action</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {surveys.map((data, index) => (
+//                     <tr key={index} className="text-center">
+//                       <td className="border p-2">{index + 1}</td>
+//                       <td className="border p-2">
+//                         {data.photo ? (
+//                           <Image
+//                             src={data.photo}
+//                             alt="Foto Survey"
+//                             width={100}
+//                             height={60}
+//                             className="object-cover"
+//                           />
+//                         ) : (
+//                           'No Photo'
+//                         )}
+//                       </td>
+//                       <td className="border p-2">{data.location}</td>
+//                       <td className="border p-2">{data.penyulang}</td>
+//                       <td className="border p-2">{data.tiang}</td>
+//                       <td className="border p-2">{data.konstruksi}</td>
+//                       <td className="border p-2">{data.panjangJaringan}</td>
+//                       <td className="border p-2">
+//                         {`Lat: ${data.coordinates.lat.toFixed(
+//                           6
+//                         )}, Lng: ${data.coordinates.lng.toFixed(6)}`}
+//                       </td>
+//                       <td className="border p-2">{data.petugas}</td>
+//                       <td className="border p-2">{data.keterangan}</td>
+//                       <td className="border p-2 flex justify-center gap-2">
+//                         <button
+//                           className="text-red-500"
+//                           onClick={() => {
+//                             setSelectedSurvey(data)
+//                             setIsDeleteModalOpen(true)
+//                           }}
+//                         >
+//                           Delete
+//                         </button>
+//                         <button
+//                           className="text-blue-500"
+//                           onClick={() => {
+//                             setSelectedSurvey(data)
+//                             setIsEditModalOpen(true)
+//                           }}
+//                         >
+//                           Edit
+//                         </button>
+//                       </td>
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </table>
+//             </div>
+//           ))}
+//         </div>
+//       )}
+
+//       {/* Edit Modal */}
+//       <Sheet open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+//         <SheetContent side="right" className="p-4">
+//           <h2 className="text-lg font-bold mb-4">Edit Survey</h2>
+//           {selectedSurvey && (
+//             <div className="flex flex-col gap-3">
+//               <Label>Nama Tiang</Label>
+//               <Input
+//                 value={selectedSurvey.tiang}
+//                 onChange={e =>
+//                   setSelectedSurvey(prev =>
+//                     prev ? { ...prev, tiang: e.target.value } : null
+//                   )
+//                 }
+//               />
+//               <Label>Keterangan</Label>
+//               <Input
+//                 value={selectedSurvey.keterangan}
+//                 onChange={e =>
+//                   setSelectedSurvey(prev =>
+//                     prev ? { ...prev, keterangan: e.target.value } : null
+//                   )
+//                 }
+//               />
+//               <Label>Foto</Label>
+//               <Input
+//                 value={selectedSurvey.photo}
+//                 onChange={e =>
+//                   setSelectedSurvey(prev =>
+//                     prev ? { ...prev, photo: e.target.value } : null
+//                   )
+//                 }
+//               />
+//               <Button onClick={handleEdit} className="mt-4">
+//                 Simpan
+//               </Button>
+//             </div>
+//           )}
+//         </SheetContent>
+//       </Sheet>
+
+//       <Sheet
+//         open={!!selectedMapSurvey}
+//         onOpenChange={open => !open && setSelectedMapSurvey(null)}
+//       >
+//         <SheetContent side="bottom" className="h-[90vh]">
+//           {selectedMapSurvey && (
+//             <MapPicker
+//               initialPosition={{
+//                 lat: groupedSurveys[selectedMapSurvey][0].coordinates.lat,
+//                 lng: groupedSurveys[selectedMapSurvey][0].coordinates.lng
+//               }}
+//               onPositionChange={() => {}}
+//             />
+//           )}
+//         </SheetContent>
+//       </Sheet>
+
+//       <Sheet
+//         open={!!selectedMapSurvey}
+//         onOpenChange={open => !open && setSelectedMapSurvey(null)}
+//       >
+//         <SheetContent side="bottom" className="h-[90vh]">
+//           {selectedMapSurvey && (
+//             <MapViewer surveys={groupedSurveys[selectedMapSurvey]} />
+//           )}
+//         </SheetContent>
+//       </Sheet>
+
+//       <div className="mt-8">
+//         <h2 className="text-lg font-bold">Debug Submitted Surveys JSON</h2>
+//         <pre className="p-4 bg-background rounded">
+//           {JSON.stringify(submittedSurveys, null, 2)}
+//         </pre>
+//       </div>
+//     </div>
+//   )
+// }
+
 'use client'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
+import MapPicker from './_components/MapPicker'
+import MapViewer from './_components/MapViewer'
+import type { Option } from './_components/SearchableSelect'
+import SurveyForm from './_components/SurveyForm'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from '@/components/ui/sheet'
-import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import Webcam from 'react-webcam'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 
-const dummyLocations = [
-  { value: 'ulp-1', label: 'ULP Kota Barat' },
-  { value: 'ulp-2', label: 'ULP Kota Timur' },
-  { value: 'ulp-3', label: 'ULP Kota Utara' }
-]
+// Import DialogTitle dan VisuallyHidden dari Radix UI
+import { DialogTitle } from '@radix-ui/react-dialog'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
-const dummyTiang = [
-  { value: 't-001', label: 'Tiang Beton 9m' },
-  { value: 't-002', label: 'Tiang Besi 10m' },
-  { value: 't-003', label: 'Tiang Kayu 8m' }
-]
+// Type definition
+type SurveyData = {
+  surveyName: string
+  location: string
+  penyulang: string
+  tiang: string
+  konstruksi: string
+  panjangJaringan: string
+  coordinates: { lat: number; lng: number }
+  photo: string
+  keterangan: string
+  petugas: string
+}
 
-const dummyKonstruksi = [
-  { value: 'k-001', label: 'Konstruksi Jaringan Bawah' },
-  { value: 'k-002', label: 'Konstruksi Jaringan Atas' },
-  { value: 'k-003', label: 'Konstruksi Jaringan Tengah' }
-]
+export default function Page() {
+  const [submittedSurveys, setSubmittedSurveys] = useState<SurveyData[]>([])
+  const [surveyNames, setSurveyNames] = useState<Option[]>([])
+  const [selectedSurvey, setSelectedSurvey] = useState<SurveyData | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedMapSurvey, setSelectedMapSurvey] = useState<string | null>(
+    null
+  )
 
-export default function SurveyPage() {
-  const [isDirty, setIsDirty] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [hasLocation, setHasLocation] = useState(false)
-  const [hasPhoto, setHasPhoto] = useState(false)
-  const [cameraAllowed, setCameraAllowed] = useState(false)
-  const [showCamera, setShowCamera] = useState(false)
-
-  const [formData, setFormData] = useState({
-    surveyName: '',
-    location: '',
-    penyulang: '',
-    tiang: '',
-    konstruksi: '',
-    panjangJaringan: '',
-    coordinates: { lat: 0, lng: 0 },
-    photo: '',
-    keterangan: '',
-    petugas: ''
-  })
-  const [isOpen, setIsOpen] = useState(false)
-  const webcamRef = useRef<Webcam>(null)
-
-  // Track perubahan form
+  // Load surveys from localStorage on mount
   useEffect(() => {
-    const isFormEmpty = Object.values(formData).every(
-      value =>
-        (typeof value === 'string' && value === '') ||
-        (typeof value === 'object' && value.lat === 0 && value.lng === 0)
-    )
-    setIsDirty(!isFormEmpty)
-  }, [formData])
-
-  // Handle close sheet
-  const handleClose = () => {
-    if (isDirty) {
-      setShowConfirm(true)
-    } else {
-      resetForm()
-      setIsOpen(false)
-    }
-  }
-
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      surveyName: '',
-      location: '',
-      penyulang: '',
-      tiang: '',
-      konstruksi: '',
-      panjangJaringan: '',
-      coordinates: { lat: 0, lng: 0 },
-      photo: '',
-      keterangan: '',
-      petugas: ''
-    })
-    setHasLocation(false)
-    setHasPhoto(false)
-    setCameraAllowed(false)
-    setShowCamera(false)
-  }
-
-  const initializeCamera = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ video: true })
-      setCameraAllowed(true)
-      setShowCamera(true)
-    } catch (error) {
-      alert('Akses kamera ditolak!')
-    }
-  }
-
-  const capturePhoto = useCallback(() => {
-    const imageSrc = webcamRef.current?.getScreenshot()
-    if (imageSrc) {
-      setFormData(prev => ({ ...prev, photo: imageSrc }))
-      setHasPhoto(true)
+    const storedSurveys = localStorage.getItem('submittedSurveys')
+    if (storedSurveys) {
+      setSubmittedSurveys(JSON.parse(storedSurveys))
     }
   }, [])
 
-  const retakePhoto = () => {
-    setFormData(prev => ({ ...prev, photo: '' }))
-    setHasPhoto(false)
-    setShowCamera(true)
+  // Prevent overwriting localStorage on initial mount.
+  const isInitialMount = useRef(true)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+    } else {
+      localStorage.setItem('submittedSurveys', JSON.stringify(submittedSurveys))
+    }
+  }, [submittedSurveys])
+
+  useEffect(() => {
+    const uniqueNames = Array.from(
+      new Set(
+        submittedSurveys.map(survey => survey.surveyName).filter(name => name)
+      )
+    )
+    setSurveyNames(uniqueNames.map(name => ({ value: name, label: name })))
+  }, [submittedSurveys])
+
+  // Group surveys by surveyName (includes custom names)
+  const groupedSurveys = submittedSurveys.reduce(
+    (acc: Record<string, SurveyData[]>, survey) => {
+      if (!acc[survey.surveyName]) {
+        acc[survey.surveyName] = []
+      }
+      acc[survey.surveyName].push(survey)
+      return acc
+    },
+    {}
+  )
+
+  const handleDelete = () => {
+    setSubmittedSurveys(prev =>
+      prev.filter(survey => survey !== selectedSurvey)
+    )
+    setIsDeleteModalOpen(false)
   }
 
-  const getLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        setFormData(prev => ({
-          ...prev,
-          coordinates: {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          }
-        }))
-        setHasLocation(true)
-      })
+  const handleEdit = () => {
+    if (selectedSurvey) {
+      setSubmittedSurveys(prev =>
+        prev.map(survey =>
+          survey === selectedSurvey ? selectedSurvey : survey
+        )
+      )
+      setIsEditModalOpen(false)
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Form Data:', formData)
-    resetForm()
-    setIsOpen(false)
-  }
-
-  const isFormValid = Object.values(formData).every(
-    value =>
-      value !== '' &&
-      (typeof value !== 'object' || (value.lat !== 0 && value.lng !== 0))
-  )
-
   return (
     <div className="p-4">
-      <Sheet
-        open={isOpen}
-        onOpenChange={open => {
-          if (!open) {
-            handleClose() // Panggil handleClose saat mencoba menutup
-          } else {
-            setIsOpen(true) // Saat membuka, set ke true
-          }
-        }}
-      >
-        <SheetTrigger asChild>
-          <Button variant="outline">Buat Survey Baru</Button>
-        </SheetTrigger>
+      <SurveyForm
+        onSubmit={data => setSubmittedSurveys(prev => [...prev, data])}
+        surveyNames={surveyNames}
+        setSurveyNames={setSurveyNames}
+      />
 
-        <SheetContent
-          className="w-full sm:max-w-2xl overflow-y-auto"
-          onInteractOutside={e => e.preventDefault()}
-          onEscapeKeyDown={e => {
-            if (isDirty) {
-              e.preventDefault()
-              handleClose()
-            }
-          }}
-        >
-          <SheetHeader>
-            <SheetTitle>Form Survey Lapangan</SheetTitle>
-            <SheetDescription>
-              Isi semua data dengan lengkap dan akurat
-            </SheetDescription>
-          </SheetHeader>
-
-          <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-            {/* Nama Survey */}
-            <div className="grid gap-2">
-              <Label htmlFor="surveyName">Nama Survey</Label>
-              <Input
-                id="surveyName"
-                maxLength={60}
-                value={formData.surveyName}
-                onChange={e =>
-                  setFormData({ ...formData, surveyName: e.target.value })
-                }
-              />
-            </div>
-
-            {/* Lokasi/ULP */}
-            <div className="grid gap-2">
-              <Label>Lokasi/ULP</Label>
-              <Select
-                onValueChange={value =>
-                  setFormData({ ...formData, location: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih Lokasi" />
-                </SelectTrigger>
-                <SelectContent>
-                  {dummyLocations.map(loc => (
-                    <SelectItem key={loc.value} value={loc.value}>
-                      {loc.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Penyulang */}
-            <div className="grid gap-2">
-              <Label htmlFor="penyulang">Penyulang</Label>
-              <Input
-                id="penyulang"
-                maxLength={60}
-                value={formData.penyulang}
-                onChange={e =>
-                  setFormData({ ...formData, penyulang: e.target.value })
-                }
-              />
-            </div>
-
-            {/* Tiang */}
-            <div className="grid gap-2">
-              <Label>Tiang</Label>
-              <Select
-                onValueChange={value =>
-                  setFormData({ ...formData, tiang: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih Tiang" />
-                </SelectTrigger>
-                <SelectContent>
-                  {dummyTiang.map(tiang => (
-                    <SelectItem key={tiang.value} value={tiang.value}>
-                      {tiang.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Konstruksi */}
-            <div className="grid gap-2">
-              <Label>Konstruksi</Label>
-              <Select
-                onValueChange={value =>
-                  setFormData({ ...formData, konstruksi: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih Konstruksi" />
-                </SelectTrigger>
-                <SelectContent>
-                  {dummyKonstruksi.map(konstruksi => (
-                    <SelectItem key={konstruksi.value} value={konstruksi.value}>
-                      {konstruksi.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Panjang Jaringan */}
-            <div className="grid gap-2">
-              <Label htmlFor="panjangJaringan">Panjang Jaringan (meter)</Label>
-              <Input
-                id="panjangJaringan"
-                type="number"
-                max={999}
-                value={formData.panjangJaringan}
-                onChange={e =>
-                  setFormData({ ...formData, panjangJaringan: e.target.value })
-                }
-              />
-            </div>
-
-            {/* Koordinat */}
-            <div className="grid gap-2">
-              <Label>Koordinat</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Latitude"
-                  value={formData.coordinates.lat}
-                  readOnly
-                />
-                <Input
-                  placeholder="Longitude"
-                  value={formData.coordinates.lng}
-                  readOnly
-                />
-                <Button type="button" onClick={getLocation}>
-                  {hasLocation ? 'Ambil Ulang Lokasi' : 'Ambil Lokasi'}
+      {Object.keys(groupedSurveys).length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-lg font-bold">Data Survey</h2>
+          {Object.entries(groupedSurveys).map(([surveyName, surveys]) => (
+            <div key={surveyName} className="mb-4">
+              <div className="flex items-center gap-4 mb-2">
+                <h3 className="text-md font-semibold">{surveyName}</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedMapSurvey(surveyName)}
+                >
+                  Lihat Map
                 </Button>
               </div>
-            </div>
 
-            {/* Foto */}
-            <div className="grid gap-2">
-              <Label>Foto Titik Survey</Label>
-              {formData.photo ? (
-                <>
-                  <Image
-                    src={formData.photo}
-                    alt="Foto Survey"
-                    width={320}
-                    height={192}
-                    className="object-cover"
-                  />
-                  <Button type="button" onClick={retakePhoto}>
-                    Ambil Ulang Foto
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {showCamera && cameraAllowed && (
-                    <Webcam
-                      audio={false}
-                      ref={webcamRef}
-                      screenshotFormat="image/jpeg"
-                      className="h-48"
-                    />
-                  )}
-                  <Button
-                    type="button"
-                    onClick={!cameraAllowed ? initializeCamera : capturePhoto}
-                  >
-                    {hasPhoto ? 'Ambil Ulang Foto' : 'Ambil Foto'}
-                  </Button>
-                </>
-              )}
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="border p-2">#</th>
+                    <th className="border p-2">Foto</th>
+                    <th className="border p-2">ULP</th>
+                    <th className="border p-2">Penyulang</th>
+                    <th className="border p-2">Nama Tiang</th>
+                    <th className="border p-2">Konstruksi</th>
+                    <th className="border p-2">Panjang Jaringan</th>
+                    <th className="border p-2">Koordinat</th>
+                    <th className="border p-2">Petugas</th>
+                    <th className="border p-2">Keterangan</th>
+                    <th className="border p-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {surveys.map((data, index) => (
+                    <tr key={index} className="text-center">
+                      <td className="border p-2">{index + 1}</td>
+                      <td className="border p-2">
+                        {data.photo ? (
+                          <Image
+                            src={data.photo}
+                            alt="Foto Survey"
+                            width={100}
+                            height={60}
+                            className="object-cover"
+                          />
+                        ) : (
+                          'No Photo'
+                        )}
+                      </td>
+                      <td className="border p-2">{data.location}</td>
+                      <td className="border p-2">{data.penyulang}</td>
+                      <td className="border p-2">{data.tiang}</td>
+                      <td className="border p-2">{data.konstruksi}</td>
+                      <td className="border p-2">{data.panjangJaringan}</td>
+                      <td className="border p-2">
+                        {`Lat: ${data.coordinates.lat.toFixed(
+                          6
+                        )}, Lng: ${data.coordinates.lng.toFixed(6)}`}
+                      </td>
+                      <td className="border p-2">{data.petugas}</td>
+                      <td className="border p-2">{data.keterangan}</td>
+                      <td className="border p-2 flex justify-center gap-2">
+                        <button
+                          className="text-red-500"
+                          onClick={() => {
+                            setSelectedSurvey(data)
+                            setIsDeleteModalOpen(true)
+                          }}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          className="text-blue-500"
+                          onClick={() => {
+                            setSelectedSurvey(data)
+                            setIsEditModalOpen(true)
+                          }}
+                        >
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          ))}
+        </div>
+      )}
 
-            {/* Keterangan */}
-            <div className="grid gap-2">
-              <Label htmlFor="keterangan">Keterangan</Label>
+      {/* Edit Modal */}
+      <Sheet open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <SheetContent side="right" className="p-4">
+          <VisuallyHidden>
+            <DialogTitle>Edit Survey</DialogTitle>
+          </VisuallyHidden>
+          <h2 className="text-lg font-bold mb-4">Edit Survey</h2>
+          {selectedSurvey && (
+            <div className="flex flex-col gap-3">
+              <Label>Nama Tiang</Label>
               <Input
-                id="keterangan"
-                maxLength={60}
-                value={formData.keterangan}
+                value={selectedSurvey.tiang}
                 onChange={e =>
-                  setFormData({ ...formData, keterangan: e.target.value })
+                  setSelectedSurvey(prev =>
+                    prev ? { ...prev, tiang: e.target.value } : null
+                  )
                 }
               />
-            </div>
-
-            {/* Petugas Survey */}
-            <div className="grid gap-2">
-              <Label htmlFor="petugas">Petugas Survey</Label>
+              <Label>Keterangan</Label>
               <Input
-                id="petugas"
-                maxLength={60}
-                value={formData.petugas}
+                value={selectedSurvey.keterangan}
                 onChange={e =>
-                  setFormData({ ...formData, petugas: e.target.value })
+                  setSelectedSurvey(prev =>
+                    prev ? { ...prev, keterangan: e.target.value } : null
+                  )
                 }
               />
+              <Label>Foto</Label>
+              <Input
+                value={selectedSurvey.photo}
+                onChange={e =>
+                  setSelectedSurvey(prev =>
+                    prev ? { ...prev, photo: e.target.value } : null
+                  )
+                }
+              />
+              <Button onClick={handleEdit} className="mt-4">
+                Simpan
+              </Button>
             </div>
-
-            <Button type="submit" disabled={!isFormValid}>
-              Simpan Survey
-            </Button>
-          </form>
+          )}
         </SheetContent>
       </Sheet>
 
-      {showConfirm && (
-        <div className="fixed z-[9999] inset-0 bg-black/50 flex items-center justify-center pointer-events-auto">
-          <div className="bg-background border border-muted p-6 rounded-lg max-w-sm">
-            <h3 className="font-bold text-lg">Batal Mengisi Form?</h3>
-            <p className="py-4">Data yang sudah diisi akan hilang</p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  resetForm()
-                  setIsOpen(false)
-                  setShowConfirm(false)
-                }}
-              >
-                Batalkan
-              </Button>
-              <Button variant="outline" onClick={() => setShowConfirm(false)}>
-                Lanjutkan
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Map Modal untuk MapPicker */}
+      <Sheet
+        open={!!selectedMapSurvey}
+        onOpenChange={open => !open && setSelectedMapSurvey(null)}
+      >
+        <SheetContent side="bottom" className="h-[90vh]">
+          <VisuallyHidden>
+            <DialogTitle>Map Viewer</DialogTitle>
+          </VisuallyHidden>
+          {selectedMapSurvey && (
+            <MapPicker
+              initialPosition={{
+                lat: groupedSurveys[selectedMapSurvey][0].coordinates.lat,
+                lng: groupedSurveys[selectedMapSurvey][0].coordinates.lng
+              }}
+              onPositionChange={() => {}}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Map Modal untuk MapViewer */}
+      <Sheet
+        open={!!selectedMapSurvey}
+        onOpenChange={open => !open && setSelectedMapSurvey(null)}
+      >
+        <SheetContent side="bottom" className="h-[90vh]">
+          <VisuallyHidden>
+            <DialogTitle>Map Viewer</DialogTitle>
+          </VisuallyHidden>
+          {selectedMapSurvey && (
+            <MapViewer surveys={groupedSurveys[selectedMapSurvey]} />
+          )}
+        </SheetContent>
+      </Sheet>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-bold">Debug Submitted Surveys JSON</h2>
+        <pre className="p-4 bg-background rounded">
+          {JSON.stringify(submittedSurveys, null, 2)}
+        </pre>
+      </div>
     </div>
   )
 }

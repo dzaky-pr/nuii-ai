@@ -16,30 +16,28 @@ export default function AccessGuard({ children }: AccessGuardProps) {
 
   useEffect(() => {
     if (isLoaded) {
+      const role = String(user?.publicMetadata?.role || '')
+
       if (!user) {
-        toast.error('Anda tidak memiliki akses!', {})
+        toast.error('Anda tidak memiliki akses!')
         router.push('/')
-      } else if (!user.publicMetadata?.role) {
-        toast.error('Anda belum diverifikasi oleh Admin!', {})
+      } else if (!role) {
+        toast.error('Anda belum diverifikasi oleh Admin!')
         router.push('/')
-      } else if (
-        user.publicMetadata.role !== 'user' &&
-        user.publicMetadata.role !== 'admin'
-      ) {
-        toast.error('Akses ditolak!', {})
+      } else if (!['admin', 'pengawas', 'surveyor'].includes(role)) {
+        toast.error('Akses ditolak!')
         router.push('/')
       }
     }
   }, [isLoaded, user, router])
 
-  if (!isLoaded || !user || !user.publicMetadata?.role) {
+  const role = String(user?.publicMetadata?.role || '')
+
+  if (!isLoaded || !user || !role) {
     return <Spinner />
   }
 
-  if (
-    user.publicMetadata.role === 'user' ||
-    user.publicMetadata.role === 'admin'
-  ) {
+  if (['admin', 'pengawas', 'surveyor'].includes(role)) {
     return <>{children}</>
   }
 

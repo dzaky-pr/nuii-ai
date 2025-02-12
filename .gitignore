@@ -42,3 +42,5 @@ certificates
 # serwist
 public/sw*
 public/workbox-*
+# clerk configuration (can include secrets)
+/.clerk/

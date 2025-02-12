@@ -11,3 +11,12 @@ export const checkRoleServer = async (role: Roles) => {
 
   return userRole === role
 }
+
+export const getUserRoleServer = async () => {
+  const { userId } = await auth()
+  if (!userId) return null
+
+  const clerk = await clerkClient()
+  const user = await clerk.users.getUser(userId)
+  return user.publicMetadata.role || undefined
+}

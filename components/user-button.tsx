@@ -23,21 +23,25 @@ function UserButtonCustom() {
         />
       </UserButton.MenuItems>
 
-      <UserButton.MenuItems>
-        <UserButton.Link
-          label="Survey"
-          labelIcon={<Camera size={14} />}
-          href="/dashboard/survey"
-        />
-      </UserButton.MenuItems>
+      {(role === 'admin' || role === 'surveyor') && (
+        <UserButton.MenuItems>
+          <UserButton.Link
+            label="Survey"
+            labelIcon={<Camera size={14} />}
+            href="/dashboard/survey"
+          />
+        </UserButton.MenuItems>
+      )}
 
-      <UserButton.MenuItems>
-        <UserButton.Link
-          label="Report"
-          labelIcon={<NotebookText size={14} />}
-          href="/dashboard/report"
-        />
-      </UserButton.MenuItems>
+      {(role === 'admin' || role === 'surveyor') && (
+        <UserButton.MenuItems>
+          <UserButton.Link
+            label="Report"
+            labelIcon={<NotebookText size={14} />}
+            href="/dashboard/report"
+          />
+        </UserButton.MenuItems>
+      )}
 
       {role === 'admin' && (
         <UserButton.MenuItems>
