@@ -82,6 +82,10 @@
       },
     },
   },
+  "overrides": {
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+  },
   "packages": {
     "@ai-sdk/anthropic": ["@ai-sdk/anthropic@1.1.5", "", { "dependencies": { "@ai-sdk/provider": "1.0.6", "@ai-sdk/provider-utils": "2.1.5" }, "peerDependencies": { "zod": "^3.0.0" } }, "sha512-HGs69t2dsHlt+c4nCeUcdx5ojXs25dH8xly88TZZoyjfiCRWjmyjQxiPHZL2ME864a+vEpQSmvn8DgvMFA4p2g=="],
 
