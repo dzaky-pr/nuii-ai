@@ -58,6 +58,10 @@ export default function SurveyForm({
   const [isOpen, setIsOpen] = useState(false)
   const webcamRef = useRef<Webcam>(null)
 
+  const videoConstraints = {
+    facingMode: { exact: 'environment' } // gunakan kamera belakang
+  }
+
   useEffect(() => {
     const isFormEmpty = Object.values(formData).every(
       value =>
@@ -120,30 +124,6 @@ export default function SurveyForm({
     setHasPhoto(false)
     setShowCamera(true)
   }
-
-  //   const getLocation = () => {
-  //     if (navigator.geolocation) {
-  //       navigator.geolocation.getCurrentPosition(
-  //         position => {
-  //           setFormData(prev => ({
-  //             ...prev,
-  //             coordinates: {
-  //               lat: position.coords.latitude,
-  //               lng: position.coords.longitude
-  //             }
-  //           }))
-  //           setHasLocation(true)
-  //         },
-  //         error => {
-  //           console.error('Geolocation error:', error)
-  //           alert(`Error getting location: ${error.message}`)
-  //         },
-  //         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-  //       )
-  //     } else {
-  //       alert('Geolocation tidak didukung oleh browser ini.')
-  //     }
-  //   }
 
   const getLocation = () => {
     if (navigator.geolocation) {
@@ -428,9 +408,11 @@ export default function SurveyForm({
                       audio={false}
                       ref={webcamRef}
                       screenshotFormat="image/jpeg"
+                      videoConstraints={videoConstraints}
                       className="h-48"
                     />
                   )}
+
                   <Button
                     type="button"
                     onClick={!cameraAllowed ? initializeCamera : capturePhoto}

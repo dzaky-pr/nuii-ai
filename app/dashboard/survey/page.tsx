@@ -1,7 +1,8 @@
 // 'use client'
-
 // import Image from 'next/image'
 // import { useEffect, useRef, useState } from 'react'
+// import MapPicker from './_components/MapPicker'
+// import MapViewer from './_components/MapViewer'
 // import type { Option } from './_components/SearchableSelect'
 // import SurveyForm from './_components/SurveyForm'
 
@@ -9,8 +10,10 @@
 // import { Input } from '@/components/ui/input'
 // import { Label } from '@/components/ui/label'
 // import { Sheet, SheetContent } from '@/components/ui/sheet'
-// import MapPicker from './_components/MapPicker'
-// import MapViewer from './_components/MapViewer'
+
+// // Import DialogTitle dan VisuallyHidden dari Radix UI
+// import { DialogTitle } from '@radix-ui/react-dialog'
+// import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 // // Type definition
 // type SurveyData = {
@@ -194,6 +197,9 @@
 //       {/* Edit Modal */}
 //       <Sheet open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
 //         <SheetContent side="right" className="p-4">
+//           <VisuallyHidden>
+//             <DialogTitle>Edit Survey</DialogTitle>
+//           </VisuallyHidden>
 //           <h2 className="text-lg font-bold mb-4">Edit Survey</h2>
 //           {selectedSurvey && (
 //             <div className="flex flex-col gap-3">
@@ -232,11 +238,15 @@
 //         </SheetContent>
 //       </Sheet>
 
+//       {/* Map Modal untuk MapPicker */}
 //       <Sheet
 //         open={!!selectedMapSurvey}
 //         onOpenChange={open => !open && setSelectedMapSurvey(null)}
 //       >
 //         <SheetContent side="bottom" className="h-[90vh]">
+//           <VisuallyHidden>
+//             <DialogTitle>Map Viewer</DialogTitle>
+//           </VisuallyHidden>
 //           {selectedMapSurvey && (
 //             <MapPicker
 //               initialPosition={{
@@ -249,18 +259,22 @@
 //         </SheetContent>
 //       </Sheet>
 
+//       {/* Map Modal untuk MapViewer */}
 //       <Sheet
 //         open={!!selectedMapSurvey}
 //         onOpenChange={open => !open && setSelectedMapSurvey(null)}
 //       >
 //         <SheetContent side="bottom" className="h-[90vh]">
+//           <VisuallyHidden>
+//             <DialogTitle>Map Viewer</DialogTitle>
+//           </VisuallyHidden>
 //           {selectedMapSurvey && (
 //             <MapViewer surveys={groupedSurveys[selectedMapSurvey]} />
 //           )}
 //         </SheetContent>
 //       </Sheet>
 
-//       <div className="mt-8">
+//       <div className="mt-8 w-screen overflow-y-auto">
 //         <h2 className="text-lg font-bold">Debug Submitted Surveys JSON</h2>
 //         <pre className="p-4 bg-background rounded">
 //           {JSON.stringify(submittedSurveys, null, 2)}
@@ -272,20 +286,22 @@
 
 'use client'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import MapPicker from './_components/MapPicker'
 import MapViewer from './_components/MapViewer'
-import type { Option } from './_components/SearchableSelect'
+import SearchableSelect, { Option } from './_components/SearchableSelect'
 import SurveyForm from './_components/SurveyForm'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-
-// Import DialogTitle dan VisuallyHidden dari Radix UI
 import { DialogTitle } from '@radix-ui/react-dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+
+// Import data RAB
+import { gk1 } from '@/lib/data/gambar_konstruksi_1'
+import { tiangMaterial } from '@/lib/data/survey'
 
 // Type definition
 type SurveyData = {
@@ -308,6 +324,12 @@ export default function Page() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedMapSurvey, setSelectedMapSurvey] = useState<string | null>(
+    null
+  )
+
+  // State untuk Export RAB
+  const [isRABModalOpen, setIsRABModalOpen] = useState(false)
+  const [selectedRABSurvey, setSelectedRABSurvey] = useState<Option | null>(
     null
   )
 
@@ -389,6 +411,19 @@ export default function Page() {
                   onClick={() => setSelectedMapSurvey(surveyName)}
                 >
                   Lihat Map
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsRABModalOpen(true)
+                    setSelectedRABSurvey({
+                      value: surveyName,
+                      label: surveyName
+                    })
+                  }}
+                >
+                  Export RAB
                 </Button>
               </div>
 
@@ -546,7 +581,162 @@ export default function Page() {
         </SheetContent>
       </Sheet>
 
-      <div className="mt-8">
+      {/* Export RAB Modal */}
+      <Sheet open={isRABModalOpen} onOpenChange={setIsRABModalOpen}>
+        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto">
+          <VisuallyHidden>
+            <DialogTitle>Export RAB</DialogTitle>
+          </VisuallyHidden>
+          <h2 className="text-lg font-bold mb-4">Export RAB</h2>
+          <div className="mb-4">
+            <Label>Pilih Survey</Label>
+            <SearchableSelect
+              options={surveyNames}
+              value={selectedRABSurvey ? selectedRABSurvey.value : ''}
+              onValueChange={value => {
+                const option =
+                  surveyNames.find(opt => opt.value === value) || null
+                setSelectedRABSurvey(option)
+              }}
+              placeholder="Pilih Survey"
+            />
+          </div>
+          {selectedRABSurvey && (
+            <>
+              {(() => {
+                const surveysForRAB = submittedSurveys.filter(
+                  s => s.surveyName === selectedRABSurvey.value
+                )
+                // Ambil unique id tiang dari surveys
+                const tiangIds = Array.from(
+                  new Set(surveysForRAB.map(s => s.tiang))
+                )
+                const filteredTiang = tiangMaterial.filter(material =>
+                  tiangIds.includes(material.id)
+                )
+                // Ambil unique id konstruksi dari surveys
+                const konstruksiIds = Array.from(
+                  new Set(surveysForRAB.map(s => s.konstruksi))
+                )
+                const filteredKonstruksi = gk1.filter(kon =>
+                  konstruksiIds.includes(kon.id)
+                )
+                return (
+                  <>
+                    <div className="mb-6">
+                      <h3 className="text-md font-semibold mb-2">
+                        Detail Tiang Material
+                      </h3>
+                      <table className="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                          <tr>
+                            <th className="border p-2">ID</th>
+                            <th className="border p-2">Nama</th>
+                            <th className="border p-2">Berat (kg)</th>
+                            <th className="border p-2">HPS RAB</th>
+                            <th className="border p-2">Pasang RAB</th>
+                            <th className="border p-2">Bongkar</th>
+                            <th className="border p-2">Jenis Material</th>
+                            <th className="border p-2">Kategori</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredTiang.map((material, index) => (
+                            <tr key={index}>
+                              <td className="border p-2">{material.id}</td>
+                              <td className="border p-2">{material.nama}</td>
+                              <td className="border p-2">
+                                {material.berat_kg}
+                              </td>
+                              <td className="border p-2">
+                                {material.harga_2024.hps_rab}
+                              </td>
+                              <td className="border p-2">
+                                {material.harga_2024.pasang_rab}
+                              </td>
+                              <td className="border p-2">
+                                {material.harga_2024.bongkar}
+                              </td>
+                              <td className="border p-2">
+                                {material.jenis_material}
+                              </td>
+                              <td className="border p-2">
+                                {material.kategori}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div>
+                      <h3 className="text-md font-semibold mb-2">
+                        Detail Konstruksi
+                      </h3>
+                      <table className="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                          <tr>
+                            <th className="border p-2">ID</th>
+                            <th className="border p-2">Nama Konstruksi</th>
+                            <th className="border p-2">No</th>
+                            <th className="border p-2">Nama Material</th>
+                            <th className="border p-2">Satuan</th>
+                            <th className="border p-2">Kuantitas</th>
+                            <th className="border p-2">HPS RAB</th>
+                            <th className="border p-2">Pasang RAB</th>
+                            <th className="border p-2">Bongkar</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredKonstruksi.map((konstruksi, index) => (
+                            <React.Fragment key={index}>
+                              <tr>
+                                <td
+                                  className="border p-2 align-middle"
+                                  rowSpan={
+                                    konstruksi.Detail_Material.length + 1
+                                  }
+                                >
+                                  {konstruksi.id}
+                                </td>
+                                <td
+                                  className="border p-2 align-middle"
+                                  rowSpan={
+                                    konstruksi.Detail_Material.length + 1
+                                  }
+                                >
+                                  {konstruksi.Nama_Konstruksi}
+                                </td>
+                              </tr>
+                              {konstruksi.Detail_Material.map((detail, idx) => (
+                                <tr key={idx}>
+                                  <td className="border p-2">{detail.nomor}</td>
+                                  <td className="border p-2">{detail.nama}</td>
+                                  <td className="border p-2">
+                                    {detail.satuan}
+                                  </td>
+                                  <td className="border p-2">
+                                    {detail.kuantitas}
+                                  </td>
+                                  <td className="border p-2">100rb</td>
+                                  <td className="border p-2">100rb</td>
+                                  <td className="border p-2">100rb</td>
+                                </tr>
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )
+              })()}
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      <div className="mt-8 w-screen overflow-y-auto">
         <h2 className="text-lg font-bold">Debug Submitted Surveys JSON</h2>
         <pre className="p-4 bg-background rounded">
           {JSON.stringify(submittedSurveys, null, 2)}
