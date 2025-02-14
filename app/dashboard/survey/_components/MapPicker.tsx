@@ -11,9 +11,10 @@ export default function MapPicker({
   initialPosition: { lat: number; lng: number }
   onPositionChange: (pos: { lat: number; lng: number }) => void
 }) {
-  const initialCoord = initialPosition.lat
-    ? fromLonLat([initialPosition.lng, initialPosition.lat])
-    : fromLonLat([106.8272, -6.1754])
+  const initialCoord =
+    initialPosition.lat && initialPosition.lng
+      ? fromLonLat([initialPosition.lng, initialPosition.lat])
+      : fromLonLat([106.8272, -6.1754])
   const [center, setCenter] = useState(initialCoord)
 
   return (
@@ -32,7 +33,7 @@ export default function MapPicker({
       >
         <ROSM />
       </RMap>
-      {/* Pin fixed di tengah */}
+      {/* Pin overlay tetap di tengah */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
         <svg
           width="32"

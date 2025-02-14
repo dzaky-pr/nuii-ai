@@ -13,22 +13,48 @@ import {
 } from '@/components/ui/sheet'
 import { dummyLocations, tiangMaterial } from '@/lib/data/survey'
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { gk1 } from '@/lib/data/gambar_konstruksi_1'
-import Webcam from 'react-webcam'
+import { Camera } from 'react-camera-pro'
 import { toast } from 'sonner'
 import MapPicker from './MapPicker'
 import SearchableSelect, { Option } from './SearchableSelect'
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogPortal,
+  DialogTitle
+} from '@/components/ui/dialog'
+
+// Definisi tipe data Survey (sama dengan di page.tsx)
+export type SurveyData = {
+  surveyName: string
+  location: string
+  penyulang: string
+  tiang: string
+  konstruksi: string
+  jenisKonduktor: string
+  panjangJaringan: string
+  coordinates: { lat: number; lng: number }
+  photo: string
+  keterangan: string
+  petugas: string
+}
+
 export default function SurveyForm({
   onSubmit,
   surveyNames,
-  setSurveyNames
+  setSurveyNames,
+  submittedSurveys // <-- Prop baru untuk akses data survey yang telah disubmit
 }: {
   onSubmit: (data: any) => void
   surveyNames: Option[]
   setSurveyNames: (opts: Option[]) => void
+  submittedSurveys: SurveyData[]
 }) {
   const [isDirty, setIsDirty] = useState(false)
   const [showMap, setShowMap] = useState(false)
@@ -39,16 +65,15 @@ export default function SurveyForm({
   const [showCamera, setShowCamera] = useState(false)
   const [useCustomSurvey, setUseCustomSurvey] = useState(false)
   const [customSurveyName, setCustomSurveyName] = useState('')
-  const [submittedSurveys, setSubmittedSurveys] = useState<
-    Array<typeof formData>
-  >([])
 
   const [formData, setFormData] = useState({
     surveyName: '',
+    namaPekerjaan: '',
     location: '',
     penyulang: '',
     tiang: '',
     konstruksi: '',
+    jenisKonduktor: '',
     panjangJaringan: '',
     coordinates: { lat: 0, lng: 0 },
     photo: '',
@@ -56,7 +81,8 @@ export default function SurveyForm({
     petugas: ''
   })
   const [isOpen, setIsOpen] = useState(false)
-  const webcamRef = useRef<Webcam>(null)
+  const [showCameraDialog, setShowCameraDialog] = useState(false)
+  const cameraRef = useRef<any>(null)
 
   const videoConstraints = {
     facingMode: { exact: 'environment' } // gunakan kamera belakang
@@ -71,6 +97,18 @@ export default function SurveyForm({
     setIsDirty(!isFormEmpty)
   }, [formData])
 
+  // Jika user memilih survey name yang sudah ada, secara otomatis set ULP sesuai survey pertama dengan nama tersebut
+  useEffect(() => {
+    if (!useCustomSurvey && formData.surveyName) {
+      const found = submittedSurveys.find(
+        survey => survey.surveyName === formData.surveyName
+      )
+      if (found) {
+        setFormData(prev => ({ ...prev, location: found.location }))
+      }
+    }
+  }, [formData.surveyName, useCustomSurvey, submittedSurveys])
+
   const handleClose = () => {
     if (isDirty) {
       setShowConfirm(true)
@@ -83,10 +121,12 @@ export default function SurveyForm({
   const resetForm = () => {
     setFormData({
       surveyName: '',
+      namaPekerjaan: '',
       location: '',
       penyulang: '',
       tiang: '',
       konstruksi: '',
+      jenisKonduktor: '',
       panjangJaringan: '',
       coordinates: { lat: 0, lng: 0 },
       photo: '',
@@ -99,30 +139,6 @@ export default function SurveyForm({
     setShowCamera(false)
     setCustomSurveyName('')
     setUseCustomSurvey(false)
-  }
-
-  const initializeCamera = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ video: true })
-      setCameraAllowed(true)
-      setShowCamera(true)
-    } catch (error) {
-      alert('Akses kamera ditolak!')
-    }
-  }
-
-  const capturePhoto = useCallback(() => {
-    const imageSrc = webcamRef.current?.getScreenshot()
-    if (imageSrc) {
-      setFormData(prev => ({ ...prev, photo: imageSrc }))
-      setHasPhoto(true)
-    }
-  }, [])
-
-  const retakePhoto = () => {
-    setFormData(prev => ({ ...prev, photo: '' }))
-    setHasPhoto(false)
-    setShowCamera(true)
   }
 
   const getLocation = () => {
@@ -138,7 +154,7 @@ export default function SurveyForm({
           setShowMap(true)
         },
         error => {
-          console.error('Error getting location:', error)
+          console.error('Error mendapatkan lokasi:', error)
           toast.error('Gagal mendapatkan lokasi!')
         }
       )
@@ -171,6 +187,21 @@ export default function SurveyForm({
     setIsOpen(false)
   }
 
+  // Cek apakah survey name yang dipilih sudah ada (untuk menentukan tampilan ULP)
+  const existingSurvey =
+    !useCustomSurvey && formData.surveyName
+      ? submittedSurveys.find(
+          survey => survey.surveyName === formData.surveyName
+        )
+      : null
+
+  useEffect(() => {
+    if (!showCameraDialog) {
+      // Opsional: Bersihkan ref saat dialog tertutup
+      cameraRef.current = null
+    }
+  }, [showCameraDialog])
+
   return (
     <div className="p-4">
       <Sheet
@@ -200,7 +231,7 @@ export default function SurveyForm({
           <SheetHeader>
             <SheetTitle>Form Survey Lapangan</SheetTitle>
             <SheetDescription>
-              Iisi semua data dengan lengkap dan akurat
+              Isi semua data dengan lengkap dan akurat
             </SheetDescription>
           </SheetHeader>
 
@@ -243,7 +274,7 @@ export default function SurveyForm({
                 />
               ) : (
                 <SearchableSelect
-                  options={surveyNames} // sekarang hanya dari surveyNames, bisa kosong
+                  options={surveyNames}
                   onValueChange={value =>
                     setFormData(prev => ({ ...prev, surveyName: value }))
                   }
@@ -252,16 +283,43 @@ export default function SurveyForm({
               )}
             </div>
 
+            {/* Nama Pekerjaan */}
+            <div className="grid gap-2">
+              <Label>Nama Pekerjaan</Label>
+              <SearchableSelect
+                options={[
+                  { value: 'Pasang Baru', label: 'Pasang Baru' },
+                  { value: 'Perubahan Daya', label: 'Perubahan Daya' },
+                  { value: 'PFK', label: 'PFK' },
+                  {
+                    value: 'Konfigurasi Jaringan',
+                    label: 'Konfigurasi Jaringan'
+                  },
+                  { value: 'Penyulang Baru', label: 'Penyulang Baru' }
+                ]}
+                onValueChange={value =>
+                  setFormData(prev => ({ ...prev, namaPekerjaan: value }))
+                }
+                placeholder="Pilih Nama Pekerjaan"
+              />
+            </div>
+
             {/* Lokasi/ULP */}
             <div className="grid gap-2">
               <Label>Lokasi/ULP</Label>
-              <SearchableSelect
-                options={dummyLocations}
-                onValueChange={value =>
-                  setFormData(prev => ({ ...prev, location: value }))
-                }
-                placeholder="Pilih Lokasi"
-              />
+              {existingSurvey ? (
+                // Jika survey name sudah ada, tampilkan ULP secara read-only
+                <Input value={existingSurvey.location} readOnly />
+              ) : (
+                // Jika survey name baru, biarkan user memilih ULP dari dummyLocations
+                <SearchableSelect
+                  options={dummyLocations}
+                  onValueChange={value =>
+                    setFormData(prev => ({ ...prev, location: value }))
+                  }
+                  placeholder="Pilih Lokasi"
+                />
+              )}
             </div>
 
             {/* Penyulang */}
@@ -307,6 +365,27 @@ export default function SurveyForm({
               />
             </div>
 
+            {/* Jenis Konduktor */}
+            <div className="grid gap-2">
+              <Label>Jenis Konduktor</Label>
+              <SearchableSelect
+                options={[
+                  {
+                    value: 'AAAC-S 150 sqmm (SPLN)',
+                    label: 'AAAC-S 150 sqmm (SPLN)'
+                  },
+                  {
+                    value: 'AAAC-S 240 sqmm (SPLN)',
+                    label: 'AAAC-S 240 sqmm (SPLN)'
+                  }
+                ]}
+                onValueChange={value =>
+                  setFormData(prev => ({ ...prev, jenisKonduktor: value }))
+                }
+                placeholder="Pilih Jenis Konduktor"
+              />
+            </div>
+
             {/* Panjang Jaringan */}
             <div className="grid gap-2">
               <Label htmlFor="panjangJaringan">Panjang Jaringan (meter)</Label>
@@ -348,21 +427,21 @@ export default function SurveyForm({
               </div>
             </div>
 
-            {/* Modal Peta */}
-            {showMap && (
-              <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center">
-                <div className="bg-background p-6 rounded-lg w-full max-w-4xl">
-                  <h3 className="text-lg font-bold mb-4">
-                    Atur Lokasi di Peta
-                  </h3>
+            {/* Modal Peta dengan Dialog shadcn */}
+            <Dialog open={showMap} onOpenChange={setShowMap}>
+              <DialogPortal>
+                <DialogContent className="bg-background p-6 rounded-lg w-full max-w-4xl overflow-y-auto max-h-[90vh]">
+                  <DialogHeader>
+                    <DialogTitle>Atur Lokasi di Peta</DialogTitle>
+                    <DialogDescription>
+                      Geser peta untuk menyesuaikan lokasi yang diinginkan.
+                    </DialogDescription>
+                  </DialogHeader>
                   <MapPicker
                     initialPosition={formData.coordinates}
-                    onPositionChange={newPos => {
-                      setFormData(prev => ({
-                        ...prev,
-                        coordinates: newPos
-                      }))
-                    }}
+                    onPositionChange={newPos =>
+                      setFormData(prev => ({ ...prev, coordinates: newPos }))
+                    }
                   />
                   <div className="mt-4 flex justify-end gap-2">
                     <Button onClick={() => setShowMap(false)}>
@@ -382,9 +461,9 @@ export default function SurveyForm({
                       Batal
                     </Button>
                   </div>
-                </div>
-              </div>
-            )}
+                </DialogContent>
+              </DialogPortal>
+            </Dialog>
             {/* Foto */}
             <div className="grid gap-2">
               <Label>Foto Titik Survey</Label>
@@ -397,31 +476,64 @@ export default function SurveyForm({
                     height={192}
                     className="object-cover"
                   />
-                  <Button type="button" onClick={retakePhoto}>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      setFormData(prev => ({ ...prev, photo: '' }))
+                    }
+                  >
                     Ambil Ulang Foto
                   </Button>
                 </>
               ) : (
-                <>
-                  {showCamera && cameraAllowed && (
-                    <Webcam
-                      audio={false}
-                      ref={webcamRef}
-                      screenshotFormat="image/jpeg"
-                      videoConstraints={videoConstraints}
-                      className="h-48"
-                    />
-                  )}
-
-                  <Button
-                    type="button"
-                    onClick={!cameraAllowed ? initializeCamera : capturePhoto}
-                  >
-                    {hasPhoto ? 'Ambil Ulang Foto' : 'Ambil Foto'}
-                  </Button>
-                </>
+                <Button type="button" onClick={() => setShowCameraDialog(true)}>
+                  Ambil Foto
+                </Button>
               )}
             </div>
+
+            {/* Dialog kamera */}
+
+            <Dialog open={showCameraDialog} onOpenChange={setShowCameraDialog}>
+              <DialogPortal>
+                <DialogContent className="bg-background p-6 rounded-lg w-full max-w-4xl overflow-y-auto max-h-[90vh]">
+                  <DialogHeader>
+                    <DialogTitle>Ambil Foto</DialogTitle>
+                    <DialogDescription>
+                      Pastikan kamera menghadap dengan benar.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Camera
+                    ref={cameraRef}
+                    aspectRatio={1 / 1}
+                    facingMode="environment"
+                    errorMessages={{
+                      noCameraAccessible: 'No camera device accessible',
+                      permissionDenied: 'Permission denied',
+                      switchCamera: 'Switch camera',
+                      canvas: 'Canvas not supported'
+                    }}
+                  />
+                  <div className="mt-4 flex justify-end gap-2">
+                    <Button
+                      onClick={() => {
+                        const photo = cameraRef.current.takePhoto()
+                        setFormData(prev => ({ ...prev, photo }))
+                        setShowCameraDialog(false)
+                      }}
+                    >
+                      Ambil Foto
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCameraDialog(false)}
+                    >
+                      Batal
+                    </Button>
+                  </div>
+                </DialogContent>
+              </DialogPortal>
+            </Dialog>
 
             {/* Keterangan */}
             <div className="grid gap-2">
