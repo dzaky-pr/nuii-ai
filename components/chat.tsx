@@ -28,6 +28,7 @@ export function Chat({
     data,
     setData
   } = useChat({
+    streamProtocol: 'text',
     initialMessages: savedMessages,
     id: CHAT_ID,
     body: {

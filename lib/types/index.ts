@@ -113,3 +113,10 @@ export type SearXNGSearchResults = {
   number_of_results?: number
   query: string
 }
+
+export interface FastAPIResponse {
+  message: string
+  image?: string
+  answer: string
+  context: string
+}
