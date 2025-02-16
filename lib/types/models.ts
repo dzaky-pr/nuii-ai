@@ -3,16 +3,17 @@ export interface Model {
   name: string
   provider: string
   providerId: string
+  endpoint?: string
 }
 
 export const models: Model[] = [
   {
-    id: 'km-pln-ai',
-    provider: 'KM PLN',
-    providerId: 'km-pln',
-    name: 'KM PLN Assistant'
+    id: 'nuii-ai',
+    name: 'nuii-ai',
+    provider: 'NUII AI',
+    providerId: 'nuii-ai',
+    endpoint: 'https://2jn9o6pnnztizk-11436.proxy.runpod.net/tanya'
   },
-
   {
     id: 'llama-3.3-70b-versatile',
     name: 'llama-3.3-70b-versatile',
@@ -30,17 +31,5 @@ export const models: Model[] = [
     name: 'mixtral-8x7b-32768',
     provider: 'Groq',
     providerId: 'groq'
-  },
-  {
-    id: 'accounts/fireworks/models/deepseek-r1',
-    name: 'DeepSeek R1',
-    provider: 'Fireworks',
-    providerId: 'fireworks'
-  },
-  {
-    id: 'accounts/fireworks/models/llama-v3p1-405b-instruct',
-    name: 'llama-v3p1-405b-instruct',
-    provider: 'Fireworks',
-    providerId: 'fireworks'
   }
 ]

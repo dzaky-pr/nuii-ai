@@ -221,27 +221,3 @@ export function convertToExtendedCoreMessages(
 
   return result
 }
-
-export const parseResponse = (rawData: string) => {
-  try {
-    // Remove the "data: " prefix if present
-    const jsonStr = rawData.startsWith('data: ')
-      ? rawData.replace('data: ', '')
-      : rawData
-    const parsed = JSON.parse(jsonStr)
-    const messageData = parsed.messageData
-    const answer = messageData.content
-    const image = messageData.data?.image || null
-    const context = messageData.data?.context
-      ? JSON.parse(messageData.data.context)
-      : []
-    return {
-      answer,
-      image,
-      context: Array.isArray(context) ? context : [context]
-    }
-  } catch (error) {
-    console.error('Error parsing response:', error)
-    return { answer: 'Error parsing response', image: null, context: [] }
-  }
-}

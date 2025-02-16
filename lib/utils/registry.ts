@@ -10,6 +10,7 @@ import {
   extractReasoningMiddleware,
   wrapLanguageModel
 } from 'ai'
+
 import { createOllama } from 'ollama-ai-provider'
 
 export const registry = createProviderRegistry({
@@ -34,6 +35,9 @@ export const registry = createProviderRegistry({
   'openai-compatible': createOpenAI({
     apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
     baseURL: process.env.OPENAI_COMPATIBLE_API_BASE_URL
+  }),
+  'nuii-ai': createOllama({
+    baseURL: 'https://2jn9o6pnnztizk-11436.proxy.runpod.net' // Sesuaikan dengan endpoint server kamu
   })
 })
 
@@ -53,11 +57,17 @@ export function getModel(model: string) {
         })
       })
     }
+    console.log('Requested Model:', model)
+    if (model.includes('nuii-ai')) {
+      const ollama = createOllama({
+        baseURL: `https://2jn9o6pnnztizk-11436.proxy.runpod.net/tanya`
+      })
 
-    // if ollama provider, set simulateStreaming to true
-    return ollama(modelName, {
-      simulateStreaming: true
-    })
+      // if ollama provider, set simulateStreaming to true
+      return ollama(modelName, {
+        simulateStreaming: true
+      })
+    }
   }
 
   // if model is groq and includes deepseek-r1, add reasoning middleware
@@ -107,6 +117,8 @@ export function isProviderEnabled(providerId: string): boolean {
         !!process.env.OPENAI_COMPATIBLE_API_BASE_URL &&
         !!process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL
       )
+    case 'nuii-ai':
+      return true
     default:
       return false
   }

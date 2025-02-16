@@ -3,20 +3,20 @@ import { ArrowRight } from 'lucide-react'
 
 const exampleMessages = [
   {
-    heading: 'What is DeepSeek R1?',
-    message: 'What is DeepSeek R1?'
+    heading: 'Siapakah Anda?',
+    message: 'Siapakah Anda?'
   },
   {
-    heading: 'Why is Nvidia growing rapidly?',
-    message: 'Why is Nvidia growing rapidly?'
+    heading: 'Bagaimana NUII Mendapatkan Informasi?',
+    message: 'Bagaimana NUII Mendapatkan Informasi?'
   },
   {
-    heading: 'Tesla vs Rivian',
-    message: 'Tesla vs Rivian'
+    heading: 'Apa itu "Konstruksi SUTM Tiang Akhir (End Pole) TM-4N"?',
+    message: 'Apa itu "Konstruksi SUTM Tiang Akhir (End Pole) TM-4N"?'
   },
   {
-    heading: 'Summary: https://arxiv.org/pdf/2501.05707',
-    message: 'Summary: https://arxiv.org/pdf/2501.05707'
+    heading: 'Jelaskan Cross Arm NP!',
+    message: 'Jelaskan Cross Arm NP!'
   }
 ]
 export function EmptyScreen({
