@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from 'react'
 import Textarea from 'react-textarea-autosize'
 import { EmptyScreen } from './empty-screen'
 import Footer from './footer'
-import { ModelSelector } from './model-selector'
 import { SearchModeToggle } from './search-mode-toggle'
 import { Button } from './ui/button'
 import { IconLogo } from './ui/icons'
@@ -23,6 +22,7 @@ interface ChatPanelProps {
   query?: string
   stop: () => void
   append: (message: any) => void
+  onSearchModeToggle: (isSearchMode: boolean) => void
 }
 
 export function ChatPanel({
@@ -34,14 +34,15 @@ export function ChatPanel({
   setMessages,
   query,
   stop,
-  append
+  append,
+  onSearchModeToggle
 }: ChatPanelProps) {
   const [showEmptyScreen, setShowEmptyScreen] = useState(false)
   const router = useRouter()
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const isFirstRender = useRef(true)
-  const [isComposing, setIsComposing] = useState(false) // Composition state
-  const [enterDisabled, setEnterDisabled] = useState(false) // Disable Enter after composition ends
+  const [isComposing, setIsComposing] = useState(false)
+  const [enterDisabled, setEnterDisabled] = useState(false)
 
   const handleCompositionStart = () => setIsComposing(true)
 
@@ -58,7 +59,7 @@ export function ChatPanel({
     router.push('/dashboard/chat')
   }
 
-  // if query is not empty, submit the query
+  // jika query tidak kosong, submit query-nya
   useEffect(() => {
     if (isFirstRender.current && query && query.trim().length > 0) {
       append({
@@ -129,11 +130,10 @@ export function ChatPanel({
               onBlur={() => setShowEmptyScreen(false)}
             />
 
-            {/* Bottom menu area */}
+            {/* Area menu bawah */}
             <div className="flex gap-2 sm:gap-0 sm:flex-row flex-col items-center flex-wrap justify-between p-3">
               <div className="flex items-center gap-2 w-full sm:w-fit justify-start">
-                <ModelSelector />
-                <SearchModeToggle />
+                <SearchModeToggle onToggle={onSearchModeToggle} />
               </div>
               <div className="flex items-center gap-2 w-full sm:w-fit justify-end">
                 {messages.length > 0 && (
@@ -150,8 +150,8 @@ export function ChatPanel({
                 )}
                 <Button
                   type={isLoading ? 'button' : 'submit'}
-                  size={'icon'}
-                  variant={'outline'}
+                  size="icon"
+                  variant="outline"
                   className={cn(isLoading && 'animate-pulse', 'rounded-full')}
                   disabled={input.length === 0 && !isLoading}
                   onClick={isLoading ? stop : undefined}

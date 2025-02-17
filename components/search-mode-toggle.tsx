@@ -6,7 +6,11 @@ import { Globe } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Toggle } from './ui/toggle'
 
-export function SearchModeToggle() {
+interface SearchModeToggleProps {
+  onToggle: (isSearchMode: boolean) => void
+}
+
+export function SearchModeToggle({ onToggle }: SearchModeToggleProps) {
   const [isSearchMode, setIsSearchMode] = useState(true)
 
   useEffect(() => {
@@ -19,6 +23,7 @@ export function SearchModeToggle() {
   const handleSearchModeChange = (pressed: boolean) => {
     setIsSearchMode(pressed)
     setCookie('search-mode', pressed.toString())
+    onToggle(pressed) // Call onToggle when the state changes
   }
 
   return (

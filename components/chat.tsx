@@ -1,9 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { CHAT_ID } from '@/lib/constants'
-import { models } from '@/lib/types/models'
-import { getCookie } from '@/lib/utils/cookies'
+import { getCookie, setCookie } from '@/lib/utils/cookies'
 import { Message, useChat } from 'ai/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -22,17 +20,25 @@ export function Chat({
   const [selectedModelId, setSelectedModelId] = useState<string>('')
 
   useEffect(() => {
-    const savedModel = getCookie('selected-model') || id
-    setSelectedModelId(savedModel)
-  }, [selectedModelId])
-
-  const selectedModel = models.find(m => m.id === selectedModelId)
+    // Set model id saat komponen pertama kali dipasang
+    const savedModel = getCookie('selected-model')
+    if (selectedModelId === '') {
+      setSelectedModelId(savedModel || '')
+    }
+  }, [selectedModelId, id])
 
   console.log('Selected Model ID:', selectedModelId)
-  console.log('Selected Model:', selectedModel)
 
-  const streamProtocol = selectedModelId === 'nuii-ai:nuii-ai' ? 'text' : 'data'
-  console.log('Stream Protocol:', streamProtocol)
+  // Tentukan stream protocol berdasarkan model
+  const dynamicStreamProtocol = selectedModelId === 'nuii-ai' ? 'text' : 'data'
+  console.log('Stream Protocol:', dynamicStreamProtocol)
+
+  const handleSearchModeToggle = (isSearchMode: boolean) => {
+    const newModelId = isSearchMode ? 'llama-3.3-70b-versatile' : 'nuii-ai'
+    setCookie('selected-model', newModelId)
+    setSelectedModelId(newModelId)
+    console.log(`DEBUG: Model changed to ${newModelId}`)
+  }
 
   const {
     messages,
@@ -46,7 +52,7 @@ export function Chat({
     data,
     setData
   } = useChat({
-    streamProtocol: selectedModelId === 'nuii-ai:nuii-ai' ? 'text' : 'data', // Kondisi berdasarkan model
+    streamProtocol: dynamicStreamProtocol,
     initialMessages: savedMessages,
     id: CHAT_ID,
     body: {
@@ -75,7 +81,7 @@ export function Chat({
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setData(undefined) // reset data to clear tool call
+    setData(undefined)
     handleSubmit(e)
   }
 
@@ -98,6 +104,7 @@ export function Chat({
         stop={stop}
         query={query}
         append={append}
+        onSearchModeToggle={handleSearchModeToggle}
       />
     </div>
   )
