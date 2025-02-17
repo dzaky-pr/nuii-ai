@@ -7,16 +7,8 @@ export function getMaxAllowedTokens(modelId: string): number {
   let contextWindow: number
   let reserveTokens: number
 
-  if (modelId.includes('deepseek')) {
-    contextWindow = 64_000
-    reserveTokens = 27_000
-  } else if (modelId.includes('claude')) {
-    contextWindow = 200_000
-    reserveTokens = 40_000
-  } else {
-    contextWindow = DEFAULT_CONTEXT_WINDOW
-    reserveTokens = DEFAULT_RESERVE_TOKENS
-  }
+  contextWindow = DEFAULT_CONTEXT_WINDOW
+  reserveTokens = DEFAULT_RESERVE_TOKENS
 
   return contextWindow - reserveTokens
 }

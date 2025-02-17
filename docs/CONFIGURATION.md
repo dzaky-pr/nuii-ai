@@ -119,20 +119,6 @@ For detailed configuration options, refer to the [SearXNG documentation](https:/
 docker-compose logs searxng
 ```
 
-## Additional AI Providers
-
-### Google Generative AI
-
-```bash
-GOOGLE_GENERATIVE_AI_API_KEY=[YOUR_API_KEY]
-```
-
-### Anthropic
-
-```bash
-ANTHROPIC_API_KEY=[YOUR_API_KEY]
-```
-
 ### Groq
 
 ```bash
@@ -143,23 +129,6 @@ GROQ_API_KEY=[YOUR_API_KEY]
 
 ```bash
 OLLAMA_BASE_URL=http://localhost:11434
-```
-
-### Azure OpenAI
-
-```bash
-AZURE_API_KEY=[YOUR_API_KEY]
-AZURE_RESOURCE_NAME=[YOUR_RESOURCE_NAME]
-NEXT_PUBLIC_AZURE_DEPLOYMENT_NAME=[YOUR_DEPLOYMENT_NAME]
-```
-
-### DeepSeek
-
-Note: Deepseek function calling is currently unstable: https://github.com/vercel/ai/issues/4313#issuecomment-2587891644
-If you want to use Deepseek, remove the comment and add it to the models array: https://github.com/miurla/morphic/blob/main/lib/types/models.ts
-
-```
-# DEEPSEEK_API_KEY=[YOUR_API_KEY]
 ```
 
 ## Other Features

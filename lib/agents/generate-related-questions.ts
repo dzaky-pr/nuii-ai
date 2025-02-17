@@ -1,10 +1,6 @@
 import { relatedSchema } from '@/lib/schema/related'
 import { CoreMessage, generateObject } from 'ai'
-import {
-  getModel,
-  getToolCallModel,
-  isToolCallSupported
-} from '../utils/registry'
+import { getModel, getToolCallModel } from '../utils/registry'
 
 export async function generateRelatedQuestions(
   messages: CoreMessage[],
@@ -15,10 +11,8 @@ export async function generateRelatedQuestions(
     role: 'user'
   })) as CoreMessage[]
 
-  const supportedModel = isToolCallSupported(model)
-  const currentModel = supportedModel
-    ? getModel(model)
-    : getToolCallModel(model)
+  // Langsung memilih model berdasarkan nama model
+  const currentModel = getModel(model) || getToolCallModel(model)
 
   const result = await generateObject({
     model: currentModel,

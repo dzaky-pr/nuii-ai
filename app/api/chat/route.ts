@@ -1,6 +1,5 @@
 import { createManualToolStreamResponse } from '@/lib/streaming/create-manual-tool-stream'
-import { createToolCallingStreamResponse } from '@/lib/streaming/create-tool-calling-stream'
-import { isProviderEnabled, isToolCallSupported } from '@/lib/utils/registry'
+import { isProviderEnabled } from '@/lib/utils/registry'
 import { cookies } from 'next/headers'
 
 export const maxDuration = 30
@@ -77,11 +76,13 @@ export async function POST(req: Request) {
       })
     }
 
-    // Untuk provider lain, gunakan mekanisme streaming yang ada
-    const supportsToolCalling = isToolCallSupported(model)
-    return supportsToolCalling
-      ? createToolCallingStreamResponse({ messages, model, chatId, searchMode })
-      : createManualToolStreamResponse({ messages, model, chatId, searchMode })
+    // Gunakan createManualToolStreamResponse untuk semua provider lain
+    return createManualToolStreamResponse({
+      messages,
+      model,
+      chatId,
+      searchMode
+    })
   } catch (error) {
     console.error('API route error:', error)
     return new Response(

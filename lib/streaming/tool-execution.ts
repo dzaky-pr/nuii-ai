@@ -29,6 +29,9 @@ export async function executeToolCall(
   }
 
   const toolCallModel = getToolCallModel(model)
+  if (!toolCallModel) {
+    throw new Error('No valid tool call model found')
+  }
   // Convert Zod schema to string representation
   const searchSchemaString = Object.entries(searchSchema.shape)
     .map(([key, value]) => {
