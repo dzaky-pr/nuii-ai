@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 
 export const maxDuration = 30
 const DEFAULT_MODEL = 'llama-3.3-70b-versatile'
+const DEFAULT_PROVIDER = 'qrog'
 
 export async function POST(req: Request) {
   try {
@@ -19,10 +20,10 @@ export async function POST(req: Request) {
     }
 
     const cookieStore = await cookies()
-    const modelFromCookie = cookieStore.get('selected-model')?.value
+    const modelProviderFromCookie = cookieStore.get('selected-model')?.value
     const searchMode = cookieStore.get('search-mode')?.value === 'true'
-    const model = modelFromCookie || DEFAULT_MODEL
-    const provider = model.split(':')[0]
+    const provider = modelProviderFromCookie?.split(':')[0] || DEFAULT_PROVIDER
+    const model = modelProviderFromCookie || DEFAULT_MODEL
 
     if (!isProviderEnabled(provider)) {
       return new Response(`Selected provider is not enabled ${provider}`, {
