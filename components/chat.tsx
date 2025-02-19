@@ -20,7 +20,7 @@ export function Chat({
   query?: string
 }) {
   const [selectedModelId, setSelectedModelId] = useState<string>(() => {
-    return getCookie('selected-model') ?? ''
+    return getCookie('selected-model') ?? 'groq:llama-3.3-70b-versatile'
   })
   const [dynamicStreamProtocol, setDynamicStreamProtocol] =
     useState<StreamProtocol>('data')
