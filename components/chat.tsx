@@ -19,13 +19,20 @@ export function Chat({
   savedMessages?: Message[]
   query?: string
 }) {
-  const [selectedModelId, setSelectedModelId] = useState<string>(() => {
-    return getCookie('selected-model') ?? 'groq:llama-3.3-70b-versatile'
-  })
+  const [selectedModelId, setSelectedModelId] = useState<string>('')
   const [dynamicStreamProtocol, setDynamicStreamProtocol] =
     useState<StreamProtocol>('data')
 
   useEffect(() => {
+    const modelFromCookie = getCookie('selected-model')
+
+    if (!modelFromCookie) {
+      setCookie('selected-model', 'groq:llama-3.3-70b-versatile')
+      setSelectedModelId('groq:llama-3.3-70b-versatile')
+    } else {
+      setSelectedModelId(modelFromCookie)
+    }
+
     setDynamicStreamProtocol(
       selectedModelId === 'nuii-ai:nuii-ai' ? 'text' : 'data'
     )

@@ -15,8 +15,10 @@ export function SearchModeToggle({ onToggle }: SearchModeToggleProps) {
 
   useEffect(() => {
     const savedMode = getCookie('search-mode')
-    if (savedMode !== null) {
-      setIsSearchMode(savedMode === 'true')
+
+    if (!savedMode) {
+      setCookie('search-mode', 'true')
+      setIsSearchMode(true)
     }
   }, [])
 

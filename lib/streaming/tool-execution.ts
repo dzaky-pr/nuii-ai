@@ -30,7 +30,6 @@ export async function executeToolCall(
 
   const toolCallModel = getToolCallModel(model)
   if (!toolCallModel) {
-    console.log('Model not found:', model)
     throw new Error('No valid tool call model found')
   }
   // Convert Zod schema to string representation

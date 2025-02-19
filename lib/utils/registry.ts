@@ -13,7 +13,6 @@ export const registry = createProviderRegistry({
 export function getModel(model: string) {
   const modelName = model.split(':')[1]
   if (model.includes('ollama')) {
-    console.log('Requested Model:', model)
     if (model.includes('nuii-ai')) {
       const ollama = createOllama({
         baseURL: `https://2jn9o6pnnztizk-11436.proxy.runpod.net/tanya`
