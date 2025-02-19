@@ -44,6 +44,6 @@ export function getToolCallModel(model?: string) {
   const provider = model?.split(':')[0]
   switch (provider) {
     case 'groq':
-      return getModel('groq:llama-3.1-8b-instant')
+      return getModel('groq:llama-3.3-70b-versatile')
   }
 }

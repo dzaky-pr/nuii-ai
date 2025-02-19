@@ -8,6 +8,8 @@ import { toast } from 'sonner'
 import { ChatMessages } from './chat-messages'
 import { ChatPanel } from './chat-panel'
 
+type StreamProtocol = 'text' | 'data'
+
 export function Chat({
   id,
   savedMessages = [],
@@ -17,27 +19,24 @@ export function Chat({
   savedMessages?: Message[]
   query?: string
 }) {
-  const [selectedModelId, setSelectedModelId] = useState<string>('')
+  const [selectedModelId, setSelectedModelId] = useState<string>(() => {
+    return getCookie('selected-model') ?? 'groq:llama-3.3-70b-versatile'
+  })
+  const [dynamicStreamProtocol, setDynamicStreamProtocol] =
+    useState<StreamProtocol>('data')
 
   useEffect(() => {
-    // Set model id saat komponen pertama kali dipasang
-    const savedModel = getCookie('selected-model')
-    if (selectedModelId === '') {
-      setSelectedModelId(savedModel || '')
-    }
-  }, [selectedModelId, id])
-
-  console.log('Selected Model ID:', selectedModelId)
-
-  // Tentukan stream protocol berdasarkan model
-  const dynamicStreamProtocol = selectedModelId === 'nuii-ai' ? 'text' : 'data'
-  console.log('Stream Protocol:', dynamicStreamProtocol)
+    setDynamicStreamProtocol(
+      selectedModelId === 'nuii-ai:nuii-ai' ? 'text' : 'data'
+    )
+  }, [selectedModelId])
 
   const handleSearchModeToggle = (isSearchMode: boolean) => {
-    const newModelId = isSearchMode ? 'llama-3.3-70b-versatile' : 'nuii-ai'
+    const newModelId = isSearchMode
+      ? 'groq:llama-3.3-70b-versatile'
+      : 'nuii-ai:nuii-ai'
     setCookie('selected-model', newModelId)
     setSelectedModelId(newModelId)
-    console.log(`DEBUG: Model changed to ${newModelId}`)
   }
 
   const {
