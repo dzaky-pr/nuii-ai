@@ -11,6 +11,7 @@ import { SearchResultsImageSection } from './search-results-image'
 import { Section, ToolArgsSection } from './section'
 
 interface SearchSectionProps {
+  input: string
   tool: ToolInvocation
   isOpen: boolean
   onOpenChange: (open: boolean) => void
@@ -21,9 +22,7 @@ export function SearchSection({
   isOpen,
   onOpenChange
 }: SearchSectionProps) {
-  const { isLoading } = useChat({
-    id: CHAT_ID
-  })
+  const { isLoading } = useChat({ id: CHAT_ID })
   const isToolLoading = tool.state === 'call'
   const searchResults: TypeSearchResults =
     tool.state === 'result' ? tool.result : undefined
@@ -33,11 +32,19 @@ export function SearchSection({
     ? ` [${includeDomains.join(', ')}]`
     : ''
 
+  // Debug logs
+  // console.log('tool:', tool)
+  // console.log('isToolLoading:', isToolLoading)
+  // console.log('isLoading:', isLoading)
+  // console.log('searchResults:', searchResults)
+  // console.log('query:', query)
+  // console.log('includeDomains:', includeDomains)
+  // console.log('includeDomainsString:', includeDomainsString)
+
   const header = (
-    <ToolArgsSection
-      tool="search"
-      number={searchResults?.results?.length}
-    >{`${query}${includeDomainsString}`}</ToolArgsSection>
+    <ToolArgsSection tool="search" number={searchResults?.results?.length}>
+      {`${query}${includeDomainsString}`}
+    </ToolArgsSection>
   )
 
   return (
