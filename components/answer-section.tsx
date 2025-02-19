@@ -28,12 +28,19 @@ export function AnswerSection({
   }
 
   // Parsing JSON; jika gagal, gunakan content as-is sebagai answer
-  let parsed: { answer?: string; image?: string } = {}
+  let parsed: { answer?: string; image?: string | string[] } = {}
   try {
     parsed = JSON.parse(cleanedContent)
   } catch (e) {
     parsed.answer = cleanedContent
   }
+
+  // Pastikan parsed.image selalu dalam bentuk array
+  const images = Array.isArray(parsed.image)
+    ? parsed.image
+    : parsed.image
+    ? [parsed.image]
+    : []
 
   return (
     <CollapsibleMessage
@@ -54,18 +61,19 @@ export function AnswerSection({
         ) : (
           <DefaultSkeleton />
         )}
-        {parsed.image && (
-          <div className="mt-4">
-            <Image
-              src={`/${parsed.image}`}
-              alt="Answer image"
-              width={400}
-              height={300}
-              className="rounded"
-            />
-          </div>
-        )}
-        {parsed.image && <p>Gambar {parsed.image.split('/').pop()}</p>}
+        {images.length > 0 &&
+          images.map((img, index) => (
+            <div key={index} className="mt-4">
+              <Image
+                src={`/images/${img}`}
+                alt={`Answer image ${index + 1}`}
+                width={400}
+                height={300}
+                className="rounded"
+              />
+            </div>
+          ))}
+        {images.length > 0 && <p>Gambar: {images.join(', ')}</p>}
         <MessageActions
           message={parsed.answer || content}
           chatId={chatId}

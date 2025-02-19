@@ -5,7 +5,7 @@ RUN apk add --no-cache nodejs npm git
 
 WORKDIR /app
 
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install
 
 COPY . .
