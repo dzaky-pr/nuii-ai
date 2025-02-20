@@ -11,7 +11,6 @@ import { SearchResultsImageSection } from './search-results-image'
 import { Section, ToolArgsSection } from './section'
 
 interface SearchSectionProps {
-  input: string
   tool: ToolInvocation
   isOpen: boolean
   onOpenChange: (open: boolean) => void
@@ -26,8 +25,8 @@ export function SearchSection({
   const isToolLoading = tool.state === 'call'
   const searchResults: TypeSearchResults =
     tool.state === 'result' ? tool.result : undefined
-  const query = tool.args.query as string | undefined
-  const includeDomains = tool.args.includeDomains as string[] | undefined
+  const query = tool?.args?.query as string | undefined
+  const includeDomains = tool?.args?.includeDomains as string[] | undefined
   const includeDomainsString = includeDomains
     ? ` [${includeDomains.join(', ')}]`
     : ''
