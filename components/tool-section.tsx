@@ -16,7 +16,6 @@ export function ToolSection({ tool, isOpen, onOpenChange }: ToolSectionProps) {
     case 'search':
       return (
         <SearchSection
-          // input={tool?.args?.input as string}
           tool={tool}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
