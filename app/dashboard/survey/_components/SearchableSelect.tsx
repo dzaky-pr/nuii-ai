@@ -67,7 +67,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useState } from 'react'
+import { useDebounce } from '@/lib/utils/debounce'
+import { useMemo, useState } from 'react'
 
 export interface Option {
   value: string
@@ -79,20 +80,29 @@ interface SearchableSelectProps {
   value?: string
   onValueChange: (value: string) => void
   placeholder: string
+  isLoading?: boolean
 }
 
 export default function SearchableSelect({
   options,
   value,
   onValueChange,
-  placeholder
+  placeholder,
+  isLoading
 }: SearchableSelectProps) {
   const [query, setQuery] = useState('')
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(query.toLowerCase())
-  )
+  const debouncedQuery = useDebounce(query)
+
+  const filteredOptions = useMemo(() => {
+    if (isLoading) return []
+
+    return options.filter(option =>
+      option.label?.toLowerCase().includes(debouncedQuery.toLowerCase())
+    )
+  }, [options, debouncedQuery, isLoading])
+
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select value={value} onValueChange={onValueChange} disabled={isLoading}>
       <SelectTrigger>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
@@ -101,8 +111,9 @@ export default function SearchableSelect({
           <Input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Cari..."
+            placeholder={isLoading ? 'Loading...' : 'Cari...'}
             className="mb-2"
+            disabled={isLoading}
           />
           {filteredOptions.length > 0 ? (
             filteredOptions.map(option => (

@@ -1,0 +1,184 @@
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
+} from '@/components/ui/sheet'
+import useOverlayStore from '@/lib/hooks/useOverlayStore'
+import {
+  EditSurveyHeaderForm as IEditSurveyHeaderForm,
+  SurveyHeader,
+  UpdateSurveyHeader
+} from '@/lib/types/survey'
+import { useEffect, useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { useUpdateSurveyHeaderMutation } from '../_hooks/@update/useUpdateSurveyHeaderMutation'
+
+export default function EditSurveyHeaderForm({
+  surveyHeader
+}: {
+  surveyHeader: SurveyHeader
+}) {
+  const { id: headerId, ...survey } = surveyHeader
+
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+
+  const { isOpen, close } = useOverlayStore()
+  const modalId = 'edit-survey-header-modal'
+
+  //#region  //*=========== Form ===========
+  const methods = useForm<IEditSurveyHeaderForm>({ mode: 'onTouched' })
+
+  const {
+    formState: { isDirty, errors, isValid },
+    register,
+    reset,
+    handleSubmit,
+    control
+  } = methods
+
+  useEffect(() => {
+    if (survey) {
+      reset(survey)
+    }
+  }, [reset, survey])
+  //#endregion  //*======== Form ===========
+
+  const handleCloseSheet = () => {
+    if (isDirty) {
+      setShowConfirmDialog(true)
+    } else {
+      reset()
+      close(modalId)
+    }
+  }
+
+  //#region  //*=========== Submit Form Handler ===========
+  const { mutate, isPending, isSuccess } = useUpdateSurveyHeaderMutation()
+
+  useEffect(() => {
+    if (isSuccess) {
+      close(modalId)
+      reset()
+    }
+  }, [close, isSuccess, reset])
+
+  const submitHandler = (data: IEditSurveyHeaderForm) => {
+    const payload: UpdateSurveyHeader = {
+      id_header: headerId,
+      header: data
+    }
+
+    mutate(payload)
+  }
+  //#endregion  //*======== Submit Form Handler ===========
+
+  return (
+    <div className="p-4">
+      <Sheet
+        open={isOpen[modalId]}
+        onOpenChange={isOpen => !isOpen && close(modalId)}
+      >
+        <SheetContent
+          className="w-full sm:max-w-2xl overflow-y-auto"
+          onInteractOutside={e => e.preventDefault()}
+          onEscapeKeyDown={e => {
+            if (isDirty) {
+              e.preventDefault()
+              handleCloseSheet()
+            }
+          }}
+        >
+          <SheetHeader>
+            <SheetTitle>Edit Header Survey</SheetTitle>
+            <SheetDescription>
+              Isi semua data dengan lengkap dan akurat
+            </SheetDescription>
+          </SheetHeader>
+
+          <FormProvider {...methods}>
+            <form
+              onSubmit={handleSubmit(submitHandler)}
+              className="grid gap-4 py-4"
+            >
+              {/* Nama Survey */}
+              <div className="grid gap-2">
+                <Label htmlFor="namaSurvey">Nama Survey</Label>
+                <Input
+                  placeholder="Masukkan Nama Survey"
+                  {...register('nama_survey', {
+                    required: true
+                  })}
+                />
+              </div>
+
+              {/* Lokasi/ULP */}
+              <div className="grid gap-2">
+                <Label htmlFor="lokasi">Lokasi/ULP</Label>
+                <Input
+                  {...register('lokasi', {
+                    required: true
+                  })}
+                />
+              </div>
+
+              {/* Status */}
+              <div className="grid gap-2">
+                <Label htmlFor="status">Status</Label>
+                <Input
+                  maxLength={60}
+                  {...register('status_survey', { required: true })}
+                />
+              </div>
+
+              {/* User ID */}
+              <div className="grid gap-2">
+                <Label htmlFor="userId">ID Pengguna</Label>
+                <Input readOnly {...register('user_id')} />
+              </div>
+
+              <Button
+                type="submit"
+                onClick={() => console.log(errors)}
+                disabled={!isValid || isPending}
+              >
+                Simpan Survey
+              </Button>
+            </form>
+          </FormProvider>
+        </SheetContent>
+      </Sheet>
+
+      {showConfirmDialog && (
+        <div className="fixed z-[9999] inset-0 bg-black/50 flex items-center justify-center pointer-events-auto">
+          <div className="bg-background border border-muted p-6 rounded-lg max-w-sm">
+            <h3 className="font-bold text-lg">Batal Mengisi Form?</h3>
+            <p className="py-4">Data yang sudah diisi akan hilang</p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  reset()
+                  close(modalId)
+                  setShowConfirmDialog(false)
+                }}
+              >
+                Batalkan
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Lanjutkan
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

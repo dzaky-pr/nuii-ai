@@ -1,469 +1,124 @@
 'use client'
-import Image from 'next/image'
-import React, { useEffect, useRef, useState } from 'react'
-import MapPicker from './_components/MapPicker'
-import MapViewer from './_components/MapViewer'
-import SearchableSelect, { Option } from './_components/SearchableSelect'
-import SurveyForm from './_components/SurveyForm'
+import { useEffect, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { DialogTitle } from '@radix-ui/react-dialog'
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import useOverlayStore from '@/lib/hooks/useOverlayStore'
+import { SurveyHeader } from '@/lib/types/survey'
+import Link from 'next/link'
+import CreateSurveyForm from './_components/CreateSurveyForm'
+import DeleteSurveyModal from './_components/DeleteSurveyModal'
+import EditSurveyHeaderForm from './_components/EditSurveyHeaderForm'
+import { useDeleteSurveyMutation } from './_hooks/@delete/useDeleteSurveyMutation'
+import { useGetSurveyHeaderList } from './_hooks/@read/useGetSurveyHeaderList'
 
-// Import data RAB
-import { gk1 } from '@/lib/data/gambar_konstruksi_1'
-import { tiangMaterial } from '@/lib/data/survey'
-
-// Type definition
-export type SurveyData = {
-  surveyName: string
-  namaPekerjaan: string // field baru
-  location: string
-  penyulang: string
-  tiang: string
-  konstruksi: string
-  jenisKonduktor: string
-  panjangJaringan: string
-  coordinates: { lat: number; lng: number }
-  photo: string
-  keterangan: string
-  petugas: string
-}
+const tableHeader = [
+  '#',
+  'Nama Survey',
+  'Lokasi',
+  'Status',
+  'ID Pengguna',
+  'Aksi'
+]
 
 export default function Page() {
-  const [submittedSurveys, setSubmittedSurveys] = useState<SurveyData[]>([])
-  const [surveyNames, setSurveyNames] = useState<Option[]>([])
-  const [selectedSurvey, setSelectedSurvey] = useState<SurveyData | null>(null)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedMapSurvey, setSelectedMapSurvey] = useState<string | null>(
+  const [selectedSurvey, setSelectedSurvey] = useState<SurveyHeader | null>(
     null
   )
 
-  // State untuk Export RAB
-  const [isRABModalOpen, setIsRABModalOpen] = useState(false)
-  const [selectedRABSurvey, setSelectedRABSurvey] = useState<Option | null>(
-    null
-  )
+  const { data: surveys, isPending: loadingGetSurveys } =
+    useGetSurveyHeaderList()
+  const { mutate: deleteSurveyHeader, isSuccess: successDeleteSurveyHeader } =
+    useDeleteSurveyMutation({ isHeader: true })
 
-  // Load surveys from localStorage on mount
-  useEffect(() => {
-    const storedSurveys = localStorage.getItem('submittedSurveys')
-    if (storedSurveys) {
-      setSubmittedSurveys(JSON.parse(storedSurveys))
-    }
-  }, [])
-
-  // Prevent overwriting localStorage on initial mount.
-  const isInitialMount = useRef(true)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-    } else {
-      localStorage.setItem('submittedSurveys', JSON.stringify(submittedSurveys))
-    }
-  }, [submittedSurveys])
+  const { open, close } = useOverlayStore()
 
   useEffect(() => {
-    const uniqueNames = Array.from(
-      new Set(
-        submittedSurveys.map(survey => survey.surveyName).filter(name => name)
-      )
-    )
-    setSurveyNames(uniqueNames.map(name => ({ value: name, label: name })))
-  }, [submittedSurveys])
-
-  // Group surveys by surveyName (includes custom names)
-  const groupedSurveys = submittedSurveys.reduce(
-    (acc: Record<string, SurveyData[]>, survey) => {
-      if (!acc[survey.surveyName]) {
-        acc[survey.surveyName] = []
-      }
-      acc[survey.surveyName].push(survey)
-      return acc
-    },
-    {}
-  )
-
-  const handleEdit = () => {
-    if (selectedSurvey) {
-      setSubmittedSurveys(prev =>
-        prev.map(survey =>
-          survey === selectedSurvey ? selectedSurvey : survey
-        )
-      )
-      setIsEditModalOpen(false)
+    if (successDeleteSurveyHeader) {
+      close('delete-survey-modal')
     }
-  }
+  }, [close, successDeleteSurveyHeader])
 
   return (
-    <div className="p-4">
-      <SurveyForm
-        onSubmit={data => setSubmittedSurveys(prev => [...prev, data])}
-        surveyNames={surveyNames}
-        setSurveyNames={setSurveyNames}
-        submittedSurveys={submittedSurveys}
-      />
-      {Object.keys(groupedSurveys).length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-lg font-bold">Data Survey</h2>
-          {Object.entries(groupedSurveys).map(([surveyName, surveys]) => (
-            <div key={surveyName} className="mb-4">
-              <div className="flex items-center gap-4 mb-2">
-                <h3 className="text-md font-semibold">{surveyName}</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedMapSurvey(surveyName)}
-                >
-                  Lihat Map
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setIsRABModalOpen(true)
-                    setSelectedRABSurvey({
-                      value: surveyName,
-                      label: surveyName
-                    })
-                  }}
-                >
-                  Export RAB
-                </Button>
-              </div>
-
-              {/* Container responsif untuk tabel */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse border border-gray-300">
-                  <thead>
-                    <tr>
-                      <th className="border p-2">#</th>
-                      <th className="border p-2">Foto</th>
-                      <th className="border p-2">ULP</th>
-                      <th className="border p-2">Penyulang</th>
-                      <th className="border p-2">Nama Tiang</th>
-                      <th className="border p-2">Konstruksi</th>
-                      <th className="border p-2">Panjang Jaringan (Meter)</th>
-                      <th className="border p-2">Koordinat</th>
-                      <th className="border p-2">Petugas</th>
-                      <th className="border p-2">Keterangan</th>
-                      <th className="border p-2">Action</th>
+    <>
+      <div className="p-4">
+        <CreateSurveyForm />
+        <EditSurveyHeaderForm surveyHeader={selectedSurvey!!} />
+        <div className="mt-4 px-4">
+          <h2 className="text-lg font-bold mb-4">Data Survey</h2>
+          <div className="mb-4">
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    {tableHeader.map((item, index) => (
+                      <th key={index} className="border p-2">
+                        {item}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadingGetSurveys ? (
+                    <tr className="text-center">
+                      <td colSpan={6} className="py-4 font-medium">
+                        Loading...
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {surveys.map((data, index) => (
+                  ) : (
+                    surveys?.map((data, index) => (
                       <tr key={index} className="text-center">
                         <td className="border p-2">{index + 1}</td>
+                        <td className="border p-2">{data.nama_survey}</td>
+                        <td className="border p-2">{data.lokasi}</td>
                         <td className="border p-2">
-                          {data.photo ? (
-                            <Image
-                              src={data.photo}
-                              alt="Foto Survey"
-                              width={100}
-                              height={60}
-                              className="object-cover"
-                            />
-                          ) : (
-                            'No Photo'
-                          )}
+                          {data.status_survey === 'Belum_Disetujui'
+                            ? 'Belum Disetujui'
+                            : '-'}
                         </td>
-                        <td className="border p-2">{data.location}</td>
-                        <td className="border p-2">{data.penyulang}</td>
-                        <td className="border p-2">{data.tiang}</td>
-                        <td className="border p-2">{data.konstruksi}</td>
-                        <td className="border p-2">{data.panjangJaringan}</td>
-                        <td className="border p-2">
-                          {`Lat: ${data.coordinates.lat.toFixed(
-                            6
-                          )}, Lng: ${data.coordinates.lng.toFixed(6)}`}
-                        </td>
-                        <td className="border p-2">{data.petugas}</td>
-                        <td className="border p-2">{data.keterangan}</td>
-                        <td className="border p-2 flex justify-center gap-2">
-                          <button
-                            className="text-red-500"
-                            onClick={() => {
-                              setSelectedSurvey(data)
-                              setIsDeleteModalOpen(true)
-                            }}
-                          >
-                            Delete
-                          </button>
-                          <button
-                            className="text-blue-500"
-                            onClick={() => {
-                              setSelectedSurvey(data)
-                              setIsEditModalOpen(true)
-                            }}
-                          >
-                            Edit
-                          </button>
+                        <td className="border p-2">{data.user_id}</td>
+                        <td className="border p-2 flex flex-col justify-center items-center gap-2">
+                          <Link href={`/dashboard/survey/${data.id}`}>
+                            <button className="text-green-500">
+                              Lihat Detail
+                            </button>
+                          </Link>
+                          <div className="flex justify-center items-center gap-2">
+                            <button
+                              className="text-blue-500"
+                              onClick={() => {
+                                setSelectedSurvey(data)
+                                open('edit-survey-header-modal')
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="text-red-500"
+                              onClick={() => {
+                                setSelectedSurvey(data)
+                                open('delete-survey-modal')
+                              }}
+                            >
+                              Hapus
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      <Sheet open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <SheetContent side="right" className="p-4">
-          <VisuallyHidden>
-            <DialogTitle>Edit Survey</DialogTitle>
-          </VisuallyHidden>
-          <h2 className="text-lg font-bold mb-4">Edit Survey</h2>
-          {selectedSurvey && (
-            <div className="flex flex-col gap-3">
-              <Label>Nama Tiang</Label>
-              <Input
-                value={selectedSurvey.tiang}
-                onChange={e =>
-                  setSelectedSurvey(prev =>
-                    prev ? { ...prev, tiang: e.target.value } : null
-                  )
-                }
-              />
-              <Label>Keterangan</Label>
-              <Input
-                value={selectedSurvey.keterangan}
-                onChange={e =>
-                  setSelectedSurvey(prev =>
-                    prev ? { ...prev, keterangan: e.target.value } : null
-                  )
-                }
-              />
-              <Label>Foto</Label>
-              <Input
-                value={selectedSurvey.photo}
-                onChange={e =>
-                  setSelectedSurvey(prev =>
-                    prev ? { ...prev, photo: e.target.value } : null
-                  )
-                }
-              />
-              <Button onClick={handleEdit} className="mt-4">
-                Simpan
-              </Button>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
-
-      {/* Map Modal untuk MapPicker */}
-      <Sheet
-        open={!!selectedMapSurvey}
-        onOpenChange={open => !open && setSelectedMapSurvey(null)}
-      >
-        <SheetContent side="bottom" className="h-[90vh]">
-          <VisuallyHidden>
-            <DialogTitle>Map Viewer</DialogTitle>
-          </VisuallyHidden>
-          {selectedMapSurvey && (
-            <MapPicker
-              initialPosition={{
-                lat: groupedSurveys[selectedMapSurvey][0].coordinates.lat,
-                lng: groupedSurveys[selectedMapSurvey][0].coordinates.lng
-              }}
-              onPositionChange={() => {}}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
-
-      {/* Map Modal untuk MapViewer */}
-      <Sheet
-        open={!!selectedMapSurvey}
-        onOpenChange={open => !open && setSelectedMapSurvey(null)}
-      >
-        <SheetContent side="bottom" className="h-[90vh]">
-          <VisuallyHidden>
-            <DialogTitle>Map Viewer</DialogTitle>
-          </VisuallyHidden>
-          {selectedMapSurvey && (
-            <MapViewer surveys={groupedSurveys[selectedMapSurvey]} />
-          )}
-        </SheetContent>
-      </Sheet>
-
-      {/* Export RAB Modal */}
-      <Sheet open={isRABModalOpen} onOpenChange={setIsRABModalOpen}>
-        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto">
-          <VisuallyHidden>
-            <DialogTitle>Export RAB</DialogTitle>
-          </VisuallyHidden>
-          <h2 className="text-lg font-bold mb-4">Export RAB</h2>
-          <div className="mb-4">
-            <Label>Pilih Survey</Label>
-            <SearchableSelect
-              options={surveyNames}
-              value={selectedRABSurvey ? selectedRABSurvey.value : ''}
-              onValueChange={value => {
-                const option =
-                  surveyNames.find(opt => opt.value === value) || null
-                setSelectedRABSurvey(option)
-              }}
-              placeholder="Pilih Survey"
-            />
           </div>
-          {selectedRABSurvey && (
-            <>
-              {(() => {
-                const surveysForRAB = submittedSurveys.filter(
-                  s => s.surveyName === selectedRABSurvey.value
-                )
-                // Ambil unique id tiang dari surveys
-                const tiangIds = Array.from(
-                  new Set(surveysForRAB.map(s => s.tiang))
-                )
-                const filteredTiang = tiangMaterial.filter(material =>
-                  tiangIds.includes(material.id)
-                )
-                // Ambil unique id konstruksi dari surveys
-                const konstruksiIds = Array.from(
-                  new Set(surveysForRAB.map(s => s.konstruksi))
-                )
-                const filteredKonstruksi = gk1.filter(kon =>
-                  konstruksiIds.includes(kon.id)
-                )
-                return (
-                  <>
-                    <div className="mb-6">
-                      <h3 className="text-md font-semibold mb-2">
-                        Detail Tiang Material
-                      </h3>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full border-collapse border border-gray-300">
-                          <thead>
-                            <tr>
-                              <th className="border p-2">ID</th>
-                              <th className="border p-2">Nama</th>
-                              <th className="border p-2">Berat (kg)</th>
-                              <th className="border p-2">HPS RAB</th>
-                              <th className="border p-2">Pasang RAB</th>
-                              <th className="border p-2">Bongkar</th>
-                              <th className="border p-2">Jenis Material</th>
-                              <th className="border p-2">Kategori</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {filteredTiang.map((material, index) => (
-                              <tr key={index}>
-                                <td className="border p-2">{material.id}</td>
-                                <td className="border p-2">{material.nama}</td>
-                                <td className="border p-2">
-                                  {material.berat_kg}
-                                </td>
-                                <td className="border p-2">
-                                  {material.harga_2024.hps_rab}
-                                </td>
-                                <td className="border p-2">
-                                  {material.harga_2024.pasang_rab}
-                                </td>
-                                <td className="border p-2">
-                                  {material.harga_2024.bongkar}
-                                </td>
-                                <td className="border p-2">
-                                  {material.jenis_material}
-                                </td>
-                                <td className="border p-2">
-                                  {material.kategori}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-md font-semibold mb-2">
-                        Detail Konstruksi
-                      </h3>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full border-collapse border border-gray-300">
-                          <thead>
-                            <tr>
-                              <th className="border p-2">ID</th>
-                              <th className="border p-2">Nama Konstruksi</th>
-                              <th className="border p-2">No</th>
-                              <th className="border p-2">Nama Material</th>
-                              <th className="border p-2">Satuan</th>
-                              <th className="border p-2">Kuantitas</th>
-                              <th className="border p-2">HPS RAB</th>
-                              <th className="border p-2">Pasang RAB</th>
-                              <th className="border p-2">Bongkar</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {filteredKonstruksi.map((konstruksi, index) => (
-                              <React.Fragment key={index}>
-                                <tr>
-                                  <td
-                                    className="border p-2 align-middle"
-                                    rowSpan={
-                                      konstruksi.Detail_Material.length + 1
-                                    }
-                                  >
-                                    {konstruksi.id}
-                                  </td>
-                                  <td
-                                    className="border p-2 align-middle"
-                                    rowSpan={
-                                      konstruksi.Detail_Material.length + 1
-                                    }
-                                  >
-                                    {konstruksi.Nama_Konstruksi}
-                                  </td>
-                                </tr>
-                                {konstruksi.Detail_Material.map(
-                                  (detail, idx) => (
-                                    <tr key={idx}>
-                                      <td className="border p-2">
-                                        {detail.nomor}
-                                      </td>
-                                      <td className="border p-2">
-                                        {detail.nama}
-                                      </td>
-                                      <td className="border p-2">
-                                        {detail.satuan}
-                                      </td>
-                                      <td className="border p-2">
-                                        {detail.kuantitas}
-                                      </td>
-                                      <td className="border p-2">100rb</td>
-                                      <td className="border p-2">100rb</td>
-                                      <td className="border p-2">100rb</td>
-                                    </tr>
-                                  )
-                                )}
-                              </React.Fragment>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </>
-                )
-              })()}
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
-
-      <div className="mt-8 w-full overflow-x-auto">
-        <h2 className="text-lg font-bold">Debug Submitted Surveys JSON!</h2>
-        <pre className="p-4 bg-background rounded">
-          {JSON.stringify(submittedSurveys, null, 2)}
-        </pre>
+        </div>
       </div>
-    </div>
+      <DeleteSurveyModal
+        onSubmit={() => {
+          if (selectedSurvey) {
+            deleteSurveyHeader(selectedSurvey.id!!)
+          }
+        }}
+        onCancel={() => setSelectedSurvey(null)}
+      />
+    </>
   )
 }
