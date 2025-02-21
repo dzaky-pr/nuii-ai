@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import DeleteSurveyModal from '../_components/DeleteSurveyModal'
 import EditSurveyDetailForm from '../_components/EditSurveyDetailForm'
+import MapViewerDialog from '../_components/MapViewerDialog'
 import { useDeleteSurveyDetailMutation } from '../_hooks/@delete/useDeleteSurveyDetailMutation'
 import { useGetSurveyDetail } from '../_hooks/@read/useGetSurveyDetail'
 
@@ -20,7 +21,7 @@ const tableHeader = [
   'Nama Tiang',
   'Konstruksi',
   'Panjang Jaringan (meter)',
-  'Lokasi',
+  'Koordinat',
   'Petugas',
   'Keterangan',
   'Aksi'
@@ -73,9 +74,18 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
               Survey {survey?.header.nama_survey}
             </h3>
           </div>
-          <Button size="sm" variant="outline">
-            Lihat RAB
-          </Button>
+          <div className="flex gap-4 items-center">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => open('map-viewer-modal')}
+            >
+              Lihat Map
+            </Button>
+            <Button size="sm" variant="outline">
+              Lihat RAB
+            </Button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse border border-gray-300">
@@ -111,9 +121,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                   <td className="border p-2">{item.id_konstruksi}</td>
                   <td className="border p-2">{item.panjang_jaringan}</td>
                   <td className="border p-2">
-                    <Button size="sm" variant="outline">
-                      Lihat Map
-                    </Button>
+                    Lat: {item.lat}, <br /> Long: {item.long}
                   </td>
                   <td className="border p-2">{item.petugas_survey}</td>
                   <td className="border p-2">{item.keterangan}</td>
@@ -154,6 +162,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           </table>
         </div>
       </div>
+      <MapViewerDialog surveys={survey.detail} />
       <EditSurveyDetailForm surveyDetail={selectedSurvey!!} />
       <DeleteSurveyModal
         onSubmit={() => {
