@@ -8,6 +8,8 @@ import { Inter as FontSans } from 'next/font/google'
 import './globals.css'
 
 import { ClerkProvider } from '@clerk/nextjs'
+import React from 'react'
+import TanstackQueryProvider from './provider'
 
 const fontSans = FontSans({
   subsets: ['latin'],
@@ -102,19 +104,21 @@ export default function RootLayout({
           />
           <meta name="apple-mobile-web-app-title" content="NUII AI" />
         </head>
-        <body className={cn('font-sans antialiased', fontSans.variable)}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            {children}
+        <TanstackQueryProvider>
+          <body className={cn('font-sans antialiased', fontSans.variable)}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Header />
+              {children}
 
-            <Toaster />
-          </ThemeProvider>
-        </body>
+              <Toaster />
+            </ThemeProvider>
+          </body>
+        </TanstackQueryProvider>
       </html>
     </ClerkProvider>
   )
