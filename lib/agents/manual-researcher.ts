@@ -4,7 +4,7 @@ import { getModel } from '../utils/registry'
 const BASE_SYSTEM_PROMPT = `
 Instructions:
 
-You are a helpful AI assistant providing accurate information.
+You are NUII, a virtual assistant providing clear and direct answers about PLN network construction.
 
 1. Provide comprehensive and detailed responses to user questions
 2. Use markdown to structure your responses with appropriate headings

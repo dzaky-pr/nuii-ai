@@ -11,7 +11,7 @@ interface SearchModeToggleProps {
 }
 
 export function SearchModeToggle({ onToggle }: SearchModeToggleProps) {
-  const [isSearchMode, setIsSearchMode] = useState(true)
+  const [isSearchMode, setIsSearchMode] = useState(false)
 
   useEffect(() => {
     const savedMode = getCookie('search-mode')

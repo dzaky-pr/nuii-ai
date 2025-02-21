@@ -3,8 +3,8 @@ import { isProviderEnabled } from '@/lib/utils/registry'
 import { cookies } from 'next/headers'
 
 export const maxDuration = 30
-const DEFAULT_MODEL = 'llama-3.3-70b-versatile'
-const DEFAULT_PROVIDER = 'qrog'
+
+const DEFAULT_MODEL = 'groq:llama-3.3-70b-versatile'
 
 export async function POST(req: Request) {
   try {
@@ -20,19 +20,16 @@ export async function POST(req: Request) {
     }
 
     const cookieStore = await cookies()
-    const modelProviderFromCookie = cookieStore.get('selected-model')?.value
+    const modelFromCookie = cookieStore.get('selected-model')?.value
     const searchMode = cookieStore.get('search-mode')?.value === 'true'
-    const provider = modelProviderFromCookie?.split(':')[0] || DEFAULT_PROVIDER
-    const model = modelProviderFromCookie || DEFAULT_MODEL
-
+    const model = modelFromCookie || DEFAULT_MODEL
+    const provider = model.split(':')[0]
     if (!isProviderEnabled(provider)) {
       return new Response(`Selected provider is not enabled ${provider}`, {
         status: 404,
         statusText: 'Not Found'
       })
     }
-
-    // Khusus untuk NUII (non-streaming endpoint), kita bungkus respons final ke dalam stream SSE
     if (provider === 'nuii-ai') {
       const userQuery = messages[messages.length - 1].content
       const response = await fetch(
@@ -47,13 +44,6 @@ export async function POST(req: Request) {
         throw new Error(`NUII API error: ${response.statusText}`)
       }
       const data = await response.json()
-
-      // Cek tipe data
-      console.log('NUII API response:', data)
-      console.log('Answer :', data.answer)
-      console.log('Image :', data.image)
-      console.log('Answer type:', typeof data.answer)
-      console.log('Image type:', typeof data.image)
 
       const finalObj = {
         answer: data.answer,
