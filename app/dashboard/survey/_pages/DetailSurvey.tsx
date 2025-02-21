@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react'
 import DeleteSurveyModal from '../_components/DeleteSurveyModal'
 import EditSurveyDetailForm from '../_components/EditSurveyDetailForm'
 import MapViewerDialog from '../_components/MapViewerDialog'
+import SurveyDetailModal from '../_components/SurveyDetailModal'
+import SurveyRABModal from '../_components/SurveyRABModal'
 import { useDeleteSurveyDetailMutation } from '../_hooks/@delete/useDeleteSurveyDetailMutation'
 import { useGetSurveyDetail } from '../_hooks/@read/useGetSurveyDetail'
 
@@ -82,7 +84,11 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
             >
               Lihat Map
             </Button>
-            <Button size="sm" variant="outline">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => open('rab-survey-modal')}
+            >
               Lihat RAB
             </Button>
           </div>
@@ -163,6 +169,8 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
         </div>
       </div>
       <MapViewerDialog surveys={survey.detail} />
+      <SurveyRABModal surveyId={surveyId} />
+      <SurveyDetailModal surveyDetail={selectedSurvey!!} />
       <EditSurveyDetailForm surveyDetail={selectedSurvey!!} />
       <DeleteSurveyModal
         onSubmit={() => {

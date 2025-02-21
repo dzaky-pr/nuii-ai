@@ -69,13 +69,22 @@ export interface SurveyLite {
   nama_survey: string
 }
 
-export interface SurveyDetail {
+interface TotalMaterial {
+  total_kuantitas: number
+  total_harga_material: number
+  total_pasang: number
+  total_bongkar: number
+}
+
+interface DetailMaterial extends IMaterial, TotalMaterial {}
+
+export interface SurveyRAB {
   data_survey: SurveyHeader & {
     survey_details: SurveyDetail[]
-    detail_tiang: IMaterial[]
+    detail_tiang: DetailMaterial[]
     detail_konstruksi: {
       idKonstruksi: number
-      material: IMaterial[]
+      material: DetailMaterial[]
     }[]
   }
 }
