@@ -6,6 +6,9 @@ export interface SurveyHeader {
   lokasi: string
   status_survey: string
   user_id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
 }
 
 export interface SurveyDetail {
@@ -21,6 +24,9 @@ export interface SurveyDetail {
   foto: string
   keterangan: string
   petugas_survey: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
 }
 
 export interface ISurvey {

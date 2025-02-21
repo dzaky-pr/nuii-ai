@@ -7,7 +7,7 @@ import Link from 'next/link'
 import CreateSurveyForm from './_components/CreateSurveyForm'
 import DeleteSurveyModal from './_components/DeleteSurveyModal'
 import EditSurveyHeaderForm from './_components/EditSurveyHeaderForm'
-import { useDeleteSurveyMutation } from './_hooks/@delete/useDeleteSurveyMutation'
+import { useDeleteSurveyHeaderMutation } from './_hooks/@delete/useDeleteSurveyHeaderMutation'
 import { useGetSurveyHeaderList } from './_hooks/@read/useGetSurveyHeaderList'
 
 const tableHeader = [
@@ -27,7 +27,7 @@ export default function Page() {
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyHeaderList()
   const { mutate: deleteSurveyHeader, isSuccess: successDeleteSurveyHeader } =
-    useDeleteSurveyMutation({ isHeader: true })
+    useDeleteSurveyHeaderMutation()
 
   const { open, close } = useOverlayStore()
 
@@ -41,7 +41,6 @@ export default function Page() {
     <>
       <div className="p-4">
         <CreateSurveyForm />
-        <EditSurveyHeaderForm surveyHeader={selectedSurvey!!} />
         <div className="mt-4 px-4">
           <h2 className="text-lg font-bold mb-4">Data Survey</h2>
           <div className="mb-4">
@@ -111,6 +110,7 @@ export default function Page() {
           </div>
         </div>
       </div>
+      <EditSurveyHeaderForm surveyHeader={selectedSurvey!!} />
       <DeleteSurveyModal
         onSubmit={() => {
           if (selectedSurvey) {

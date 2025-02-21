@@ -1,31 +1,32 @@
 import api from '@/lib/tools/api'
 import { ApiError, ApiResponse } from '@/lib/types/api'
-import { SurveyDetail, UpdateSurveyDetail } from '@/lib/types/survey'
+import { SurveyDetail } from '@/lib/types/survey'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError, AxiosResponse } from 'axios'
 import { toast } from 'sonner'
 
-const useUpdateSurveyDetailMutation = ({ surveyId }: { surveyId: string }) => {
+const useDeleteSurveyDetailMutation = ({ surveyId }: { surveyId: string }) => {
   const queryClient = useQueryClient()
 
   return useMutation<
     AxiosResponse<ApiResponse<SurveyDetail>>,
     AxiosError<ApiError>,
-    UpdateSurveyDetail
+    number
   >({
-    mutationFn: async data => await api.put('/survey/update-detail', data),
+    mutationFn: async detailId =>
+      api.delete(`/survey/detail/delete/${detailId}`),
     onSuccess: () => {
-      toast.success('Detail survey berhasil diperbarui!')
+      toast.success('Detail survey berhasil dihapus!')
 
       queryClient.invalidateQueries({
         queryKey: ['surveyDetail', surveyId]
       })
     },
     onError: err => {
-      toast.error('Detail survey gagal diperbarui, silakan coba lagi!')
+      toast.error('Detail survey gagal dihapus, silakan coba lagi!')
       console.error(err)
     }
   })
 }
 
-export { useUpdateSurveyDetailMutation }
+export { useDeleteSurveyDetailMutation }

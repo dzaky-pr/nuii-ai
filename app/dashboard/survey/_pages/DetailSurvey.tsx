@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import DeleteSurveyModal from '../_components/DeleteSurveyModal'
 import EditSurveyDetailForm from '../_components/EditSurveyDetailForm'
-import { useDeleteSurveyMutation } from '../_hooks/@delete/useDeleteSurveyMutation'
+import { useDeleteSurveyDetailMutation } from '../_hooks/@delete/useDeleteSurveyDetailMutation'
 import { useGetSurveyDetail } from '../_hooks/@read/useGetSurveyDetail'
 
 const tableHeader = [
@@ -33,7 +33,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
   const { data: survey, isPending } = useGetSurveyDetail(surveyId)
   const { mutate: deleteSurveyDetail, isSuccess: successDeleteSurveyDetail } =
-    useDeleteSurveyMutation({ isHeader: false })
+    useDeleteSurveyDetailMutation({ surveyId })
 
   const { open, close } = useOverlayStore()
 

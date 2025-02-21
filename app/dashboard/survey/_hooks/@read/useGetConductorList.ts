@@ -1,6 +1,6 @@
 import api from '@/lib/tools/api'
 import { IMaterial } from '@/lib/types/material'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 const useGetConductorList = () => {
   const { data, isPending } = useQuery<IMaterial[]>({
@@ -8,7 +8,8 @@ const useGetConductorList = () => {
     queryFn: async () => {
       const response = await api.get('/material/list/konduktor')
       return response.data.data
-    }
+    },
+    placeholderData: keepPreviousData
   })
 
   return {

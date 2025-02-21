@@ -1,6 +1,6 @@
 import api from '@/lib/tools/api'
 import { IConstructionLite } from '@/lib/types/construction'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 const useGetConstructionList = () => {
   const { data, isPending } = useQuery<IConstructionLite[]>({
@@ -8,7 +8,8 @@ const useGetConstructionList = () => {
     queryFn: async () => {
       const response = await api.get('/konstruksi/list')
       return response.data.data
-    }
+    },
+    placeholderData: keepPreviousData
   })
 
   return {

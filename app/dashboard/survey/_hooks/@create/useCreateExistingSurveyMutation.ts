@@ -5,7 +5,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError, AxiosResponse } from 'axios'
 import { toast } from 'sonner'
 
-const useCreateExistingSurveyMutation = () => {
+const useCreateExistingSurveyMutation = ({
+  surveyId
+}: {
+  surveyId?: string
+}) => {
   const queryClient = useQueryClient()
 
   return useMutation<
@@ -15,12 +19,15 @@ const useCreateExistingSurveyMutation = () => {
   >({
     mutationFn: async data => await api.post('/survey/create', data),
     onSuccess: () => {
-      toast.success('Survey berhasil dibuat!')
+      toast.success('Survey berhasil ditambahkan!')
 
       queryClient.invalidateQueries({ queryKey: ['surveyHeaderList'] })
+      queryClient.invalidateQueries({
+        queryKey: ['surveyDetail', surveyId]
+      })
     },
     onError: err => {
-      toast.error('Survey gagal dibuat, silakan coba lagi!')
+      toast.error('Survey gagal ditambahkan, silakan coba lagi!')
       console.error(err)
     }
   })

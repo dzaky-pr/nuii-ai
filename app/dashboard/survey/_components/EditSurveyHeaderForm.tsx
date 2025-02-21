@@ -21,10 +21,8 @@ import { useUpdateSurveyHeaderMutation } from '../_hooks/@update/useUpdateSurvey
 export default function EditSurveyHeaderForm({
   surveyHeader
 }: {
-  surveyHeader: SurveyHeader
+  surveyHeader?: SurveyHeader
 }) {
-  const { id: headerId, ...survey } = surveyHeader
-
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
   const { isOpen, close } = useOverlayStore()
@@ -42,10 +40,11 @@ export default function EditSurveyHeaderForm({
   } = methods
 
   useEffect(() => {
-    if (survey) {
+    if (surveyHeader) {
+      const { id, created_at, updated_at, deleted_at, ...survey } = surveyHeader
       reset(survey)
     }
-  }, [reset, survey])
+  }, [reset, surveyHeader])
   //#endregion  //*======== Form ===========
 
   const handleCloseSheet = () => {
@@ -58,7 +57,9 @@ export default function EditSurveyHeaderForm({
   }
 
   //#region  //*=========== Submit Form Handler ===========
-  const { mutate, isPending, isSuccess } = useUpdateSurveyHeaderMutation()
+  const { mutate, isPending, isSuccess } = useUpdateSurveyHeaderMutation({
+    surveyId: surveyHeader?.id.toString() ?? '0'
+  })
 
   useEffect(() => {
     if (isSuccess) {
@@ -69,7 +70,7 @@ export default function EditSurveyHeaderForm({
 
   const submitHandler = (data: IEditSurveyHeaderForm) => {
     const payload: UpdateSurveyHeader = {
-      id_header: headerId,
+      id_header: surveyHeader?.id ?? 0,
       header: data
     }
 

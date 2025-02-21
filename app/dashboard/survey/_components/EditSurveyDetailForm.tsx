@@ -33,10 +33,8 @@ import SearchableSelect from './SearchableSelect'
 export default function EditSurveyDetailForm({
   surveyDetail
 }: {
-  surveyDetail: SurveyDetail
+  surveyDetail?: SurveyDetail
 }) {
-  const { id: detailId, ...survey } = surveyDetail
-
   //#region  //*=========== Initial State & Ref ===========
   const [showMapDialog, setShowMapDialog] = useState(false)
   const [showCameraDialog, setShowCameraDialog] = useState(false)
@@ -65,10 +63,11 @@ export default function EditSurveyDetailForm({
   const photoValue = watch('foto')
 
   useEffect(() => {
-    if (survey) {
+    if (surveyDetail) {
+      const { id, created_at, updated_at, deleted_at, ...survey } = surveyDetail
       reset(survey)
     }
-  }, [reset, survey])
+  }, [reset, surveyDetail])
   //#endregion  //*======== Form ===========
 
   //#region  //*=========== Get Data Hooks ===========
@@ -113,7 +112,9 @@ export default function EditSurveyDetailForm({
   //#endregion  //*======== Utility ===========
 
   //#region  //*=========== Submit Form Handler ===========
-  const { mutate, isPending, isSuccess } = useUpdateSurveyDetailMutation()
+  const { mutate, isPending, isSuccess } = useUpdateSurveyDetailMutation({
+    surveyId: surveyDetail?.id.toString() ?? '0'
+  })
 
   useEffect(() => {
     if (isSuccess) {
@@ -124,7 +125,7 @@ export default function EditSurveyDetailForm({
 
   const submitHandler = (data: IEditSurveyDetailForm) => {
     const payload: UpdateSurveyDetail = {
-      id_detail: detailId,
+      id_detail: surveyDetail?.id ?? 0,
       detail: data
     }
 
@@ -288,8 +289,8 @@ export default function EditSurveyDetailForm({
                     </DialogHeader>
                     <MapPicker
                       initialPosition={{
-                        lat: Number(surveyDetail.lat),
-                        lng: Number(surveyDetail.long)
+                        lat: Number(surveyDetail?.lat),
+                        lng: Number(surveyDetail?.long)
                       }}
                       onPositionChange={newPos => {
                         setValue('lat', newPos.lat.toString())

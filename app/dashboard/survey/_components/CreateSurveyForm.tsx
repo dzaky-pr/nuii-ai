@@ -132,11 +132,26 @@ export default function CreateSurveyForm() {
   //#endregion  //*======== Utility ===========
 
   //#region  //*=========== Submit Form Handler ===========
-  const { mutate: mutateNewSurvey, isPending: loadingNewSurvey } =
-    useCreateNewSurveyMutation()
-  const { mutate: mutateExistingSurvey, isPending: loadingExistingSurvey } =
-    useCreateExistingSurveyMutation()
+  const {
+    mutate: mutateNewSurvey,
+    isPending: loadingNewSurvey,
+    isSuccess: successNewSurvey
+  } = useCreateNewSurveyMutation()
+  const {
+    mutate: mutateExistingSurvey,
+    isPending: loadingExistingSurvey,
+    isSuccess: successExistingSurvey
+  } = useCreateExistingSurveyMutation({
+    surveyId: watch('id_header')?.toString()
+  })
   const { userId } = useAuth()
+
+  useEffect(() => {
+    if (successNewSurvey || successExistingSurvey) {
+      setIsSheetOpen(false)
+      reset()
+    }
+  }, [reset, successExistingSurvey, successNewSurvey])
 
   const submitHandler = (data: ICreateSurveyForm) => {
     const { id_header, ...rest } = data
@@ -181,9 +196,6 @@ export default function CreateSurveyForm() {
 
       mutateExistingSurvey(existingSurveyPayload)
     }
-
-    setIsSheetOpen(false)
-    resetForm()
   }
   //#endregion  //*======== Submit Form Handler ===========
 
@@ -563,7 +575,12 @@ export default function CreateSurveyForm() {
               <Button
                 type="submit"
                 onClick={() => console.log(errors)}
-                disabled={loadingNewSurvey || loadingExistingSurvey || !isValid}
+                disabled={
+                  loadingNewSurvey ||
+                  loadingExistingSurvey ||
+                  !isValid ||
+                  !photoValue
+                }
               >
                 Simpan Survey
               </Button>
