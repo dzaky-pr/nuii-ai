@@ -91,8 +91,9 @@ export default function CreateSurveyForm() {
   }, [showCameraDialog])
 
   useEffect(() => {
-    if (!isCustomSurvey) {
+    if (isCustomSurvey) {
       setValue('detail.panjang_jaringan', 0)
+    } else {
       setValue('header.lokasi', surveyDetail?.header.lokasi ?? '')
     }
   }, [isCustomSurvey, setValue, surveyDetail])
@@ -404,7 +405,7 @@ export default function CreateSurveyForm() {
                   id="panjangJaringan"
                   type="number"
                   max={999}
-                  disabled={!isCustomSurvey}
+                  disabled={isCustomSurvey}
                   {...register('detail.panjang_jaringan', {
                     valueAsNumber: true,
                     required: true
