@@ -8,6 +8,7 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/components/ui/sheet'
+import { jobOptions } from '@/lib/constants'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import {
   EditSurveyHeaderForm as IEditSurveyHeaderForm,
@@ -15,8 +16,10 @@ import {
   UpdateSurveyHeader
 } from '@/lib/types/survey'
 import { useEffect, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
+import { useGetConductorList } from '../_hooks/@read/useGetConductorList'
 import { useUpdateSurveyHeaderMutation } from '../_hooks/@update/useUpdateSurveyHeaderMutation'
+import SearchableSelect from './SearchableSelect'
 
 export default function EditSurveyHeaderForm({
   surveyHeader
@@ -27,6 +30,8 @@ export default function EditSurveyHeaderForm({
 
   const { isOpen, close } = useOverlayStore()
   const modalId = 'edit-survey-header-modal'
+
+  const { conductorList, loadingConductorList } = useGetConductorList()
 
   //#region  //*=========== Form ===========
   const methods = useForm<IEditSurveyHeaderForm>({ mode: 'onTouched' })
@@ -124,6 +129,44 @@ export default function EditSurveyHeaderForm({
                   {...register('lokasi', {
                     required: true
                   })}
+                />
+              </div>
+
+              {/* Jenis Konduktor */}
+              <div className="grid gap-2">
+                <Label>Jenis Konduktor</Label>
+                <Controller
+                  name="id_material_konduktor"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange } }) => (
+                    <SearchableSelect
+                      isLoading={loadingConductorList}
+                      options={conductorList}
+                      onValueChange={onChange}
+                      placeholder="Pilih Jenis Konduktor"
+                    />
+                  )}
+                />
+              </div>
+
+              {/* Nama Pekerjaan */}
+              <div className="grid gap-2">
+                <Label>Nama Pekerjaan</Label>
+                <Controller
+                  name="nama_pekerjaan"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange } }) => (
+                    <SearchableSelect
+                      options={jobOptions.map(item => ({
+                        value: item,
+                        label: item
+                      }))}
+                      onValueChange={onChange}
+                      placeholder="Pilih Nama Pekerjaan"
+                    />
+                  )}
                 />
               </div>
 

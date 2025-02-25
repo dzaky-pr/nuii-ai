@@ -10,7 +10,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { jobOptions } from '@/lib/constants'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import {
   EditSurveyDetailForm as IEditSurveyDetailForm,
@@ -23,12 +22,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Camera } from 'react-camera-pro'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { useGetConductorList } from '../_hooks/@read/useGetConductorList'
 import { useGetConstructionList } from '../_hooks/@read/useGetConstructionList'
+import { useGetGroundingList } from '../_hooks/@read/useGetGroundingList'
 import { useGetPoleList } from '../_hooks/@read/useGetPoleList'
+import { useGetTiangList } from '../_hooks/@read/useGetTiangList'
 import { useUpdateSurveyDetailMutation } from '../_hooks/@update/useUpdateSurveyDetailMutation'
 import MapPicker from './MapPicker'
-import SearchableSelect from './SearchableSelect'
+import SearchableSelect, { Option } from './SearchableSelect'
 
 export default function EditSurveyDetailForm({
   surveyDetail
@@ -39,6 +39,11 @@ export default function EditSurveyDetailForm({
   const [showMapDialog, setShowMapDialog] = useState(false)
   const [showCameraDialog, setShowCameraDialog] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [selectedConstruction, setSelectedConstruction] = useState<
+    Option | undefined
+  >()
+  const [disableSelectGrounding, setDisableSelectGrounding] =
+    useState<boolean>(false)
 
   const cameraRef = useRef<any>(null)
   //#endregion  //*======== Initial State & Ref ===========
@@ -71,10 +76,27 @@ export default function EditSurveyDetailForm({
   //#endregion  //*======== Form ===========
 
   //#region  //*=========== Get Data Hooks ===========
-  const { poleList, loadingPoleList } = useGetPoleList()
+  const { listTiang, loadingListTiang } = useGetTiangList()
   const { constructionList, loadingConstructionList } = useGetConstructionList()
-  const { conductorList, loadingConductorList } = useGetConductorList()
+  const { groundingList, loadingGroundingList } = useGetGroundingList()
+  const { poleList, loadingPoleList } = useGetPoleList()
   //#endregion  //*======== Get Data Hooks ===========
+
+  useEffect(() => {
+    if (selectedConstruction?.label) {
+      const label = selectedConstruction.label.toLowerCase()
+
+      if (label.includes('tm-11')) {
+        setDisableSelectGrounding(true)
+        setValue('id_grounding', 1)
+      } else if (label.includes('arr')) {
+        setDisableSelectGrounding(true)
+        setValue('id_grounding', 2)
+      } else {
+        setDisableSelectGrounding(false)
+      }
+    }
+  }, [selectedConstruction, setValue])
 
   useEffect(() => {
     if (!showCameraDialog) {
@@ -158,25 +180,6 @@ export default function EditSurveyDetailForm({
               onSubmit={handleSubmit(submitHandler)}
               className="grid gap-4 py-4"
             >
-              {/* Nama Pekerjaan */}
-              <div className="grid gap-2">
-                <Label>Nama Pekerjaan</Label>
-                <Controller
-                  name="nama_pekerjaan"
-                  control={control}
-                  render={({ field: { onChange } }) => (
-                    <SearchableSelect
-                      options={jobOptions.map(item => ({
-                        value: item,
-                        label: item
-                      }))}
-                      onValueChange={onChange}
-                      placeholder="Pilih Nama Pekerjaan"
-                    />
-                  )}
-                />
-              </div>
-
               {/* Penyulang */}
               <div className="grid gap-2">
                 <Label htmlFor="penyulang">Penyulang</Label>
@@ -195,8 +198,8 @@ export default function EditSurveyDetailForm({
                   control={control}
                   render={({ field: { onChange } }) => (
                     <SearchableSelect
-                      isLoading={loadingPoleList}
-                      options={poleList}
+                      isLoading={loadingListTiang}
+                      options={listTiang}
                       onValueChange={onChange}
                       placeholder="Pilih Tiang"
                     />
@@ -206,33 +209,22 @@ export default function EditSurveyDetailForm({
 
               {/* Konstruksi */}
               <div className="grid gap-2">
-                <Label>Konstruksi</Label>
+                <Label required htmlFor="konstruksi">
+                  Konstruksi
+                </Label>
                 <Controller
                   name="id_konstruksi"
                   control={control}
+                  rules={{ required: true }}
                   render={({ field: { onChange } }) => (
                     <SearchableSelect
                       isLoading={loadingConstructionList}
                       options={constructionList}
-                      onValueChange={onChange}
+                      onValueChange={(newValue, option) => {
+                        onChange(newValue)
+                        setSelectedConstruction(option)
+                      }}
                       placeholder="Pilih Konstruksi"
-                    />
-                  )}
-                />
-              </div>
-
-              {/* Jenis Konduktor */}
-              <div className="grid gap-2">
-                <Label>Jenis Konduktor</Label>
-                <Controller
-                  name="id_material_konduktor"
-                  control={control}
-                  render={({ field: { onChange } }) => (
-                    <SearchableSelect
-                      isLoading={loadingConductorList}
-                      options={conductorList}
-                      onValueChange={onChange}
-                      placeholder="Pilih Jenis Konduktor"
                     />
                   )}
                 />
@@ -250,6 +242,42 @@ export default function EditSurveyDetailForm({
                   {...register('panjang_jaringan', {
                     valueAsNumber: true
                   })}
+                />
+              </div>
+
+              {/* Pole Suporter */}
+              <div className="grid gap-2">
+                <Label>Pole Suporter</Label>
+                <Controller
+                  name="id_pole"
+                  control={control}
+                  render={({ field: { onChange } }) => (
+                    <SearchableSelect
+                      isLoading={loadingPoleList}
+                      options={poleList}
+                      onValueChange={onChange}
+                      placeholder="Pilih Pole Suporter"
+                    />
+                  )}
+                />
+              </div>
+
+              {/* Grounding */}
+              <div className="grid gap-2">
+                <Label>Grounding</Label>
+                <Controller
+                  name="id_grounding"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <SearchableSelect
+                      isDisabled={disableSelectGrounding}
+                      isLoading={loadingGroundingList}
+                      options={groundingList}
+                      value={value?.toString()}
+                      onValueChange={onChange}
+                      placeholder="Pilih Tipe Grounding"
+                    />
+                  )}
                 />
               </div>
 

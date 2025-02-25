@@ -3,9 +3,11 @@ import { IMaterial } from './material'
 export interface SurveyHeader {
   id: number
   nama_survey: string
+  nama_pekerjaan: string
   lokasi: string
   status_survey: string
   user_id: string
+  id_material_konduktor: number
   created_at: string
   updated_at: string
   deleted_at: string | null
@@ -14,9 +16,9 @@ export interface SurveyHeader {
 export interface SurveyDetail {
   id: number
   id_material_tiang: number
-  id_material_konduktor: number
   id_konstruksi: number
-  nama_pekerjaan: string
+  id_pole: number
+  id_grounding: number
   penyulang: string
   panjang_jaringan: number
   long: string

@@ -11,3 +11,13 @@ export interface IMaterial {
   jenis_material: string
   kategori_material: string
 }
+
+export interface IGroundingLite {
+  id: string
+  nama_grounding: string
+}
+
+export interface IPoleLite {
+  id: string
+  nama_pole: string
+}

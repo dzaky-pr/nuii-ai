@@ -1,23 +1,24 @@
 import api from '@/lib/tools/api'
-import { IMaterial } from '@/lib/types/material'
+import { IPoleLite } from '@/lib/types/material'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 const useGetPoleList = () => {
-  const { data, isPending } = useQuery<IMaterial[]>({
+  const { data, isPending } = useQuery<IPoleLite[]>({
     queryKey: ['poleList'],
     queryFn: async () => {
-      const response = await api.get('/material/list/tiang')
+      const response = await api.get('/pole/list')
       return response.data.data
     },
     placeholderData: keepPreviousData
   })
+
   return {
     poleList: isPending
       ? []
       : data
-      ? data.map(({ id, nama_material }) => ({
+      ? data.map(({ id, nama_pole }) => ({
           value: id.toString(),
-          label: nama_material
+          label: nama_pole
         }))
       : [],
     loadingPoleList: isPending

@@ -20,7 +20,7 @@ import { Camera } from 'react-camera-pro'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import MapPicker from './MapPicker'
-import SearchableSelect from './SearchableSelect'
+import SearchableSelect, { Option } from './SearchableSelect'
 
 import {
   Dialog,
@@ -41,17 +41,24 @@ import { useCreateExistingSurveyMutation } from '../_hooks/@create/useCreateExis
 import { useCreateNewSurveyMutation } from '../_hooks/@create/useCreateNewSurveyMutation'
 import { useGetConductorList } from '../_hooks/@read/useGetConductorList'
 import { useGetConstructionList } from '../_hooks/@read/useGetConstructionList'
+import { useGetGroundingList } from '../_hooks/@read/useGetGroundingList'
 import { useGetPoleList } from '../_hooks/@read/useGetPoleList'
 import { useGetSurveyDetail } from '../_hooks/@read/useGetSurveyDetail'
 import { useGetSurveyNameList } from '../_hooks/@read/useGetSurveyNameList'
+import { useGetTiangList } from '../_hooks/@read/useGetTiangList'
 
 export default function CreateSurveyForm() {
   //#region  //*=========== Initial State & Ref ===========
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [isCustomSurvey, setIsCustomSurvey] = useState(false)
-  const [showMapDialog, setShowMapDialog] = useState(false)
-  const [showCameraDialog, setShowCameraDialog] = useState(false)
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false)
+  const [isCustomSurvey, setIsCustomSurvey] = useState<boolean>(false)
+  const [showMapDialog, setShowMapDialog] = useState<boolean>(false)
+  const [showCameraDialog, setShowCameraDialog] = useState<boolean>(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false)
+  const [selectedConstruction, setSelectedConstruction] = useState<
+    Option | undefined
+  >()
+  const [disableSelectGrounding, setDisableSelectGrounding] =
+    useState<boolean>(false)
 
   const cameraRef = useRef<any>(null)
   //#endregion  //*======== Initial State & Ref ===========
@@ -61,6 +68,7 @@ export default function CreateSurveyForm() {
 
   const {
     formState: { isDirty, errors, isValid },
+    getValues,
     register,
     reset,
     watch,
@@ -78,11 +86,29 @@ export default function CreateSurveyForm() {
 
   //#region  //*=========== Get Data Hooks ===========
   const { surveyNameList, loadingSurveyNameList } = useGetSurveyNameList()
-  const { poleList, loadingPoleList } = useGetPoleList()
+  const { listTiang, loadingListTiang } = useGetTiangList()
   const { constructionList, loadingConstructionList } = useGetConstructionList()
   const { conductorList, loadingConductorList } = useGetConductorList()
+  const { poleList, loadingPoleList } = useGetPoleList()
+  const { groundingList, loadingGroundingList } = useGetGroundingList()
   const { data: surveyDetail } = useGetSurveyDetail(surveyId?.toString())
   //#endregion  //*======== Get Data Hooks ===========
+
+  useEffect(() => {
+    if (selectedConstruction?.label) {
+      const label = selectedConstruction.label.toLowerCase()
+
+      if (label.includes('tm-11')) {
+        setDisableSelectGrounding(true)
+        setValue('detail.id_grounding', 1)
+      } else if (label.includes('arr')) {
+        setDisableSelectGrounding(true)
+        setValue('detail.id_grounding', 2)
+      } else {
+        setDisableSelectGrounding(false)
+      }
+    }
+  }, [selectedConstruction, setValue])
 
   useEffect(() => {
     if (!showCameraDialog) {
@@ -93,10 +119,8 @@ export default function CreateSurveyForm() {
   useEffect(() => {
     if (isCustomSurvey) {
       setValue('detail.panjang_jaringan', 0)
-    } else {
-      setValue('header.lokasi', surveyDetail?.header.lokasi ?? '')
     }
-  }, [isCustomSurvey, setValue, surveyDetail])
+  }, [isCustomSurvey, setValue])
 
   //#region  //*=========== Utility ===========
   const handleCloseSheet = () => {
@@ -173,13 +197,19 @@ export default function CreateSurveyForm() {
         header: {
           ...rest.header,
           user_id: userId ?? '',
-          status_survey: 'Belum_Disetujui'
+          status_survey: 'Belum_Disetujui',
+          id_material_konduktor: Number(data.header.id_material_konduktor)
         },
         detail: {
           ...rest.detail,
           id_konstruksi: Number(data.detail.id_konstruksi),
-          id_material_konduktor: Number(data.detail.id_material_konduktor),
-          id_material_tiang: Number(data.detail.id_material_tiang)
+          id_material_tiang: Number(data.detail.id_material_tiang),
+          ...(data.detail.id_pole
+            ? { id_pole: Number(data.detail.id_pole) }
+            : {}),
+          ...(data.detail.id_grounding
+            ? { id_grounding: Number(data.detail.id_grounding) }
+            : {})
         }
       }
 
@@ -190,8 +220,13 @@ export default function CreateSurveyForm() {
         detail: {
           ...rest.detail,
           id_konstruksi: Number(data.detail.id_konstruksi),
-          id_material_konduktor: Number(data.detail.id_material_konduktor),
-          id_material_tiang: Number(data.detail.id_material_tiang)
+          id_material_tiang: Number(data.detail.id_material_tiang),
+          ...(data.detail.id_pole
+            ? { id_pole: Number(data.detail.id_pole) }
+            : {}),
+          ...(data.detail.id_grounding
+            ? { id_grounding: Number(data.detail.id_grounding) }
+            : {})
         }
       }
 
@@ -240,17 +275,18 @@ export default function CreateSurveyForm() {
             >
               {/* Nama Survey */}
               <div className="grid gap-2">
-                <div className="flex  justify-between">
-                  <Label htmlFor="custom-survey-checkbox">Nama Survey</Label>
+                <div className="flex justify-between">
+                  <Label required htmlFor="survey-name">
+                    Nama Survey
+                  </Label>
                   <div className="flex gap-2 items-center">
-                    <label
+                    <Label
                       htmlFor="custom-survey-checkbox"
                       className="text-sm font-medium leading-none"
                     >
                       Survey Baru?
-                    </label>
+                    </Label>
                     <Checkbox
-                      id="custom-survey-checkbox"
                       checked={isCustomSurvey}
                       onCheckedChange={checked => {
                         const isChecked =
@@ -293,9 +329,11 @@ export default function CreateSurveyForm() {
 
               {/* Nama Pekerjaan */}
               <div className="grid gap-2">
-                <Label>Nama Pekerjaan</Label>
+                <Label required htmlFor="pekerjaan">
+                  Nama Pekerjaan
+                </Label>
                 <Controller
-                  name="detail.nama_pekerjaan"
+                  name="header.nama_pekerjaan"
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
@@ -313,7 +351,9 @@ export default function CreateSurveyForm() {
 
               {/* Lokasi/ULP */}
               <div className="grid gap-2">
-                <Label>Lokasi/ULP</Label>
+                <Label required htmlFor="lokasi">
+                  Lokasi/ULP
+                </Label>
                 {isCustomSurvey ? (
                   <Controller
                     name="header.lokasi"
@@ -328,15 +368,16 @@ export default function CreateSurveyForm() {
                     )}
                   />
                 ) : (
-                  <Input readOnly {...register('header.lokasi')} />
+                  <Input readOnly value={surveyDetail?.header.lokasi} />
                 )}
               </div>
 
               {/* Penyulang */}
               <div className="grid gap-2">
-                <Label htmlFor="penyulang">Penyulang</Label>
+                <Label required htmlFor="penyulang">
+                  Penyulang
+                </Label>
                 <Input
-                  id="penyulang"
                   maxLength={60}
                   {...register('detail.penyulang', { required: true })}
                 />
@@ -344,15 +385,17 @@ export default function CreateSurveyForm() {
 
               {/* Tiang */}
               <div className="grid gap-2">
-                <Label>Tiang</Label>
+                <Label required htmlFor="tiang">
+                  Tiang
+                </Label>
                 <Controller
                   name="detail.id_material_tiang"
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
                     <SearchableSelect
-                      isLoading={loadingPoleList}
-                      options={poleList}
+                      isLoading={loadingListTiang}
+                      options={listTiang}
                       onValueChange={onChange}
                       placeholder="Pilih Tiang"
                     />
@@ -362,7 +405,9 @@ export default function CreateSurveyForm() {
 
               {/* Konstruksi */}
               <div className="grid gap-2">
-                <Label>Konstruksi</Label>
+                <Label required htmlFor="konstruksi">
+                  Konstruksi
+                </Label>
                 <Controller
                   name="detail.id_konstruksi"
                   control={control}
@@ -371,7 +416,10 @@ export default function CreateSurveyForm() {
                     <SearchableSelect
                       isLoading={loadingConstructionList}
                       options={constructionList}
-                      onValueChange={onChange}
+                      onValueChange={(newValue, option) => {
+                        onChange(newValue)
+                        setSelectedConstruction(option)
+                      }}
                       placeholder="Pilih Konstruksi"
                     />
                   )}
@@ -380,9 +428,11 @@ export default function CreateSurveyForm() {
 
               {/* Jenis Konduktor */}
               <div className="grid gap-2">
-                <Label>Jenis Konduktor</Label>
+                <Label required htmlFor="konduktor">
+                  Jenis Konduktor
+                </Label>
                 <Controller
-                  name="detail.id_material_konduktor"
+                  name="header.id_material_konduktor"
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
@@ -398,11 +448,10 @@ export default function CreateSurveyForm() {
 
               {/* Panjang Jaringan */}
               <div className="grid gap-2">
-                <Label htmlFor="panjangJaringan">
+                <Label required htmlFor="panjangJaringan">
                   Panjang Jaringan (meter)
                 </Label>
                 <Input
-                  id="panjangJaringan"
                   type="number"
                   max={999}
                   disabled={isCustomSurvey}
@@ -413,9 +462,47 @@ export default function CreateSurveyForm() {
                 />
               </div>
 
+              {/* Pole Suporter */}
+              <div className="grid gap-2">
+                <Label>Pole Suporter</Label>
+                <Controller
+                  name="detail.id_pole"
+                  control={control}
+                  render={({ field: { onChange } }) => (
+                    <SearchableSelect
+                      isLoading={loadingPoleList}
+                      options={poleList}
+                      onValueChange={onChange}
+                      placeholder="Pilih Pole Suporter"
+                    />
+                  )}
+                />
+              </div>
+
+              {/* Grounding */}
+              <div className="grid gap-2">
+                <Label>Grounding</Label>
+                <Controller
+                  name="detail.id_grounding"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <SearchableSelect
+                      isDisabled={disableSelectGrounding}
+                      isLoading={loadingGroundingList}
+                      options={groundingList}
+                      value={value?.toString()}
+                      onValueChange={onChange}
+                      placeholder="Pilih Tipe Grounding"
+                    />
+                  )}
+                />
+              </div>
+
               {/* Koordinat */}
               <div className="grid gap-2">
-                <Label>Koordinat</Label>
+                <Label required htmlFor="koordinat">
+                  Koordinat
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="Latitude"
@@ -482,7 +569,9 @@ export default function CreateSurveyForm() {
 
               {/* Foto */}
               <div className="grid gap-2">
-                <Label>Foto Titik Survey</Label>
+                <Label required htmlFor="foto">
+                  Foto Titik Survey
+                </Label>
                 {photoValue ? (
                   <>
                     <Image
@@ -556,7 +645,9 @@ export default function CreateSurveyForm() {
 
               {/* Keterangan */}
               <div className="grid gap-2">
-                <Label htmlFor="keterangan">Keterangan</Label>
+                <Label required htmlFor="keterangan">
+                  Keterangan
+                </Label>
                 <Input
                   id="keterangan"
                   maxLength={60}
@@ -566,7 +657,9 @@ export default function CreateSurveyForm() {
 
               {/* Petugas Survey */}
               <div className="grid gap-2">
-                <Label htmlFor="petugas">Petugas Survey</Label>
+                <Label required htmlFor="petugas">
+                  Petugas Survey
+                </Label>
                 <Input
                   id="petugas"
                   maxLength={60}
@@ -576,7 +669,10 @@ export default function CreateSurveyForm() {
 
               <Button
                 type="submit"
-                onClick={() => console.log(errors)}
+                onClick={() => {
+                  console.log('Data: ', getValues())
+                  console.log('Error: ', errors)
+                }}
                 disabled={
                   loadingNewSurvey ||
                   loadingExistingSurvey ||

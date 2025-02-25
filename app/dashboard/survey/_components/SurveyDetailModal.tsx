@@ -28,10 +28,6 @@ export default function SurveyDetailModal({
         <div className="grid gap-8 text-sm">
           <div className="grid gap-4">
             <div className="flex justify-between">
-              <p>Nama Pekerjaan</p>
-              <p>{surveyDetail?.nama_pekerjaan}</p>
-            </div>
-            <div className="flex justify-between">
               <p>Penyulang</p>
               <p>{surveyDetail?.penyulang}</p>
             </div>

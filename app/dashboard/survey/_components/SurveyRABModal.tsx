@@ -48,16 +48,17 @@ export default function SurveyRABModal({ surveyId }: { surveyId: string }) {
                 <p>ID Pengguna</p>
                 <p>{survey.data_survey.user_id}</p>
               </div>
+              <div className="flex justify-between">
+                <p>Nama Pekerjaan</p>
+                <p>{survey.data_survey.nama_pekerjaan}</p>
+              </div>
             </div>
             {survey.data_survey.survey_details.map((surveyDetail, index) => (
               <div key={index} className="grid gap-4">
                 <h2 className="text-base font-semibold">
                   Survey {surveyDetail.id}
                 </h2>
-                <div className="flex justify-between">
-                  <p>Nama Pekerjaan</p>
-                  <p>{surveyDetail.nama_pekerjaan}</p>
-                </div>
+
                 <div className="flex justify-between">
                   <p>Penyulang</p>
                   <p>{surveyDetail.penyulang}</p>

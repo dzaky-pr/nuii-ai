@@ -62,6 +62,12 @@ export default function Page() {
                         Loading...
                       </td>
                     </tr>
+                  ) : !surveys ? (
+                    <tr className="text-center">
+                      <td colSpan={6} className="py-4 font-medium">
+                        Data survey tidak tersedia.
+                      </td>
+                    </tr>
                   ) : (
                     surveys?.map((data, index) => (
                       <tr key={index} className="text-center">
