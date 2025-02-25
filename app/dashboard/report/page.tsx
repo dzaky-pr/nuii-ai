@@ -70,7 +70,7 @@ export default function ReportPage() {
                     </td>
                     <td className="border p-2">{data.user_id}</td>
                     <td className="border p-2">
-                      <Link href={`/dashboard/survey/${data.id}`}>
+                      <Link href={`/dashboard/report/${data.id}`}>
                         <button className="text-green-500">Lihat Detail</button>
                       </Link>
                     </td>
