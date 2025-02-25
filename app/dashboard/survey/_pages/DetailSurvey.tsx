@@ -33,6 +33,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   const [selectedSurvey, setSelectedSurvey] = useState<SurveyDetail | null>(
     null
   )
+  const [isMounted, setIsMounted] = useState<boolean>(false)
 
   const { data: survey, isPending } = useGetSurveyDetail(surveyId)
   const { mutate: deleteSurveyDetail, isSuccess: successDeleteSurveyDetail } =
@@ -45,6 +46,14 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
       close('delete-survey-modal')
     }
   }, [close, successDeleteSurveyDetail])
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) {
+    return null
+  }
 
   if (isPending) {
     return (
