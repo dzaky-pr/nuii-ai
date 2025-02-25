@@ -32,14 +32,11 @@ export async function POST(req: Request) {
     }
     if (provider === 'nuii-ai') {
       const userQuery = messages[messages.length - 1].content
-      const response = await fetch(
-        'https://2jn9o6pnnztizk-11436.proxy.runpod.net/tanya',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: userQuery })
-        }
-      )
+      const response = await fetch(`${process.env.RUNPOD_SERVER_URL}/tanya`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: userQuery })
+      })
       if (!response.ok) {
         throw new Error(`NUII API error: ${response.statusText}`)
       }

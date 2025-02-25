@@ -6,7 +6,7 @@ import { createOllama } from 'ollama-ai-provider'
 export const registry = createProviderRegistry({
   groq,
   'nuii-ai': createOllama({
-    baseURL: 'https://2jn9o6pnnztizk-11436.proxy.runpod.net'
+    baseURL: `${process.env.RUNPOD_SERVER_URL}`
   })
 })
 
@@ -15,7 +15,7 @@ export function getModel(model: string) {
   if (model.includes('ollama')) {
     if (model.includes('nuii-ai')) {
       const ollama = createOllama({
-        baseURL: `https://2jn9o6pnnztizk-11436.proxy.runpod.net/tanya`
+        baseURL: `${process.env.RUNPOD_SERVER_URL}/tanya`
       })
 
       // if ollama provider, set simulateStreaming to true
