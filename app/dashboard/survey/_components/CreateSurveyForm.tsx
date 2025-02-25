@@ -119,8 +119,10 @@ export default function CreateSurveyForm() {
   useEffect(() => {
     if (isCustomSurvey) {
       setValue('detail.panjang_jaringan', 0)
+    } else {
+      setValue('header.lokasi', surveyDetail?.header.lokasi ?? '')
     }
-  }, [isCustomSurvey, setValue])
+  }, [isCustomSurvey, setValue, surveyDetail?.header.lokasi])
 
   //#region  //*=========== Utility ===========
   const handleCloseSheet = () => {
@@ -368,7 +370,10 @@ export default function CreateSurveyForm() {
                     )}
                   />
                 ) : (
-                  <Input readOnly value={surveyDetail?.header.lokasi} />
+                  <Input
+                    readOnly
+                    {...register('header.lokasi', { required: false })}
+                  />
                 )}
               </div>
 

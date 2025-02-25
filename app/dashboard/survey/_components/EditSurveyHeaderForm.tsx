@@ -76,7 +76,10 @@ export default function EditSurveyHeaderForm({
   const submitHandler = (data: IEditSurveyHeaderForm) => {
     const payload: UpdateSurveyHeader = {
       id_header: surveyHeader?.id ?? 0,
-      header: data
+      header: {
+        ...data,
+        id_material_konduktor: Number(data.id_material_konduktor)
+      }
     }
 
     mutate(payload)

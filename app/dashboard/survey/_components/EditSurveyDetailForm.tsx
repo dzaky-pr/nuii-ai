@@ -148,7 +148,15 @@ export default function EditSurveyDetailForm({
   const submitHandler = (data: IEditSurveyDetailForm) => {
     const payload: UpdateSurveyDetail = {
       id_detail: surveyDetail?.id ?? 0,
-      detail: data
+      detail: {
+        ...data,
+        id_konstruksi: Number(data.id_konstruksi),
+        id_material_tiang: Number(data.id_material_tiang),
+        ...(data.id_pole ? { id_pole: Number(data.id_pole) } : {}),
+        ...(data.id_grounding
+          ? { id_grounding: Number(data.id_grounding) }
+          : {})
+      }
     }
 
     mutate(payload)
