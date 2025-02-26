@@ -11,8 +11,8 @@ const exampleMessages = [
     message: 'Bagaimana NUII Mendapatkan Informasi?'
   },
   {
-    heading: 'Apa itu "Konstruksi SUTM Tiang Akhir (End Pole) TM-4N"?',
-    message: 'Apa itu "Konstruksi SUTM Tiang Akhir (End Pole) TM-4N"?'
+    heading: 'Apa itu "Konstruksi SUTM Tiang Awal (Riser Pole) TM-11"?',
+    message: 'Apa itu "Konstruksi SUTM TIANG Awal (Riser Pole) TM-11"?'
   },
   {
     heading: 'Jelaskan Cross Arm NP!',
