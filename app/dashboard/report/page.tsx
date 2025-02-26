@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useGetSurveyHeaderList } from '../survey/_hooks/@read/useGetSurveyHeaderList'
 
-export const tableHeader = [
+const tableHeader = [
   '#',
   'Nama Survey',
   'Lokasi',

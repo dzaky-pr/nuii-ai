@@ -11,7 +11,7 @@ import EditSurveyHeaderForm from './_components/EditSurveyHeaderForm'
 import { useDeleteSurveyHeaderMutation } from './_hooks/@delete/useDeleteSurveyHeaderMutation'
 import { useGetSurveyHeaderList } from './_hooks/@read/useGetSurveyHeaderList'
 
-export const tableHeader = [
+const tableHeader = [
   '#',
   'Nama Survey',
   'Lokasi',
