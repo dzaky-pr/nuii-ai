@@ -1,5 +1,6 @@
 import PwaDownloadAnnouncement from '@/components/pwadownload'
 import { ShinyButton } from '@/components/ui/shiny-button'
+import Image from 'next/image'
 import Link from 'next/link'
 import './globals.css'
 
@@ -10,7 +11,24 @@ export default function Page() {
       <div className="flex flex-col h-screen bg-background mx-auto container ">
         {/* Hero Section */}
         <header className="flex flex-col items-center justify-center bg-gradient-to-r bg-background h-[70vh] text-center py-12">
-          <h1 className="text-5xl font-bold mb-4">NUII AI</h1>
+          <Image
+            src="/logo/nuii-logo-v2-black.png"
+            className="w-[200px] h-auto dark:hidden pb-4"
+            alt="Nuii Logo"
+            width={200}
+            height={200}
+            priority
+          />
+
+          <Image
+            src="/logo/nuii-logo-v2-white.png"
+            className="w-[200px] h-auto hidden dark:block pb-4"
+            alt="Nuii Logo"
+            width={200}
+            height={200}
+            priority
+          />
+
           <p className="text-xl mb-6 max-w-3xl">
             Standar Konstruksi by Artificial Intelligence (NUII) Solusi AI
             cerdas untuk perencanaan dan pengawasan konstruksi jaringan listrik
