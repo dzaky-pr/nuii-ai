@@ -28,7 +28,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/nuii-ai
+            git stash
             git pull origin main
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
             bun install
             bun run build
             pm2 restart nuii-ai
