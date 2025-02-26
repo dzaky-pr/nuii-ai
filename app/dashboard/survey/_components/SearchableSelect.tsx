@@ -48,10 +48,6 @@ export default function SearchableSelect({
     onValueChange(newValue, selectedOption)
   }
 
-  const selectedOption = useMemo(() => {
-    return options.find(option => option.value === value)
-  }, [options, value])
-
   return (
     <Select
       value={value}

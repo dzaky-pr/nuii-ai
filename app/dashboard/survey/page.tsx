@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 
+import { surveyStatus } from '@/lib/constants'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { SurveyHeader } from '@/lib/types/survey'
 import Link from 'next/link'
@@ -10,7 +11,7 @@ import EditSurveyHeaderForm from './_components/EditSurveyHeaderForm'
 import { useDeleteSurveyHeaderMutation } from './_hooks/@delete/useDeleteSurveyHeaderMutation'
 import { useGetSurveyHeaderList } from './_hooks/@read/useGetSurveyHeaderList'
 
-const tableHeader = [
+export const tableHeader = [
   '#',
   'Nama Survey',
   'Lokasi',
@@ -23,6 +24,7 @@ export default function Page() {
   const [selectedSurvey, setSelectedSurvey] = useState<SurveyHeader | null>(
     null
   )
+  const [isMounted, setIsMounted] = useState<boolean>(false)
 
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyHeaderList()
@@ -37,9 +39,17 @@ export default function Page() {
     }
   }, [close, successDeleteSurveyHeader])
 
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) {
+    return null
+  }
+
   return (
     <>
-      <div className="p-4">
+      <div className="py-4 px-6">
         <CreateSurveyForm />
         <div className="mt-4 px-4">
           <h2 className="text-lg font-bold mb-4">Data Survey</h2>
@@ -74,10 +84,8 @@ export default function Page() {
                         <td className="border p-2">{index + 1}</td>
                         <td className="border p-2">{data.nama_survey}</td>
                         <td className="border p-2">{data.lokasi}</td>
-                        <td className="border p-2">
-                          {data.status_survey === 'Belum_Disetujui'
-                            ? 'Belum Disetujui'
-                            : '-'}
+                        <td className="border p-2 ">
+                          {surveyStatus[data.status_survey]}
                         </td>
                         <td className="border p-2">{data.user_id}</td>
                         <td className="border p-2 flex flex-col justify-center items-center gap-2">

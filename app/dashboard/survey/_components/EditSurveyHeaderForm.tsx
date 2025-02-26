@@ -2,18 +2,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle
 } from '@/components/ui/sheet'
 import { jobOptions } from '@/lib/constants'
+import { dummyLocations } from '@/lib/data/survey'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import {
-  EditSurveyHeaderForm as IEditSurveyHeaderForm,
-  SurveyHeader,
-  UpdateSurveyHeader
+	EditSurveyHeaderForm as IEditSurveyHeaderForm,
+	SurveyHeader,
+	UpdateSurveyHeader
 } from '@/lib/types/survey'
 import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
@@ -127,11 +128,21 @@ export default function EditSurveyHeaderForm({
 
               {/* Lokasi/ULP */}
               <div className="grid gap-2">
-                <Label htmlFor="lokasi">Lokasi/ULP</Label>
-                <Input
-                  {...register('lokasi', {
-                    required: true
-                  })}
+                <Label required htmlFor="lokasi">
+                  Lokasi/ULP
+                </Label>
+                <Controller
+                  name="lokasi"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <SearchableSelect
+					value={value}
+                      options={dummyLocations}
+                      onValueChange={onChange}
+                      placeholder="Pilih Lokasi"
+                    />
+                  )}
                 />
               </div>
 

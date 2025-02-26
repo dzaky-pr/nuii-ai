@@ -5,7 +5,7 @@ export interface SurveyHeader {
   nama_survey: string
   nama_pekerjaan: string
   lokasi: string
-  status_survey: string
+  status_survey: 'Belum_Disetujui' | 'Disetujui'
   user_id: string
   id_material_konduktor: number
   created_at: string

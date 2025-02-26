@@ -12,7 +12,6 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { dummyLocations } from '@/lib/data/survey'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 
@@ -31,6 +30,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { jobOptions } from '@/lib/constants'
+import { dummyLocations } from '@/lib/data/survey'
 import {
   CreateExistingSurvey,
   CreateNewSurvey,
@@ -119,8 +119,8 @@ export default function CreateSurveyForm() {
   useEffect(() => {
     if (isCustomSurvey) {
       setValue('detail.panjang_jaringan', 0)
-    } else {
-      setValue('header.lokasi', surveyDetail?.header.lokasi ?? '')
+    } else if (!isCustomSurvey && surveyDetail?.header.lokasi) {
+      setValue('header.lokasi', surveyDetail.header.lokasi)
     }
   }, [isCustomSurvey, setValue, surveyDetail?.header.lokasi])
 
@@ -309,14 +309,14 @@ export default function CreateSurveyForm() {
                   <Input
                     placeholder="Masukkan Nama Survey"
                     {...register('header.nama_survey', {
-                      required: isCustomSurvey ? true : false
+                      required: isCustomSurvey
                     })}
                   />
                 ) : (
                   <Controller
                     name="id_header"
                     control={control}
-                    rules={{ required: isCustomSurvey ? false : true }}
+                    rules={{ required: isCustomSurvey }}
                     render={({ field: { onChange } }) => (
                       <SearchableSelect
                         isLoading={loadingSurveyNameList}
@@ -360,11 +360,15 @@ export default function CreateSurveyForm() {
                   <Controller
                     name="header.lokasi"
                     control={control}
-                    rules={{ required: isCustomSurvey ? true : false }}
-                    render={({ field: { onChange } }) => (
+                    rules={{ required: isCustomSurvey }}
+                    render={() => (
                       <SearchableSelect
                         options={dummyLocations}
-                        onValueChange={onChange}
+                        onValueChange={value => {
+                          setValue('header.lokasi', value, {
+                            shouldValidate: true
+                          })
+                        }}
                         placeholder="Pilih Lokasi"
                       />
                     )}
@@ -372,7 +376,7 @@ export default function CreateSurveyForm() {
                 ) : (
                   <Input
                     readOnly
-                    {...register('header.lokasi', { required: false })}
+                    {...register('header.lokasi', { required: isCustomSurvey })}
                   />
                 )}
               </div>
@@ -681,7 +685,7 @@ export default function CreateSurveyForm() {
                 disabled={
                   loadingNewSurvey ||
                   loadingExistingSurvey ||
-                  !isValid ||
+                  // !isValid ||
                   !photoValue
                 }
               >
