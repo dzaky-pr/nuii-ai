@@ -22,13 +22,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/nuii-ai
-            git stash
+            git reset --hard origin/main  
+            git clean -fd  
             git pull origin main
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             bun install
+            rm -rf .next  
             bun run build
             pm2 restart nuii-ai
+
       - name: Notify Success
         if: success()
         run: echo "🚀 Deployment was successful"
