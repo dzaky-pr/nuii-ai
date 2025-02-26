@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import {
   constructionTableHeader,
   materialTableHeader,
+  materialTableHeaderLite,
   poleTableHeader,
   surveyDetailTableHeader,
   surveyHeaderTableHeader
@@ -138,39 +139,34 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
             </thead>
             <tbody>
               <tr className="text-center">
-                <td className="border p-2">{report.data_survey.id}</td>
-                <td className="border p-2">{report.data_survey.nama_survey}</td>
-                <td className="border p-2">
-                  {report.data_survey.nama_pekerjaan}
-                </td>
-                <td className="border p-2">{report.data_survey.lokasi}</td>
-                <td className="border p-2">
-                  {report.data_survey.status_survey}
-                </td>
-                <td className="border p-2">
-                  {report.data_survey.id_material_konduktor}
-                </td>
-                <td className="border p-2">{report.data_survey.user_id}</td>
-                <td className="border p-2">
-                  {format(
-                    report.data_survey.created_at,
-                    'EEEE, d MMM yyyy HH:mm',
-                    {
-                      locale: id
-                    }
-                  )}{' '}
-                  WIB
-                </td>
-                <td className="border p-2 text-center">
-                  {format(
-                    report.data_survey.updated_at,
-                    'EEEE, d MMM yyyy HH:mm',
-                    {
-                      locale: id
-                    }
-                  )}{' '}
-                  WIB
-                </td>
+                {surveyHeaderTableHeader.map((header, index) => {
+                  const surveyHeaderMap: Record<string, string | number> = {
+                    ID: report.data_survey.id,
+                    'Nama Survey': report.data_survey.nama_survey,
+                    'Nama Pekerjaan': report.data_survey.nama_pekerjaan,
+                    Lokasi: report.data_survey.lokasi,
+                    'Status Survey': report.data_survey.status_survey,
+                    'ID Material Konduktor':
+                      report.data_survey.id_material_konduktor,
+                    'ID User': report.data_survey.user_id,
+                    'Dibuat Pada': `${format(
+                      report.data_survey.created_at,
+                      'EEEE, d MMM yyyy HH:mm',
+                      { locale: id }
+                    )} WIB`,
+                    'Diperbarui Pada': `${format(
+                      report.data_survey.updated_at,
+                      'EEEE, d MMM yyyy HH:mm',
+                      { locale: id }
+                    )} WIB`
+                  }
+
+                  return (
+                    <td key={index} className="border p-2">
+                      {surveyHeaderMap[header] || ''}
+                    </td>
+                  )
+                })}
               </tr>
             </tbody>
           </table>
@@ -194,36 +190,54 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                 <tbody>
                   {report.data_survey.survey_details.map((item, index) => (
                     <tr key={index} className="text-center">
-                      <td className="border p-2">{item.id}</td>
-                      <td className="border p-2">{item.id_material_tiang}</td>
-                      <td className="border p-2">{item.id_konstruksi}</td>
-                      <td className="border p-2">{item.id_header}</td>
-                      <td className="border p-2">{item.id_pole_supporter}</td>
-                      <td className="border p-2">
-                        {item.id_grounding_termination}
-                      </td>
-                      <td className="border p-2">{item.penyulang}</td>
-                      <td className="border p-2">{item.panjang_jaringan} m</td>
-                      <td className="border p-2">
-                        Lat: {item.lat}, <br /> Long: {item.long}
-                      </td>
-                      <td className="border p-2">
-                        {item.foto ? (
-                          <Image
-                            src={item.foto}
-                            alt="Foto Survey"
-                            width={100}
-                            height={60}
-                            className="object-cover"
-                          />
-                        ) : (
-                          'Foto tidak tersedia.'
-                        )}
-                      </td>
-                      <td className="border p-2">{item.keterangan}</td>
-                      <td className="border p-2">{item.petugas_survey}</td>
-                      <td className="border p-2">{item.created_at}</td>
-                      <td className="border p-2">{item.updated_at}</td>
+                      {surveyDetailTableHeader.map((header, idx) => {
+                        const surveyDetailMap: Record<string, React.ReactNode> =
+                          {
+                            ID: item.id,
+                            'ID Material Tiang': item.id_material_tiang,
+                            'ID Konstruksi': item.id_konstruksi,
+                            'ID Header': item.id_header,
+                            'ID Pole Suporter': item.id_pole_supporter,
+                            'ID Grounding Termination':
+                              item.id_grounding_termination,
+                            Penyulang: item.penyulang,
+                            'Panjang Jaringan': `${item.panjang_jaringan} m`,
+                            Koordinat: (
+                              <>
+                                Lat: {item.lat}, <br /> Long: {item.long}
+                              </>
+                            ),
+                            Foto: item.foto ? (
+                              <Image
+                                src={item.foto}
+                                alt="Foto Survey"
+                                width={100}
+                                height={60}
+                                className="object-cover"
+                              />
+                            ) : (
+                              'Foto tidak tersedia.'
+                            ),
+                            Keterangan: item.keterangan,
+                            'Nama Petugas': item.petugas_survey,
+                            'Dibuat Pada': `${format(
+                              item.created_at,
+                              'EEEE, d MMM yyyy HH:mm',
+                              { locale: id }
+                            )} WIB`,
+                            'Diperbarui Pada': `${format(
+                              item.updated_at,
+                              'EEEE, d MMM yyyy HH:mm',
+                              { locale: id }
+                            )} WIB`
+                          }
+
+                        return (
+                          <td key={idx} className="border p-2">
+                            {surveyDetailMap[header]}
+                          </td>
+                        )
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -252,33 +266,30 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                     </thead>
                     <tbody>
                       <tr className="text-center">
-                        <td className="border p-2">{item.data_pole.id}</td>
-                        <td className="border p-2">
-                          {item.data_pole.nama_pole}
-                        </td>
-                        <td className="border p-2">
-                          {item.data_pole.nama_grounding}
-                        </td>
-                        <td className="border p-2">
-                          {format(
-                            item.data_pole.created_at,
-                            'EEEE, d MMM yyyy HH:mm',
-                            {
-                              locale: id
-                            }
-                          )}{' '}
-                          WIB
-                        </td>
-                        <td className="border p-2 text-center">
-                          {format(
-                            item.data_pole.updated_at,
-                            'EEEE, d MMM yyyy HH:mm',
-                            {
-                              locale: id
-                            }
-                          )}{' '}
-                          WIB
-                        </td>
+                        {poleTableHeader.map((header, idx) => {
+                          const poleMap: Record<string, string | number> = {
+                            ID: item.data_pole.id,
+                            'Nama Pole': item.data_pole.nama_pole ?? '',
+                            'Nama Grounding':
+                              item.data_pole.nama_grounding ?? '',
+                            'Dibuat Pada': `${format(
+                              item.data_pole.created_at,
+                              'EEEE, d MMM yyyy HH:mm',
+                              { locale: id }
+                            )} WIB`,
+                            'Diperbarui Pada': `${format(
+                              item.data_pole.updated_at,
+                              'EEEE, d MMM yyyy HH:mm',
+                              { locale: id }
+                            )} WIB`
+                          }
+
+                          return (
+                            <td key={idx} className="border p-2">
+                              {poleMap[header]}
+                            </td>
+                          )
+                        })}
                       </tr>
                     </tbody>
                   </table>
@@ -286,7 +297,7 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                 <p>Pole Materials</p>
                 {item.materials.length < 2 ? (
                   <p className="text-sm">
-                    Detail pole materials tidak tersedia.
+                    Detail material pole tidak tersedia.
                   </p>
                 ) : (
                   <div className="overflow-x-auto">
@@ -303,78 +314,54 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                       <tbody>
                         {item.materials.map((material, materialIdx) => (
                           <tr key={materialIdx} className="text-center">
-                            <td className="border p-2">
-                              {material.data_material.id}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.id_tipe_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.nomor_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.nama_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.satuan_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.berat_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.harga_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.pasang_rab}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.bongkar}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.jenis_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.kategori_material}
-                            </td>
-                            <td className="border p-2">
-                              {format(
-                                material.data_material.created_at,
-                                'EEEE, d MMM yyyy HH:mm',
-                                {
-                                  locale: id
-                                }
-                              )}{' '}
-                              WIB
-                            </td>
-                            <td className="border p-2 text-center">
-                              {format(
-                                material.data_material.updated_at,
-                                'EEEE, d MMM yyyy HH:mm',
-                                {
-                                  locale: id
-                                }
-                              )}{' '}
-                              WIB
-                            </td>
-                            <td className="border p-2">
-                              {material.tipe_pekerjaan}
-                            </td>
-                            <td className="border p-2">{material.kuantitas}</td>
-                            <td className="border p-2">
-                              {material.total_kuantitas}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_berat}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_harga_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_pasang}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_bongkar}
-                            </td>
+                            {materialTableHeader.map((header, idx) => {
+                              const materialMap: Record<
+                                string,
+                                string | number
+                              > = {
+                                ID: material.data_material.id,
+                                'ID Tipe Material':
+                                  material.data_material.id_tipe_material,
+                                'Nomor Material':
+                                  material.data_material.nomor_material,
+                                'Nama Material':
+                                  material.data_material.nama_material,
+                                'Satuan Material':
+                                  material.data_material.satuan_material,
+                                'Harga Material':
+                                  material.data_material.harga_material,
+                                'Pasang RAB': material.data_material.pasang_rab,
+                                Bongkar: material.data_material.bongkar,
+                                'Jenis Material':
+                                  material.data_material.jenis_material,
+                                'Kategori Material':
+                                  material.data_material.kategori_material,
+                                'Dibuat Pada': `${format(
+                                  material.data_material.created_at,
+                                  'EEEE, d MMM yyyy HH:mm',
+                                  { locale: id }
+                                )} WIB`,
+                                'Diperbarui Pada': `${format(
+                                  material.data_material.updated_at,
+                                  'EEEE, d MMM yyyy HH:mm',
+                                  { locale: id }
+                                )} WIB`,
+                                'Tipe Pekerjaan': material.tipe_pekerjaan,
+                                Kuantitas: material.kuantitas,
+                                'Total Kuantitas': material.total_kuantitas,
+                                'Total Berat': material.total_berat,
+                                'Total Harga Material':
+                                  material.total_harga_material,
+                                'Total Pasang': material.total_pasang,
+                                'Total Bongkar': material.total_bongkar
+                              }
+
+                              return (
+                                <td key={idx} className="border p-2">
+                                  {materialMap[header]}
+                                </td>
+                              )
+                            })}
                           </tr>
                         ))}
                       </tbody>
@@ -394,7 +381,7 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
               <table className="min-w-full border-collapse border border-gray-300">
                 <thead>
                   <tr>
-                    {materialTableHeader.map((item, index) => (
+                    {materialTableHeaderLite.map((item, index) => (
                       <th key={index} className="border p-2">
                         {item}
                       </th>
@@ -404,62 +391,47 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                 <tbody>
                   {report.detail_tiang.map((item, index) => (
                     <tr key={index} className="text-center">
-                      <td className="border p-2">{item.data_tiang?.id}</td>
-                      <td className="border p-2">
-                        {item.data_tiang?.id_tipe_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_tiang?.nomor_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_tiang?.nama_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_tiang?.satuan_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_tiang?.berat_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_tiang?.harga_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_tiang?.pasang_rab}
-                      </td>
-                      <td className="border p-2">{item.data_tiang?.bongkar}</td>
-                      <td className="border p-2">
-                        {item.data_tiang?.jenis_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_tiang?.kategori_material}
-                      </td>
-                      <td className="border p-2">
-                        {format(
-                          item.data_tiang?.created_at ?? '',
-                          'EEEE, d MMM yyyy HH:mm',
-                          {
-                            locale: id
-                          }
-                        )}{' '}
-                        WIB
-                      </td>
-                      <td className="border p-2 text-center">
-                        {format(
-                          item.data_tiang?.updated_at ?? '',
-                          'EEEE, d MMM yyyy HH:mm',
-                          {
-                            locale: id
-                          }
-                        )}{' '}
-                        WIB
-                      </td>
-                      <td className="border p-2">{item.total_kuantitas}</td>
-                      <td className="border p-2">{item.total_berat}</td>
-                      <td className="border p-2">
-                        {item.total_harga_material}
-                      </td>
-                      <td className="border p-2">{item.total_pasang}</td>
-                      <td className="border p-2">{item.total_bongkar}</td>
+                      {materialTableHeaderLite.map((header, idx) => {
+                        const materialMap: Record<string, string | number> = {
+                          ID: item.data_tiang?.id ?? 0,
+                          'ID Tipe Material':
+                            item.data_tiang?.id_tipe_material ?? 0,
+                          'Nomor Material':
+                            item.data_tiang?.nomor_material ?? 0,
+                          'Nama Material': item.data_tiang?.nama_material ?? '',
+                          'Satuan Material':
+                            item.data_tiang?.satuan_material ?? '',
+                          'Harga Material':
+                            item.data_tiang?.harga_material ?? 0,
+                          'Pasang RAB': item.data_tiang?.pasang_rab ?? 0,
+                          Bongkar: item.data_tiang?.bongkar ?? 0,
+                          'Jenis Material':
+                            item.data_tiang?.jenis_material ?? '',
+                          'Kategori Material':
+                            item.data_tiang?.kategori_material ?? '',
+                          'Dibuat Pada': `${format(
+                            item.data_tiang?.created_at ?? '',
+                            'EEEE, d MMM yyyy HH:mm',
+                            { locale: id }
+                          )} WIB`,
+                          'Diperbarui Pada': `${format(
+                            item.data_tiang?.updated_at ?? '',
+                            'EEEE, d MMM yyyy HH:mm',
+                            { locale: id }
+                          )} WIB`,
+                          'Total Kuantitas': item.total_kuantitas,
+                          'Total Berat': item.total_berat,
+                          'Total Harga Material': item.total_harga_material,
+                          'Total Pasang': item.total_pasang,
+                          'Total Bongkar': item.total_bongkar
+                        }
+
+                        return (
+                          <td key={idx} className="border p-2">
+                            {materialMap[header]}
+                          </td>
+                        )
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -488,35 +460,34 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                     </thead>
                     <tbody>
                       <tr className="text-center">
-                        <td className="border p-2">
-                          {item.data_konstruksi.id}
-                        </td>
-                        <td className="border p-2">
-                          {item.data_konstruksi.nama_konstruksi}
-                        </td>
-                        <td className="border p-2">
-                          {item.data_konstruksi.nomor_konstruksi}
-                        </td>
-                        <td className="border p-2">
-                          {format(
-                            item.data_konstruksi.created_at,
-                            'EEEE, d MMM yyyy HH:mm',
-                            {
-                              locale: id
-                            }
-                          )}{' '}
-                          WIB
-                        </td>
-                        <td className="border p-2 text-center">
-                          {format(
-                            item.data_konstruksi.updated_at,
-                            'EEEE, d MMM yyyy HH:mm',
-                            {
-                              locale: id
-                            }
-                          )}{' '}
-                          WIB
-                        </td>
+                        {constructionTableHeader.map((header, idx) => {
+                          const constructionMap: Record<
+                            string,
+                            string | number
+                          > = {
+                            ID: item.data_konstruksi.id,
+                            'Nama Konstruksi':
+                              item.data_konstruksi.nama_konstruksi,
+                            'Nomor Konstruksi':
+                              item.data_konstruksi.nomor_konstruksi,
+                            'Dibuat Pada': `${format(
+                              item.data_konstruksi.created_at,
+                              'EEEE, d MMM yyyy HH:mm',
+                              { locale: id }
+                            )} WIB`,
+                            'Diperbarui Pada': `${format(
+                              item.data_konstruksi.updated_at,
+                              'EEEE, d MMM yyyy HH:mm',
+                              { locale: id }
+                            )} WIB`
+                          }
+
+                          return (
+                            <td key={idx} className="border p-2">
+                              {constructionMap[header]}
+                            </td>
+                          )
+                        })}
                       </tr>
                     </tbody>
                   </table>
@@ -541,78 +512,54 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                       <tbody>
                         {item.materials.map((material, materialIdx) => (
                           <tr key={materialIdx} className="text-center">
-                            <td className="border p-2">
-                              {material.data_material.id}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.id_tipe_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.nomor_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.nama_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.satuan_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.berat_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.harga_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.pasang_rab}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.bongkar}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.jenis_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.data_material.kategori_material}
-                            </td>
-                            <td className="border p-2">
-                              {format(
-                                material.data_material.created_at,
-                                'EEEE, d MMM yyyy HH:mm',
-                                {
-                                  locale: id
-                                }
-                              )}{' '}
-                              WIB
-                            </td>
-                            <td className="border p-2 text-center">
-                              {format(
-                                material.data_material.updated_at,
-                                'EEEE, d MMM yyyy HH:mm',
-                                {
-                                  locale: id
-                                }
-                              )}{' '}
-                              WIB
-                            </td>
-                            <td className="border p-2">
-                              {material.tipe_pekerjaan}
-                            </td>
-                            <td className="border p-2">{material.kuantitas}</td>
-                            <td className="border p-2">
-                              {material.total_kuantitas}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_berat}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_harga_material}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_pasang}
-                            </td>
-                            <td className="border p-2">
-                              {material.total_bongkar}
-                            </td>
+                            {materialTableHeader.map((header, idx) => {
+                              const materialMap: Record<
+                                string,
+                                string | number
+                              > = {
+                                ID: material.data_material.id,
+                                'ID Tipe Material':
+                                  material.data_material.id_tipe_material,
+                                'Nomor Material':
+                                  material.data_material.nomor_material,
+                                'Nama Material':
+                                  material.data_material.nama_material,
+                                'Satuan Material':
+                                  material.data_material.satuan_material,
+                                'Harga Material':
+                                  material.data_material.harga_material,
+                                'Pasang RAB': material.data_material.pasang_rab,
+                                Bongkar: material.data_material.bongkar,
+                                'Jenis Material':
+                                  material.data_material.jenis_material,
+                                'Kategori Material':
+                                  material.data_material.kategori_material,
+                                'Dibuat Pada': `${format(
+                                  material.data_material.created_at,
+                                  'EEEE, d MMM yyyy HH:mm',
+                                  { locale: id }
+                                )} WIB`,
+                                'Diperbarui Pada': `${format(
+                                  material.data_material.updated_at,
+                                  'EEEE, d MMM yyyy HH:mm',
+                                  { locale: id }
+                                )} WIB`,
+                                'Tipe Pekerjaan': material.tipe_pekerjaan,
+                                Kuantitas: material.kuantitas,
+                                'Total Kuantitas': material.total_kuantitas,
+                                'Total Berat': material.total_berat,
+                                'Total Harga Material':
+                                  material.total_harga_material,
+                                'Total Pasang': material.total_pasang,
+                                'Total Bongkar': material.total_bongkar
+                              }
+
+                              return (
+                                <td key={idx} className="border p-2">
+                                  {materialMap[header]}
+                                </td>
+                              )
+                            })}
                           </tr>
                         ))}
                       </tbody>
@@ -632,7 +579,7 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
               <table className="min-w-full border-collapse border border-gray-300">
                 <thead>
                   <tr>
-                    {materialTableHeader.map((item, index) => (
+                    {materialTableHeaderLite.map((item, index) => (
                       <th key={index} className="border p-2">
                         {item}
                       </th>
@@ -642,64 +589,48 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                 <tbody>
                   {report.detail_konduktor.map((item, index) => (
                     <tr key={index} className="text-center">
-                      <td className="border p-2">{item.data_konduktor?.id}</td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.id_tipe_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.nomor_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.nama_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.satuan_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.berat_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.harga_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.pasang_rab}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.bongkar}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.jenis_material}
-                      </td>
-                      <td className="border p-2">
-                        {item.data_konduktor?.kategori_material}
-                      </td>
-                      <td className="border p-2">
-                        {format(
-                          item.data_konduktor?.created_at ?? '',
-                          'EEEE, d MMM yyyy HH:mm',
-                          {
-                            locale: id
-                          }
-                        )}{' '}
-                        WIB
-                      </td>
-                      <td className="border p-2 text-center">
-                        {format(
-                          item.data_konduktor?.updated_at ?? '',
-                          'EEEE, d MMM yyyy HH:mm',
-                          {
-                            locale: id
-                          }
-                        )}{' '}
-                        WIB
-                      </td>
-                      <td className="border p-2">{item.total_kuantitas}</td>
-                      <td className="border p-2">{item.total_berat}</td>
-                      <td className="border p-2">
-                        {item.total_harga_material}
-                      </td>
-                      <td className="border p-2">{item.total_pasang}</td>
-                      <td className="border p-2">{item.total_bongkar}</td>
+                      {materialTableHeaderLite.map((header, idx) => {
+                        const materialMap: Record<string, string | number> = {
+                          ID: item.data_konduktor?.id ?? 0,
+                          'ID Tipe Material':
+                            item.data_konduktor?.id_tipe_material ?? 0,
+                          'Nomor Material':
+                            item.data_konduktor?.nomor_material ?? 0,
+                          'Nama Material':
+                            item.data_konduktor?.nama_material ?? '',
+                          'Satuan Material':
+                            item.data_konduktor?.satuan_material ?? '',
+                          'Harga Material':
+                            item.data_konduktor?.harga_material ?? 0,
+                          'Pasang RAB': item.data_konduktor?.pasang_rab ?? 0,
+                          Bongkar: item.data_konduktor?.bongkar ?? 0,
+                          'Jenis Material':
+                            item.data_konduktor?.jenis_material ?? '',
+                          'Kategori Material':
+                            item.data_konduktor?.kategori_material ?? '',
+                          'Dibuat Pada': `${format(
+                            item.data_konduktor?.created_at ?? '',
+                            'EEEE, d MMM yyyy HH:mm',
+                            { locale: id }
+                          )} WIB`,
+                          'Diperbarui Pada': `${format(
+                            item.data_konduktor?.updated_at ?? '',
+                            'EEEE, d MMM yyyy HH:mm',
+                            { locale: id }
+                          )} WIB`,
+                          'Total Kuantitas': item.total_kuantitas,
+                          'Total Berat': item.total_berat,
+                          'Total Harga Material': item.total_harga_material,
+                          'Total Pasang': item.total_pasang,
+                          'Total Bongkar': item.total_bongkar
+                        }
+
+                        return (
+                          <td key={idx} className="border p-2">
+                            {materialMap[header]}
+                          </td>
+                        )
+                      })}
                     </tr>
                   ))}
                 </tbody>

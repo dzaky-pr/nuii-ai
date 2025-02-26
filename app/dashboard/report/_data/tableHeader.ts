@@ -65,3 +65,24 @@ export const materialTableHeader = [
   'Total Pasang',
   'Total Bongkar'
 ]
+
+export const materialTableHeaderLite = [
+  'ID',
+  'ID Tipe Material',
+  'Nomor Material',
+  'Nama Material',
+  'Satuan Material',
+  'Berat Material',
+  'Harga Material',
+  'Pasang RAB',
+  'Bongkar',
+  'Jenis Material',
+  'Kategori Material',
+  'Dibuat Pada',
+  'Diperbarui Pada',
+  'Total Kuantitas',
+  'Total Berat',
+  'Total Harga Material',
+  'Total Pasang',
+  'Total Bongkar'
+]
