@@ -8,11 +8,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environtment: production
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Debug SSH Variables
+        run: |
+          echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
+          echo "SSH_USER: ${{ secrets.SSH_USER }}"
+          # Jangan print SSH_PRIVATE_KEY karena sensitif!
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -21,24 +26,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
-
-            # Pastikan Bun dan PM2 tersedia
-            if ! command -v bun &> /dev/null; then
-              curl -fsSL https://bun.sh/install | bash
-              export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
-            fi
-
-            if ! command -v pm2 &> /dev/null; then
-              npm install -g pm2
-            fi
-
             cd /var/www/nuii-ai
-
-            # Hindari error git pull karena file untracked
-            git reset --hard
-            git clean -fd
-
             git pull origin main
             bun install
             bun run build
