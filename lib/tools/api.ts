@@ -1,4 +1,3 @@
-import { useAuth } from '@clerk/nextjs'
 import axios, { AxiosError } from 'axios'
 import { UninterceptedApiError } from '../types/api'
 
@@ -20,9 +19,7 @@ api.defaults.withCredentials = false
 
 api.interceptors.request.use(
   async config => {
-    // const token = await (window as any).Clerk.session.getToken()
-    const { getToken } = useAuth()
-    const token = await getToken()
+    const token = await (window as any).Clerk.session.getToken()
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
