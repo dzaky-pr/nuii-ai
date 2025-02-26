@@ -13,6 +13,11 @@ export interface SurveyHeader {
   deleted_at: string | null
 }
 
+export interface DetailedSurveyHeader extends SurveyHeader {
+  total_panjang_jaringan_manual: number
+  total_panjang_jaringan_otomatis: number
+}
+
 export interface SurveyDetail {
   id: number
   id_material_tiang: number
@@ -32,7 +37,7 @@ export interface SurveyDetail {
 }
 
 export interface ISurvey {
-  header: SurveyHeader
+  header: DetailedSurveyHeader
   detail: SurveyDetail[]
 }
 
@@ -73,6 +78,7 @@ export interface SurveyLite {
 
 interface TotalMaterial {
   total_kuantitas: number
+  total_berat: number
   total_harga_material: number
   total_pasang: number
   total_bongkar: number
