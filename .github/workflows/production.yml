@@ -14,17 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug SSH Variables
-        run: |
-          echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
-          echo "SSH_USER: ${{ secrets.SSH_USER }}"
-          # Jangan print SSH_PRIVATE_KEY karena sensitif!
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 178.16.137.201
-          username: root
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/nuii-ai
@@ -35,3 +29,6 @@ jobs:
             bun install
             bun run build
             pm2 restart nuii-ai
+      - name: Notify Success
+        if: success()
+        run: echo "🚀 Deployment was successful"
