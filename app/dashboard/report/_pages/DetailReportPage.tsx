@@ -51,6 +51,8 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
 
       document.body.appendChild(a)
       a.click()
+
+      window.URL.revokeObjectURL(blobUrl)
       document.body.removeChild(a)
     } catch (error: unknown) {
       if (error instanceof Error) {
