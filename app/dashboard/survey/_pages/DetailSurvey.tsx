@@ -6,6 +6,7 @@ import { SurveyDetail } from '@/lib/types/survey'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import DeleteSurveyModal from '../_components/DeleteSurveyModal'
 import EditSurveyDetailForm from '../_components/EditSurveyDetailForm'
@@ -35,6 +36,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   )
   const [isMounted, setIsMounted] = useState<boolean>(false)
 
+  const router = useRouter()
   const { data: survey, isPending } = useGetSurveyDetail(surveyId)
   const { mutate: deleteSurveyDetail, isSuccess: successDeleteSurveyDetail } =
     useDeleteSurveyDetailMutation({ surveyId })
@@ -74,9 +76,14 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   return (
     <>
       <div className="py-4 px-10 flex flex-col gap-8 mt-8">
-        <div className="flex justify-between items-center">
+        <div className="flex md:justify-between md:items-center max-md:flex-col max-md:gap-8">
           <div className="flex gap-4 items-center">
-            <Button asChild size="icon" variant="outline">
+            <Button
+              asChild
+              size="icon"
+              variant="outline"
+              onClick={() => router.back()}
+            >
               <Link href="/dashboard/survey">
                 <ArrowLeft size={16} />
               </Link>
@@ -86,6 +93,9 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
             </h3>
           </div>
           <div className="flex gap-4 items-center">
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/dashboard/report/${surveyId}`}>Lihat Report</Link>
+            </Button>
             <Button
               size="sm"
               variant="outline"
@@ -102,6 +112,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
             </Button>
           </div>
         </div>
+
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse border border-gray-300">
             <thead>
@@ -175,6 +186,16 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p>
+            Panjang Total Jaringan Manual:{' '}
+            {survey.header.total_panjang_jaringan_manual} meter
+          </p>
+          <p>
+            Panjang Total Jaringan Otomatis:{' '}
+            {survey.header.total_panjang_jaringan_otomatis.toFixed(3)} meter
+          </p>
         </div>
       </div>
       <MapViewerDialog surveys={survey.detail} />

@@ -1,10 +1,10 @@
 import api from '@/lib/tools/api'
-import { ISurvey } from '@/lib/types/survey'
+import { SurveyReport } from '@/lib/types/report'
 import { useQuery } from '@tanstack/react-query'
 
-const useGetSurveyReport = (surveyId: string) => {
-  return useQuery<ISurvey>({
-    queryKey: ['exportSurvey', surveyId],
+const useGetSurveyReportDetail = (surveyId: string) => {
+  return useQuery<SurveyReport>({
+    queryKey: ['surveyReport', surveyId],
     queryFn: async () => {
       const response = await api.get(`/survey/export/${surveyId}`)
       return response.data.data
@@ -13,4 +13,4 @@ const useGetSurveyReport = (surveyId: string) => {
   })
 }
 
-export { useGetSurveyReport }
+export { useGetSurveyReportDetail }

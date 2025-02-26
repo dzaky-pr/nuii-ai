@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { useGetSurveyHeaderList } from '../survey/_hooks/@read/useGetSurveyHeaderList'
+import { useGetSurveyReportList } from './_hooks/useGetSurveyReportList'
 
 const tableHeader = [
   '#',
@@ -19,7 +19,7 @@ export default function ReportPage() {
   const [isMounted, setIsMounted] = useState<boolean>(false)
 
   const { data: surveys, isPending: loadingGetSurveys } =
-    useGetSurveyHeaderList()
+    useGetSurveyReportList()
 
   useEffect(() => {
     setIsMounted(true)
@@ -64,14 +64,20 @@ export default function ReportPage() {
                     <td className="border p-2">{data.nama_survey}</td>
                     <td className="border p-2">{data.lokasi}</td>
                     <td className="border p-2">
-                      {format(data.updated_at, 'EEEE, d MMMM yyyy HH:mm', {
+                      {format(data.updated_at, 'EEEE, d MMM yyyy HH:mm', {
                         locale: id
-                      })}
+                      })}{' '}
+                      WIB
                     </td>
                     <td className="border p-2">{data.user_id}</td>
                     <td className="border p-2">
                       <Link href={`/dashboard/report/${data.id}`}>
-                        <button className="text-green-500">Lihat Detail</button>
+                        <button
+                          className="text-green-500 disabled:text-neutral-500"
+                          disabled={data.status_survey === 'Belum_Disetujui'}
+                        >
+                          Lihat Detail
+                        </button>
                       </Link>
                     </td>
                   </tr>
