@@ -13,6 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Debug SSH Variables
+        run: |
+          echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
+          echo "SSH_USER: ${{ secrets.SSH_USER }}"
+          # Jangan print SSH_PRIVATE_KEY karena sensitif!
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
