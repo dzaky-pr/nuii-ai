@@ -11,12 +11,12 @@ const exampleMessages = [
     message: 'Bagaimana NUII Mendapatkan Informasi?'
   },
   {
-    heading: 'Apa itu "Konstruksi SUTM Tiang Awal (Riser Pole) TM-11"?',
-    message: 'Apa itu "Konstruksi SUTM TIANG Awal (Riser Pole) TM-11"?'
+    heading: 'Apa itu "Konstruksi Tiang TM-5C"?',
+    message: 'Apa itu "Konstruksi Tiang TM-5C"?'
   },
   {
-    heading: 'Jelaskan Cross Arm NP!',
-    message: 'Jelaskan Cross Arm NP!'
+    heading: 'Jelaskan Terminal Lug CuAl!',
+    message: 'Jelaskan Terminal Lug CuAl!'
   }
 ]
 export function EmptyScreen({
