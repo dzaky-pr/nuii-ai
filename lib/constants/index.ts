@@ -1,4 +1,4 @@
-import { SurveyHeader } from '../types/survey'
+import { TSurveyStatus } from '../types/survey'
 
 export const CHAT_ID = 'search' as const
 
@@ -10,7 +10,12 @@ export const jobOptions = [
   'Penyulang Baru'
 ]
 
-export const surveyStatus: Record<SurveyHeader['status_survey'], string> = {
+export const surveyStatusOptions = [
+  { value: 'Belum_Disetujui', label: 'Belum Disetujui' },
+  { value: 'Disetujui', label: 'Disetujui' }
+]
+
+export const surveyStatus: Record<TSurveyStatus, string> = {
   Belum_Disetujui: 'Belum Disetujui',
   Disetujui: 'Disetujui'
 }

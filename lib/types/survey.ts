@@ -1,11 +1,13 @@
 import { IMaterial } from './material'
 
+export type TSurveyStatus = 'Belum_Disetujui' | 'Disetujui'
+
 export interface SurveyHeader {
   id: number
   nama_survey: string
   nama_pekerjaan: string
   lokasi: string
-  status_survey: 'Belum_Disetujui' | 'Disetujui'
+  status_survey: TSurveyStatus
   user_id: string
   id_material_konduktor: number
   created_at: string
