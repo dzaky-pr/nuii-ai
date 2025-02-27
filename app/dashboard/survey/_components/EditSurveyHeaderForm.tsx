@@ -2,19 +2,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
 } from '@/components/ui/sheet'
-import { jobOptions } from '@/lib/constants'
+import { jobOptions, surveyStatusOptions } from '@/lib/constants'
 import { dummyLocations } from '@/lib/data/survey'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import {
-	EditSurveyHeaderForm as IEditSurveyHeaderForm,
-	SurveyHeader,
-	UpdateSurveyHeader
+  EditSurveyHeaderForm as IEditSurveyHeaderForm,
+  SurveyHeader,
+  UpdateSurveyHeader
 } from '@/lib/types/survey'
 import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
@@ -137,7 +137,7 @@ export default function EditSurveyHeaderForm({
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableSelect
-					value={value}
+                      value={value}
                       options={dummyLocations}
                       onValueChange={onChange}
                       placeholder="Pilih Lokasi"
@@ -186,10 +186,19 @@ export default function EditSurveyHeaderForm({
 
               {/* Status */}
               <div className="grid gap-2">
-                <Label htmlFor="status">Status</Label>
-                <Input
-                  maxLength={60}
-                  {...register('status_survey', { required: true })}
+                <Label>Status</Label>
+                <Controller
+                  name="status_survey"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <SearchableSelect
+                      value={value}
+                      options={surveyStatusOptions}
+                      onValueChange={onChange}
+                      placeholder="Pilih Status"
+                    />
+                  )}
                 />
               </div>
 
