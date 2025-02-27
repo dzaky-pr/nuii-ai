@@ -23,7 +23,7 @@ function UserButtonCustom() {
         />
       </UserButton.MenuItems>
 
-      {(role === 'admin' || role === 'surveyor') && (
+      {(role === 'admin' || role === 'pengawas') && (
         <UserButton.MenuItems>
           <UserButton.Link
             label="Survey"
@@ -33,7 +33,7 @@ function UserButtonCustom() {
         </UserButton.MenuItems>
       )}
 
-      {(role === 'admin' || role === 'surveyor') && (
+      {(role === 'admin' || role === 'pengawas') && (
         <UserButton.MenuItems>
           <UserButton.Link
             label="Report"
