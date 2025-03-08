@@ -1,7 +1,7 @@
 'use client'
 
 import { UserButton, useUser } from '@clerk/nextjs'
-import { Bot, Camera, NotebookText, Users } from 'lucide-react'
+import { Bot, Boxes, Camera, NotebookText, Users } from 'lucide-react'
 import { Spinner } from './ui/spinner'
 
 function UserButtonCustom() {
@@ -49,6 +49,16 @@ function UserButtonCustom() {
             label="Manage Users"
             labelIcon={<Users size={14} />}
             href="/dashboard/manage-users"
+          />
+        </UserButton.MenuItems>
+      )}
+
+      {role === 'admin' && (
+        <UserButton.MenuItems>
+          <UserButton.Link
+            label="Manage Materials"
+            labelIcon={<Boxes size={14} />}
+            href="/dashboard/manage-materials"
           />
         </UserButton.MenuItems>
       )}

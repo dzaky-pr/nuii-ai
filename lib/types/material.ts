@@ -10,6 +10,9 @@ export interface IMaterial {
   bongkar: number
   jenis_material: string
   kategori_material: string
+  created_at?: string // ISO date string
+  updated_at?: string // ISO date string
+  deleted_at?: string | null
 }
 
 export interface IGroundingLite {
