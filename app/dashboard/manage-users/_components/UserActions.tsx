@@ -1,10 +1,10 @@
 'use client'
 
 import { removeRole, setRole } from '@/app/dashboard/manage-users/_action'
+import { Button } from '@/components/ui/button'
 import { redirect } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
-import { Button } from './ui/button'
 
 export function UserActions({
   userId,

@@ -1,8 +1,10 @@
-import { SearchMaterials } from '@/app/dashboard/manage-materials/_components/SearchMaterial'
 import { checkRoleServer } from '@/lib/utils/roles'
 import { clerkClient } from '@clerk/nextjs/server'
+
 import { redirect } from 'next/navigation'
-import { MaterialTable } from './_components/MaterialTable'
+import { LogTable } from './_components/LogTable'
+import { SearchLog } from './_components/SearchLog'
+import LogHistoryTitle from './_components/Title'
 
 export default async function ManageMaterials(params: {
   searchParams: Promise<{ search?: string }>
@@ -21,9 +23,9 @@ export default async function ManageMaterials(params: {
 
   return (
     <div className="container mx-auto min-h-screen h-full p-6 bg-background">
-      <h2 className="text-2xl font-semibold mb-4">Manage Materials</h2>
-      <SearchMaterials />
-      <MaterialTable />
+      <LogHistoryTitle />
+      <SearchLog />
+      <LogTable />
     </div>
   )
 }

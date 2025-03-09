@@ -1,15 +1,17 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
+
+import CreateNewMaterialForm from '@/app/dashboard/manage-materials/_components/CreateNewMaterialForm'
+import { Button } from '../../../../components/ui/button'
+import { Input } from '../../../../components/ui/input'
 
 export const SearchMaterials = () => {
   const router = useRouter()
   const pathname = usePathname()
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 gap-4 flex-col md:flex-row flex w-full justify-between items-center">
       <form
         onSubmit={e => {
           e.preventDefault()
@@ -23,13 +25,13 @@ export const SearchMaterials = () => {
         <label htmlFor="search" className="text-sm lg:text-lg font-medium">
           Search for materials:
         </label>
-        <div className="flex flex-row w-full gap-2">
+        <div className="flex flex-col md:flex-row w-full gap-2">
           <Input
             id="search"
             name="search"
             type="text"
-            placeholder="Enter user name or email"
-            className="px-3 py-2 w-full md:w-1/3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter material name"
+            className="px-3 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Button
             type="submit"
@@ -39,6 +41,8 @@ export const SearchMaterials = () => {
           </Button>
         </div>
       </form>
+      {/* Tombol Add Material via sheet */}
+      <CreateNewMaterialForm />
     </div>
   )
 }

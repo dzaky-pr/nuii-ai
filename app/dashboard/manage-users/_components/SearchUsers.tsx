@@ -1,8 +1,8 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { usePathname, useRouter } from 'next/navigation'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
 
 export const SearchUsers = () => {
   const router = useRouter()

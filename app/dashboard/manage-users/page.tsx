@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-import { SearchUsers } from '@/components/search-users'
-import { UserActions } from '@/components/user-action'
 import { checkRoleServer } from '@/lib/utils/roles'
 import { clerkClient } from '@clerk/nextjs/server'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { SearchUsers } from './_components/SearchUsers'
+import { UserActions } from './_components/UserActions'
 
 export default async function AdminDashboard(params: {
   searchParams: Promise<{ search?: string; page?: string }>

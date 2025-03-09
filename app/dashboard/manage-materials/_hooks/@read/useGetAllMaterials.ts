@@ -1,9 +1,10 @@
 import api from '@/lib/tools/api'
-import { IMaterial } from '@/lib/types/material'
+import { IMaterialWithTimestamps } from '@/lib/types/material'
+
 import { useQuery } from '@tanstack/react-query'
 
 const useGetAllList = () => {
-  const { data, isPending } = useQuery<IMaterial[]>({
+  const { data, isPending } = useQuery<IMaterialWithTimestamps[]>({
     queryKey: ['allList'],
     queryFn: async () => {
       const response = await api.get('/material/list')
