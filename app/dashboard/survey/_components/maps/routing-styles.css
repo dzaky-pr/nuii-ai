@@ -1,0 +1,38 @@
+.leaflet-routing-container {
+  background-color: rgba(30, 30, 30, 0.8) !important;
+  color: white !important;
+  padding: 6px !important;
+  border-radius: 5px !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-routing-alt,
+.leaflet-routing-geocoders,
+.leaflet-routing-error {
+  background-color: rgba(40, 40, 40, 0.8) !important;
+  color: white !important;
+}
+
+.leaflet-routing-alt h2 {
+  color: white !important;
+}
+
+.leaflet-routing-alt h3 {
+  color: white !important;
+}
+
+.leaflet-routing-alt table {
+  color: white !important;
+}
+
+.leaflet-routing-container a {
+  color: #4dabf7 !important;
+}
+
+.leaflet-routing-summary {
+  color: white !important;
+}
+
+.leaflet-routing-alt tr:hover {
+  background-color: rgba(70, 70, 70, 0.8) !important;
+}
