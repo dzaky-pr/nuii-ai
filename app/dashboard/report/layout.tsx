@@ -9,7 +9,7 @@ export default async function DashboardLayout({
 }>) {
   if (
     !(await checkRoleServer('admin')) &&
-    !(await checkRoleServer('surveyor'))
+    !(await checkRoleServer('pengawas'))
   ) {
     redirect('/')
   }

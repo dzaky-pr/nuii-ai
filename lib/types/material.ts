@@ -12,6 +12,20 @@ export interface IMaterial {
   kategori_material: string
 }
 
+export type IMaterialWithTimestamps = IMaterial & {
+  created_at: string // ISO date string
+  updated_at: string // ISO date string
+  deleted_at: string | null
+}
+
+export type IMaterialWithLog = Omit<
+  IMaterialWithTimestamps,
+  'nomor_material'
+> & {
+  id_material: number
+  tipe_log: string
+}
+
 export interface IGroundingLite {
   id: string
   nama_grounding: string
