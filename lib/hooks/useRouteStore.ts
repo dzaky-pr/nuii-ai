@@ -7,7 +7,7 @@ type RouteState = {
 
 const useRouteStore = create<RouteState>(set => ({
   route: {},
-  setRoute: route => set(() => ({ route: route }))
+  setRoute: route => set({ route })
 }))
 
 export default useRouteStore

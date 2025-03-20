@@ -1,8 +1,8 @@
 'use client'
 
 import L from 'leaflet'
-import { useState } from 'react'
-import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
+import { useEffect, useState } from 'react'
+import { MapContainer, TileLayer } from 'react-leaflet'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -13,10 +13,6 @@ import WaypointMarkers from './WaypointMarker'
 
 import useRouteStore from '@/lib/hooks/useRouteStore'
 import { cn } from '@/lib/utils'
-import 'leaflet-routing-machine'
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css'
-import 'leaflet/dist/leaflet.css'
-import './routing-styles.css'
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -34,19 +30,30 @@ const maps = {
 export default function RoutingMap() {
   const [waypoints, setWaypoints] = useState<L.LatLng[]>([])
   const [instructionText, setInstructionText] = useState<string>(
-    'Tap pada peta untuk memilih titik awal'
+    'Tap pada peta untuk memilih titik awal.'
   )
+  const [isRouteLoading, setIsRouteLoading] = useState<boolean>(false)
   const [isRouteHidden, setIsRouteHidden] = useState<boolean>(true)
+
+  const { route, setRoute } = useRouteStore()
+
+  useEffect(() => {
+    if (isRouteLoading) {
+      toast.info('Titik tujuan dipilih. Rute sedang diproses...')
+      setInstructionText('Rute sedang diproses...')
+    } else if (!isRouteLoading && waypoints.length === 2) {
+      toast.success('Rute berhasil ditemukan.')
+      setInstructionText('Rute berhasil dibuat.')
+    }
+  }, [isRouteLoading, waypoints.length])
 
   const handleAddWaypoint = (latlng: L.LatLng) => {
     if (waypoints.length === 0) {
       setWaypoints([latlng])
-      setInstructionText('Tap pada peta untuk memilih titik tujuan')
+      setInstructionText('Tap pada peta untuk memilih titik tujuan.')
       toast.info('Titik awal dipilih. Silakan pilih titik tujuan.')
     } else if (waypoints.length === 1) {
       setWaypoints([...waypoints, latlng])
-      setInstructionText('Rute berhasil dibuat.')
-      toast.success('Titik tujuan dipilih. Menghitung rute...')
     }
   }
 
@@ -63,12 +70,11 @@ export default function RoutingMap() {
 
   const handleReset = () => {
     setWaypoints([])
+    setRoute({})
     setIsRouteHidden(true)
-    setInstructionText('Tap pada peta untuk memilih titik awal')
+    setInstructionText('Tap pada peta untuk memilih titik awal.')
     toast.info('Rute direset. Silakan pilih titik awal baru.')
   }
-
-  const { route } = useRouteStore()
 
   return (
     <div className="flex flex-col gap-4 w-full text-center">
@@ -80,21 +86,20 @@ export default function RoutingMap() {
       >
         <MapClickHandler onWaypointAdd={handleAddWaypoint} />
         {waypoints.length >= 2 ? (
-          <RoutingMachine waypoints={waypoints} />
+          <RoutingMachine
+            waypoints={waypoints}
+            setLoading={setIsRouteLoading}
+          />
         ) : (
           <WaypointMarkers
             waypoints={waypoints}
             onRemoveWaypoint={handleRemoveWaypoint}
           />
         )}
-        <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Map">
-            <TileLayer
-              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-              url={maps.base}
-            />
-          </LayersControl.BaseLayer>
-        </LayersControl>
+        <TileLayer
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          url={maps.base}
+        />
       </MapContainer>
       <div className="flex gap-4 self-end">
         <Button
