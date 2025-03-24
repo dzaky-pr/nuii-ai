@@ -3,6 +3,7 @@ import L from 'leaflet'
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 
+import { IMaps } from '@/lib/types/maps'
 import 'leaflet-routing-machine'
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css'
 import 'leaflet/dist/leaflet.css'
@@ -44,7 +45,7 @@ export default function RoutingMachine({
       addWaypoints: false,
       routeWhileDragging: true,
       fitSelectedRoutes: true,
-      showAlternatives: true,
+      showAlternatives: false,
       lineOptions: {
         missingRouteTolerance: 0,
         extendToWaypoints: false,
@@ -59,7 +60,7 @@ export default function RoutingMachine({
       .on('routingstart', () => setLoading(true))
       .on('routesfound', e => {
         setLoading(false)
-        const routes = e.routes
+        const routes = e.routes as IMaps[]
         setRoute(routes[0])
       })
       .addTo(map)

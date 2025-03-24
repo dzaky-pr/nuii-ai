@@ -1,8 +1,9 @@
 import { create } from 'zustand'
+import { IMaps } from '../types/maps'
 
 type RouteState = {
-  route: any
-  setRoute: (route: any) => void
+  route?: IMaps
+  setRoute: (route: IMaps) => void
 }
 
 const useRouteStore = create<RouteState>(set => ({

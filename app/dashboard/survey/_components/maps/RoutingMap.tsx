@@ -9,10 +9,10 @@ import { Button } from '@/components/ui/button'
 
 import MapClickHandler from './MapClickHandler'
 import RoutingMachine from './RoutingMachine'
-import WaypointMarkers from './WaypointMarker'
+import WaypointMarkers from './WaypointMarkers'
 
 import useRouteStore from '@/lib/hooks/useRouteStore'
-import { cn } from '@/lib/utils'
+import { useEstimationMutation } from './_hooks/useEstimationMutation'
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -33,9 +33,19 @@ export default function RoutingMap() {
     'Tap pada peta untuk memilih titik awal.'
   )
   const [isRouteLoading, setIsRouteLoading] = useState<boolean>(false)
-  const [isRouteHidden, setIsRouteHidden] = useState<boolean>(true)
+  const [isSubmitBtnDisabled, setIsSubmitBtnDisabled] = useState<boolean>(false)
 
   const { route, setRoute } = useRouteStore()
+  const { mutate, isPending } = useEstimationMutation()
+
+  useEffect(() => {
+    if (route && route.summary && route.summary.totalDistance > 3000) {
+      setIsSubmitBtnDisabled(true)
+      toast.info('Jarak rute tidak boleh lebih dari 3 kilometer!')
+    } else {
+      setIsSubmitBtnDisabled(false)
+    }
+  }, [route])
 
   useEffect(() => {
     if (isRouteLoading) {
@@ -57,9 +67,9 @@ export default function RoutingMap() {
     }
   }
 
-  const handleRemoveWaypoint = (index: number) => {
+  const handleRemoveWaypoint = () => {
     const newWaypoints = [...waypoints]
-    newWaypoints.splice(index, 1)
+    newWaypoints.splice(0, 1)
     setWaypoints(newWaypoints)
 
     if (newWaypoints.length === 0) {
@@ -71,7 +81,6 @@ export default function RoutingMap() {
   const handleReset = () => {
     setWaypoints([])
     setRoute({})
-    setIsRouteHidden(true)
     setInstructionText('Tap pada peta untuk memilih titik awal.')
     toast.info('Rute direset. Silakan pilih titik awal baru.')
   }
@@ -91,10 +100,13 @@ export default function RoutingMap() {
             setLoading={setIsRouteLoading}
           />
         ) : (
-          <WaypointMarkers
-            waypoints={waypoints}
-            onRemoveWaypoint={handleRemoveWaypoint}
-          />
+          waypoints.length > 0 && (
+            <WaypointMarkers
+              isDeleteable
+              waypoint={waypoints[0]}
+              onRemoveWaypoint={handleRemoveWaypoint}
+            />
+          )
         )}
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -112,20 +124,12 @@ export default function RoutingMap() {
         </Button>
         <Button
           size="sm"
-          onClick={() => setIsRouteHidden(false)}
           className="bg-green-500 text-white hover:bg-green-600 w-fit self-center"
-          disabled={waypoints.length < 2}
+          disabled={waypoints.length < 2 || isSubmitBtnDisabled || isPending}
+          onClick={() => mutate(route!)}
         >
           Submit
         </Button>
-      </div>
-      <div
-        className={cn(
-          isRouteHidden ? 'hidden' : 'flex flex-col gap-2 text-start'
-        )}
-      >
-        <h1 className="font-semibold text-lg">Route Response: </h1>
-        <p>{JSON.stringify(route)}</p>
       </div>
     </div>
   )
