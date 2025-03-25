@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { surveyStatus } from '@/lib/constants'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { SurveyHeader } from '@/lib/types/survey'
@@ -51,8 +52,17 @@ export default function Page() {
     <>
       <div className="py-4 px-6">
         <CreateSurveyForm />
-        <div className="mt-4 px-4">
-          <h2 className="text-lg font-bold mb-4">Data Survey</h2>
+        <div className="mt-4 px-4 flex flex-col gap-2">
+          <div className="flex justify-between w-full">
+            <h2 className="text-lg font-bold mb-4">Data Survey</h2>
+            <Button
+              asChild
+              size="sm"
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              <Link href="/dashboard/survey/maps">Rute & Estimasi</Link>
+            </Button>
+          </div>
           <div className="mb-4">
             <div className="overflow-x-auto">
               <table className="min-w-full border-collapse border border-gray-300">

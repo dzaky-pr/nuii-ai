@@ -12,7 +12,8 @@ import RoutingMachine from './RoutingMachine'
 import WaypointMarkers from './WaypointMarkers'
 
 import useRouteStore from '@/lib/hooks/useRouteStore'
-import { useEstimationMutation } from './_hooks/useEstimationMutation'
+import { getCookie, setCookie } from '@/lib/utils/cookies'
+import { useEstimationMutation } from '../_hooks/useEstimationMutation'
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -32,11 +33,20 @@ export default function RoutingMap() {
   const [instructionText, setInstructionText] = useState<string>(
     'Tap pada peta untuk memilih titik awal.'
   )
-  const [isRouteLoading, setIsRouteLoading] = useState<boolean>(false)
   const [isSubmitBtnDisabled, setIsSubmitBtnDisabled] = useState<boolean>(false)
 
-  const { route, setRoute } = useRouteStore()
+  const { route, setRoute, estimation, setEstimation } = useRouteStore()
+  const parsedPoleWaypoints = estimation?.routes?.slice(1, -1)
+  const firstPoleWaypoint = estimation?.routes?.[0]
+  const lastPoleWaypoint = estimation?.routes?.[estimation?.routes?.length - 1]
+
   const { mutate, isPending } = useEstimationMutation()
+
+  const routingMode = getCookie('routing-mode') as 'select' | 'view' | null
+
+  useEffect(() => {
+    setCookie('routing-mode', 'select')
+  }, [])
 
   useEffect(() => {
     if (route && route.summary && route.summary.totalDistance > 3000) {
@@ -48,14 +58,11 @@ export default function RoutingMap() {
   }, [route])
 
   useEffect(() => {
-    if (isRouteLoading) {
-      toast.info('Titik tujuan dipilih. Rute sedang diproses...')
-      setInstructionText('Rute sedang diproses...')
-    } else if (!isRouteLoading && waypoints.length === 2) {
+    if (waypoints.length === 2) {
       toast.success('Rute berhasil ditemukan.')
       setInstructionText('Rute berhasil dibuat.')
     }
-  }, [isRouteLoading, waypoints.length])
+  }, [waypoints.length])
 
   const handleAddWaypoint = (latlng: L.LatLng) => {
     if (waypoints.length === 0) {
@@ -79,8 +86,15 @@ export default function RoutingMap() {
   }
 
   const handleReset = () => {
-    setWaypoints([])
-    setRoute({})
+    if (routingMode === 'select') {
+      setWaypoints([])
+      setRoute({})
+    } else if (routingMode === 'view') {
+      setCookie('routing-mode', 'select')
+      setWaypoints([])
+      setRoute({})
+      setEstimation({})
+    }
     setInstructionText('Tap pada peta untuk memilih titik awal.')
     toast.info('Rute direset. Silakan pilih titik awal baru.')
   }
@@ -90,22 +104,45 @@ export default function RoutingMap() {
       <p className="font-medium text-neutral-100">{instructionText}</p>
       <MapContainer
         center={[-7.245343402100674, 112.73873405427051]}
-        zoom={15}
+        zoom={13}
         style={{ height: '650px', width: '100%', padding: 0 }}
       >
         <MapClickHandler onWaypointAdd={handleAddWaypoint} />
-        {waypoints.length >= 2 ? (
-          <RoutingMachine
-            waypoints={waypoints}
-            setLoading={setIsRouteLoading}
-          />
+        {routingMode === 'select' ? (
+          waypoints.length >= 2 ? (
+            <RoutingMachine waypoints={waypoints} />
+          ) : (
+            waypoints.length > 0 && (
+              <WaypointMarkers
+                waypoint={waypoints[0]}
+                onRemoveWaypoint={handleRemoveWaypoint}
+              />
+            )
+          )
         ) : (
-          waypoints.length > 0 && (
-            <WaypointMarkers
-              isDeleteable
-              waypoint={waypoints[0]}
-              onRemoveWaypoint={handleRemoveWaypoint}
-            />
+          routingMode === 'view' &&
+          parsedPoleWaypoints &&
+          firstPoleWaypoint &&
+          lastPoleWaypoint && (
+            <>
+              <RoutingMachine
+                waypoints={[
+                  L.latLng({
+                    lat: firstPoleWaypoint.latitude,
+                    lng: firstPoleWaypoint.longitude
+                  }),
+                  L.latLng({
+                    lat: lastPoleWaypoint.latitude,
+                    lng: lastPoleWaypoint.longitude
+                  })
+                ]}
+              />
+              <WaypointMarkers
+                waypoints={parsedPoleWaypoints.map(({ latitude, longitude }) =>
+                  L.latLng(latitude, longitude)
+                )}
+              />
+            </>
           )
         )}
         <TileLayer
@@ -122,14 +159,16 @@ export default function RoutingMap() {
         >
           Reset
         </Button>
-        <Button
-          size="sm"
-          className="bg-green-500 text-white hover:bg-green-600 w-fit self-center"
-          disabled={waypoints.length < 2 || isSubmitBtnDisabled || isPending}
-          onClick={() => mutate(route!)}
-        >
-          Submit
-        </Button>
+        {routingMode === 'select' && (
+          <Button
+            size="sm"
+            className="bg-green-500 text-white hover:bg-green-600 w-fit self-center"
+            disabled={waypoints.length < 2 || isSubmitBtnDisabled || isPending}
+            onClick={() => mutate(route!)}
+          >
+            Submit
+          </Button>
+        )}
       </div>
     </div>
   )

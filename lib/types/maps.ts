@@ -45,3 +45,25 @@ export interface Summary {
   totalDistance: number
   totalTime: number
 }
+
+export interface IEstimation {
+  totalMaterial?: number
+  totalPasang?: number
+  totalPoles?: number
+  totalDistance?: number
+  poles?: Pole[]
+  routes?: Route[]
+}
+
+export interface Pole {
+  latitude: number
+  longitude: number
+  id_konstruksi: number
+  id_tiang: number
+  panjang_jaringan: number
+}
+
+export interface Route {
+  latitude: number
+  longitude: number
+}

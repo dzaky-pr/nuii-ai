@@ -1,20 +1,18 @@
 import useRouteStore from '@/lib/hooks/useRouteStore'
+import { IMaps } from '@/lib/types/maps'
 import L from 'leaflet'
-import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 
-import { IMaps } from '@/lib/types/maps'
 import 'leaflet-routing-machine'
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css'
 import 'leaflet/dist/leaflet.css'
-import './routing-styles.css'
+import '../../../../_styles/routing-styles.css'
 
 export default function RoutingMachine({
-  waypoints,
-  setLoading
+  waypoints
 }: {
   waypoints: L.LatLng[]
-  setLoading: Dispatch<SetStateAction<boolean>>
 }) {
   const map = useMap()
   const routingControlRef = useRef<L.Routing.Control | null>(null)
@@ -57,9 +55,7 @@ export default function RoutingMachine({
         styles: [{ color: '#aab6ff', weight: 4, opacity: 0.65 }]
       }
     })
-      .on('routingstart', () => setLoading(true))
       .on('routesfound', e => {
-        setLoading(false)
         const routes = e.routes as IMaps[]
         setRoute(routes[0])
       })
@@ -108,7 +104,7 @@ export default function RoutingMachine({
       }
       map.off('click', mapClickHandler)
     }
-  }, [map, waypoints, setRoute, setLoading])
+  }, [map, waypoints, setRoute])
 
   return null
 }

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { dark } from '@clerk/themes'
 import type { Metadata, Viewport } from 'next'
 import { Inter as FontSans } from 'next/font/google'
-import './globals.css'
+import './_styles/globals.css'
 
 import { ClerkProvider } from '@clerk/nextjs'
 import React from 'react'
