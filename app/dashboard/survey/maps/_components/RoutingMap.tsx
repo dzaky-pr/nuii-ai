@@ -36,9 +36,6 @@ export default function RoutingMap() {
   const [isSubmitBtnDisabled, setIsSubmitBtnDisabled] = useState<boolean>(false)
 
   const { route, setRoute, estimation, setEstimation } = useRouteStore()
-  const parsedPoleWaypoints = estimation?.routes?.slice(1, -1)
-  const firstPoleWaypoint = estimation?.routes?.[0]
-  const lastPoleWaypoint = estimation?.routes?.[estimation?.routes?.length - 1]
 
   const { mutate, isPending } = useEstimationMutation()
 
@@ -56,13 +53,6 @@ export default function RoutingMap() {
       setIsSubmitBtnDisabled(false)
     }
   }, [route])
-
-  useEffect(() => {
-    if (waypoints.length === 2) {
-      toast.success('Rute berhasil ditemukan.')
-      setInstructionText('Rute berhasil dibuat.')
-    }
-  }, [waypoints.length])
 
   const handleAddWaypoint = (latlng: L.LatLng) => {
     if (waypoints.length === 0) {
@@ -110,7 +100,10 @@ export default function RoutingMap() {
         <MapClickHandler onWaypointAdd={handleAddWaypoint} />
         {routingMode === 'select' ? (
           waypoints.length >= 2 ? (
-            <RoutingMachine waypoints={waypoints} />
+            <RoutingMachine
+              setInstructionText={setInstructionText}
+              waypoints={waypoints}
+            />
           ) : (
             waypoints.length > 0 && (
               <WaypointMarkers
@@ -120,29 +113,12 @@ export default function RoutingMap() {
             )
           )
         ) : (
-          routingMode === 'view' &&
-          parsedPoleWaypoints &&
-          firstPoleWaypoint &&
-          lastPoleWaypoint && (
-            <>
-              <RoutingMachine
-                waypoints={[
-                  L.latLng({
-                    lat: firstPoleWaypoint.latitude,
-                    lng: firstPoleWaypoint.longitude
-                  }),
-                  L.latLng({
-                    lat: lastPoleWaypoint.latitude,
-                    lng: lastPoleWaypoint.longitude
-                  })
-                ]}
-              />
-              <WaypointMarkers
-                waypoints={parsedPoleWaypoints.map(({ latitude, longitude }) =>
-                  L.latLng(latitude, longitude)
-                )}
-              />
-            </>
+          routingMode === 'view' && (
+            <RoutingMachine
+              waypoints={waypoints}
+              apiRoutes={estimation?.routes}
+              apiPoles={estimation?.poles}
+            />
           )
         )}
         <TileLayer
@@ -164,7 +140,7 @@ export default function RoutingMap() {
             size="sm"
             className="bg-green-500 text-white hover:bg-green-600 w-fit self-center"
             disabled={waypoints.length < 2 || isSubmitBtnDisabled || isPending}
-            onClick={() => mutate(route!)}
+            onClick={() => route && mutate(route)}
           >
             Submit
           </Button>

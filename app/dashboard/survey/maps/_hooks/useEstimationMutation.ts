@@ -17,6 +17,7 @@ const useEstimationMutation = () => {
   >({
     mutationFn: async data => await api.post('/estimasi', data),
     onSuccess: response => {
+      console.log(response)
       setEstimation(response.data.data)
       setCookie('routing-mode', 'view')
     },
