@@ -2,7 +2,7 @@ import PwaDownloadAnnouncement from '@/components/pwadownload'
 import { ShinyButton } from '@/components/ui/shiny-button'
 import Image from 'next/image'
 import Link from 'next/link'
-import './globals.css'
+import './_styles/globals.css'
 
 export default function Page() {
   return (

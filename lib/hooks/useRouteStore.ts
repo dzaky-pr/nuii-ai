@@ -1,14 +1,18 @@
 import { create } from 'zustand'
-import { IMaps } from '../types/maps'
+import { IEstimation, IMaps } from '../types/maps'
 
 type RouteState = {
   route?: IMaps
+  estimation?: IEstimation
   setRoute: (route: IMaps) => void
+  setEstimation: (estimation: IEstimation) => void
 }
 
 const useRouteStore = create<RouteState>(set => ({
   route: {},
-  setRoute: route => set({ route })
+  estimation: {},
+  setRoute: route => set({ route }),
+  setEstimation: estimation => set({ estimation })
 }))
 
 export default useRouteStore
