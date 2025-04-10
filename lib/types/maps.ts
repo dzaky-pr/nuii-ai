@@ -18,7 +18,6 @@ export interface Coordinate {
 export interface Waypoint {
   options: Options
   latLng: Coordinate
-  _initHooksCalled: boolean
 }
 
 export interface Options {
@@ -59,7 +58,9 @@ export interface Pole {
   latitude: number
   longitude: number
   id_konstruksi: number
+  nama_konstruksi: string;
   id_tiang: number
+  nama_tiang: number
   panjang_jaringan: number
 }
 
