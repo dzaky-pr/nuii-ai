@@ -34,6 +34,10 @@ export default function RoutingMap() {
     'Tap pada peta untuk memilih titik awal.'
   )
   const [isSubmitBtnDisabled, setIsSubmitBtnDisabled] = useState<boolean>(false)
+  const [mapCenter, setMapCenter] = useState<[number, number]>([
+    -7.245343402100674, 112.73873405427051
+  ])
+  const [mapZoom, setMapZoom] = useState<number>(13)
 
   const { route, setRoute, estimation, setEstimation } = useRouteStore()
 
@@ -43,6 +47,22 @@ export default function RoutingMap() {
 
   useEffect(() => {
     setCookie('routing-mode', 'select')
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords
+          setMapCenter([latitude, longitude])
+          setMapZoom(15)
+        },
+        error => {
+          console.error('Error getting geolocation:', error)
+          toast.info(
+            'Tidak dapat mengakses lokasi Anda. Menggunakan lokasi default.'
+          )
+        }
+      )
+    }
   }, [])
 
   useEffect(() => {
@@ -93,8 +113,8 @@ export default function RoutingMap() {
     <div className="flex flex-col gap-4 w-full text-center">
       <p className="font-medium text-neutral-100">{instructionText}</p>
       <MapContainer
-        center={[-7.245343402100674, 112.73873405427051]}
-        zoom={13}
+        center={mapCenter}
+        zoom={mapZoom}
         style={{ height: '650px', width: '100%', padding: 0 }}
       >
         <MapClickHandler onWaypointAdd={handleAddWaypoint} />

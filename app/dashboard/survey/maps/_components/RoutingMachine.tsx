@@ -1,5 +1,5 @@
 import useRouteStore from '@/lib/hooks/useRouteStore'
-import { IMaps } from '@/lib/types/maps'
+import { IMaps, Pole, Route } from '@/lib/types/maps'
 import L from 'leaflet'
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
@@ -17,8 +17,8 @@ export default function RoutingMachine({
   setInstructionText
 }: {
   waypoints?: L.LatLng[]
-  apiRoutes?: { latitude: number; longitude: number }[]
-  apiPoles?: { latitude: number; longitude: number }[]
+  apiRoutes?: Route[]
+  apiPoles?: Pole[]
   setInstructionText?: Dispatch<SetStateAction<string>>
 }) {
   const map = useMap()
@@ -84,7 +84,7 @@ export default function RoutingMachine({
         const routes = e.routes as IMaps[]
         setRoute(routes[0])
       })
-      .on('routesfound routingerror', () => {
+      .on('routingerror', () => {
         setInstructionText && setInstructionText('Rute gagal dibuat.')
         toast.error('Rute gagal ditemukan')
       })
@@ -93,9 +93,28 @@ export default function RoutingMachine({
     routingControlRef.current = routingControl
 
     if (apiPoles && apiPoles.length > 0) {
-      const markers = apiPoles.map(pole =>
-        L.marker([pole.latitude, pole.longitude]).addTo(map)
-      )
+      const markers: L.Marker[] = apiPoles.map(pole => {
+        const marker = L.marker([pole.latitude, pole.longitude])
+
+        const popupContent = `
+          <div class="w-fit">
+            <h4 class="text-lg font-bold">Detail Tiang</h4>
+            <div class="mt-2">
+              <p><strong>Konstruksi:</strong> ${pole.nama_konstruksi}</p>
+              <p><strong>Tiang:</strong> ${pole.nama_tiang}</p>
+              <p><strong>Panjang Jaringan:</strong> ${pole.panjang_jaringan}m</p>
+            </div>
+          </div>
+        `
+
+        marker.bindPopup(popupContent)
+        marker.addTo(map)
+        return marker
+      })
+
+      setInstructionText && setInstructionText('Rute berhasil dibuat.')
+      toast.info('Rute berhasil ditemukan')
+
       poleMarkersRef.current = markers
     }
 
