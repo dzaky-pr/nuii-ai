@@ -58,7 +58,7 @@ export interface Pole {
   latitude: number
   longitude: number
   id_konstruksi: number
-  nama_konstruksi: string;
+  nama_konstruksi: string
   id_tiang: number
   nama_tiang: number
   panjang_jaringan: number
