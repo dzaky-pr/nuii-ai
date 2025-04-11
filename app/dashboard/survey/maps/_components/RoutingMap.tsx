@@ -138,6 +138,7 @@ export default function RoutingMap() {
               waypoints={waypoints}
               apiRoutes={estimation?.routes}
               apiPoles={estimation?.poles}
+              isViewMode={true}
             />
           )
         )}
