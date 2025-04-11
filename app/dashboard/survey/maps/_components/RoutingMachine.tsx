@@ -1,7 +1,7 @@
 import useRouteStore from '@/lib/hooks/useRouteStore'
 import { IMaps, Pole, Route } from '@/lib/types/maps'
 import L from 'leaflet'
-import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 
 import 'leaflet-routing-machine'
@@ -14,11 +14,13 @@ export default function RoutingMachine({
   waypoints,
   apiRoutes,
   apiPoles,
+  isViewMode = false,
   setInstructionText
 }: {
   waypoints?: L.LatLng[]
   apiRoutes?: Route[]
   apiPoles?: Pole[]
+  isViewMode?: boolean
   setInstructionText?: Dispatch<SetStateAction<string>>
 }) {
   const map = useMap()
@@ -27,19 +29,28 @@ export default function RoutingMachine({
 
   const { setRoute } = useRouteStore()
 
+  const finalWaypoints = useMemo(() => {
+    if (isViewMode && apiRoutes && apiRoutes.length >= 2) {
+      const firstPoint = apiRoutes[0]
+      const lastPoint = apiRoutes[apiRoutes.length - 1]
+      return [
+        L.latLng(firstPoint.latitude, firstPoint.longitude),
+        L.latLng(lastPoint.latitude, lastPoint.longitude)
+      ]
+    } else if (waypoints && waypoints.length >= 2) {
+      return waypoints
+    } else if (apiRoutes && apiRoutes.length >= 2) {
+      return apiRoutes.map(route => L.latLng(route.latitude, route.longitude))
+    }
+    return []
+  }, [waypoints, apiRoutes, isViewMode])
+
   useEffect(() => {
     if (!map) return
+    if (finalWaypoints.length < 2) return
 
     poleMarkersRef.current.map(marker => map.removeLayer(marker))
     poleMarkersRef.current = []
-
-    let finalWaypoints: L.LatLng[] = waypoints || []
-
-    if (finalWaypoints.length < 2 && apiRoutes && apiRoutes.length >= 2) {
-      finalWaypoints = apiRoutes.map(route =>
-        L.latLng(route.latitude, route.longitude)
-      )
-    }
 
     if (routingControlRef.current) {
       try {
@@ -93,7 +104,7 @@ export default function RoutingMachine({
     routingControlRef.current = routingControl
 
     if (apiPoles && apiPoles.length > 0) {
-      const markers: L.Marker[] = apiPoles.map(pole => {
+      const markers: L.Marker[] = apiPoles.slice(1, -1).map(pole => {
         const marker = L.marker([pole.latitude, pole.longitude])
 
         const popupContent = `
@@ -131,7 +142,15 @@ export default function RoutingMachine({
       poleMarkersRef.current.map(marker => map.removeLayer(marker))
       poleMarkersRef.current = []
     }
-  }, [map, waypoints, apiRoutes, apiPoles, setRoute, setInstructionText])
+  }, [
+    map,
+    waypoints,
+    apiRoutes,
+    apiPoles,
+    setRoute,
+    setInstructionText,
+    finalWaypoints
+  ])
 
   return null
 }
