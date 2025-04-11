@@ -1,3 +1,5 @@
+import { SurveyHeader } from './survey'
+
 export interface IMaps {
   name?: string
   coordinates?: Coordinate[]
@@ -67,4 +69,20 @@ export interface Pole {
 export interface Route {
   latitude: number
   longitude: number
+}
+
+export interface BatchDetail {
+  id_material_tiang: number
+  id_konstruksi: number
+  penyulang: string
+  panjang_jaringan: number
+  long: string
+  lat: string
+  foto: string
+  petugas_survey: string
+}
+
+export interface IBatch {
+  header: SurveyHeader
+  details: BatchDetail[]
 }

@@ -64,10 +64,10 @@ export default function CreateSurveyForm() {
   //#endregion  //*======== Initial State & Ref ===========
 
   //#region  //*=========== Form ===========
-  const methods = useForm<ICreateSurveyForm>({ mode: 'onTouched' })
+  const methods = useForm<ICreateSurveyForm>({ mode: 'onBlur' })
 
   const {
-    formState: { isDirty, errors, isValid },
+    formState: { isDirty, errors },
     getValues,
     register,
     reset,
@@ -679,7 +679,6 @@ export default function CreateSurveyForm() {
               <Button
                 type="submit"
                 onClick={() => {
-                  console.log('Data: ', getValues())
                   console.log('Error: ', errors)
                 }}
                 disabled={

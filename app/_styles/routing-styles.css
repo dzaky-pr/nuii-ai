@@ -1,4 +1,18 @@
+.leaflet-pane,
+.leaflet-control-container,
+.leaflet-bar,
+.leaflet-control,
+.leaflet-routing-alternatives-container,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-left,
+.leaflet-right,
+.leaflet-control-attribution {
+  z-index: 0 !important;
+}
+
 .leaflet-routing-container {
+  z-index: 0 !important;
   background-color: rgba(30, 30, 30, 0.8) !important;
   color: white !important;
   padding: 6px !important;
@@ -9,6 +23,7 @@
 .leaflet-routing-alt,
 .leaflet-routing-geocoders,
 .leaflet-routing-error {
+  z-index: 0 !important;
   background-color: rgba(40, 40, 40, 0.8) !important;
   color: white !important;
 }
