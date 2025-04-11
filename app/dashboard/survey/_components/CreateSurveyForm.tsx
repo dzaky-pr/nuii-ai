@@ -679,7 +679,7 @@ export default function CreateSurveyForm() {
               <Button
                 type="submit"
                 onClick={() => {
-                  console.log('Error: ', errors)
+                  errors && console.log('Error: ', errors)
                 }}
                 disabled={
                   loadingNewSurvey ||
