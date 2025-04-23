@@ -18,14 +18,19 @@ export function getModel(model: string) {
         baseURL: `${process.env.RUNPOD_SERVER_URL}/tanya`
       })
 
-      // if ollama provider, set simulateStreaming to true
       return ollama(modelName, {
         simulateStreaming: true
       })
     }
   }
 
-  return registry.languageModel(model)
+  if (model.startsWith('groq:') || model.startsWith('nuii-ai:')) {
+    return registry.languageModel(
+      model as `nuii-ai:${string}` | `groq:${string}`
+    )
+  }
+
+  throw new Error(`Invalid model identifier: ${model}`)
 }
 
 export function isProviderEnabled(providerId: string): boolean {
