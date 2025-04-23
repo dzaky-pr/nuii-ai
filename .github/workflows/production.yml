@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/nuii-ai
+            cd /var/www/nuii/nuii-fe
             git reset --hard origin/main  
             git clean -fd  
             git pull origin main
@@ -30,7 +30,7 @@ jobs:
             bun install
             rm -rf .next  
             bun run build
-            pm2 restart nuii-ai
+            pm2 restart nuii-fe
 
       - name: Notify Success
         if: success()
