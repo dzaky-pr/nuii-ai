@@ -21,16 +21,21 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd /var/www/nuii/nuii-fe
-            git reset --hard origin/main  
-            git clean -fd  
-            git pull origin main
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
+
+            git fetch --all
+            git reset --hard origin/main
+            git clean -fd
+
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+            export PATH="$HOME/.bun/bin:$PATH"
+
             bun install
-            rm -rf .next  
             bun run build
-            pm2 restart nuii-fe
+
+            pm2 reload nuii-fe --update-env
 
       - name: Notify Success
         if: success()
