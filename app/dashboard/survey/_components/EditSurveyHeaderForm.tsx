@@ -128,13 +128,10 @@ export default function EditSurveyHeaderForm({
 
               {/* Lokasi/ULP */}
               <div className="grid gap-2">
-                <Label required htmlFor="lokasi">
-                  Lokasi/ULP
-                </Label>
+                <Label htmlFor="lokasi">Lokasi/ULP</Label>
                 <Controller
                   name="lokasi"
                   control={control}
-                  rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableSelect
                       value={value}
@@ -152,9 +149,9 @@ export default function EditSurveyHeaderForm({
                 <Controller
                   name="id_material_konduktor"
                   control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableSelect
+                      value={String(value)}
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}
@@ -170,9 +167,9 @@ export default function EditSurveyHeaderForm({
                 <Controller
                   name="nama_pekerjaan"
                   control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableSelect
+                      value={value}
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -190,7 +187,6 @@ export default function EditSurveyHeaderForm({
                 <Controller
                   name="status_survey"
                   control={control}
-                  rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableSelect
                       value={value}

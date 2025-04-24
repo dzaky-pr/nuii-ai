@@ -19,7 +19,6 @@ const useCreateBatchMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['surveyNameList'] })
       toast.success('Survey baru berhasil dibuat!')
 	  router.push('/dashboard/survey')
-
     },
     onError: () => {
       toast.error('Gagal mendapatkan estimasi')

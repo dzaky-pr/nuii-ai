@@ -69,9 +69,9 @@ export default function RoutingMachine({
         serviceUrl: 'https://router.project-osrm.org/route/v1',
         profile: 'driving'
       }),
-      show: true,
+      show: !isViewMode,
       addWaypoints: false,
-      routeWhileDragging: true,
+      routeWhileDragging: !isViewMode,
       fitSelectedRoutes: true,
       showAlternatives: false,
       lineOptions: {
@@ -100,16 +100,18 @@ export default function RoutingMachine({
     routingControlRef.current = routingControl
 
     if (apiPoles && apiPoles.length > 0) {
-      const markers: L.Marker[] = apiPoles.slice(1, -1).map(pole => {
+      const markers: L.Marker[] = apiPoles.map((pole, index) => {
         const marker = L.marker([pole.latitude, pole.longitude])
 
         const popupContent = `
           <div class="w-fit">
-            <h4 class="text-lg font-bold">Detail Tiang</h4>
+            <h4 class="text-lg font-bold">Detail Tiang ${index + 1}</h4>
             <div class="mt-2">
               <p><strong>Konstruksi:</strong> ${pole.nama_konstruksi}</p>
               <p><strong>Tiang:</strong> ${pole.nama_tiang}</p>
-              <p><strong>Panjang Jaringan:</strong> ${pole.panjang_jaringan}m</p>
+              <p><strong>Panjang Jaringan:</strong> ${
+                pole.panjang_jaringan
+              }m</p>
             </div>
           </div>
         `
@@ -138,6 +140,7 @@ export default function RoutingMachine({
       poleMarkersRef.current = []
     }
   }, [
+    isViewMode,
     map,
     waypoints,
     apiRoutes,

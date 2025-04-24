@@ -22,6 +22,10 @@ import SearchableSelect from '../../_components/SearchableSelect'
 import { useGetConductorList } from '../../_hooks/@read/useGetConductorList'
 import { useCreateBatchMutation } from '../_hooks/useCreateBatchMutation'
 
+interface SurveyHeaderForm extends SurveyHeader {
+  penyulang: string
+}
+
 export default function CreateBatchForm({
   onSuccess
 }: {
@@ -31,7 +35,7 @@ export default function CreateBatchForm({
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false)
 
   //#region  //*=========== Form ===========
-  const methods = useForm<SurveyHeader>({ mode: 'onBlur' })
+  const methods = useForm<SurveyHeaderForm>({ mode: 'onBlur' })
 
   const {
     control,
@@ -61,7 +65,7 @@ export default function CreateBatchForm({
   const { mutate, isPending, isSuccess } = useCreateBatchMutation()
   const { userId } = useAuth()
 
-  function submitHandler(data: SurveyHeader) {
+  function submitHandler(data: SurveyHeaderForm) {
     if (!estimation?.poles) {
       toast.info('Data tiang dalam estimasi tidak ditemukan!')
       return
@@ -75,7 +79,7 @@ export default function CreateBatchForm({
       details: estimation?.poles.map(pole => ({
         id_material_tiang: pole.id_tiang,
         id_konstruksi: pole.id_konstruksi,
-        penyulang: '-',
+        penyulang: data.penyulang,
         panjang_jaringan: pole.panjang_jaringan,
         long: String(pole.longitude),
         lat: String(pole.latitude),
@@ -142,6 +146,7 @@ export default function CreateBatchForm({
                   Nama Survey
                 </Label>
                 <Input
+                  placeholder="Masukkan Nama Survey"
                   maxLength={60}
                   {...register('nama_survey', { required: true })}
                 />
@@ -188,6 +193,18 @@ export default function CreateBatchForm({
                       placeholder="Pilih Lokasi"
                     />
                   )}
+                />
+              </div>
+
+              {/* Penyulang */}
+              <div className="grid gap-2">
+                <Label required htmlFor="penyulang">
+                  Penyulang
+                </Label>
+                <Input
+                  placeholder="Masukkan Penyulang"
+                  maxLength={60}
+                  {...register('penyulang', { required: true })}
                 />
               </div>
 

@@ -204,8 +204,9 @@ export default function EditSurveyDetailForm({
                 <Controller
                   name="id_material_tiang"
                   control={control}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableSelect
+                      value={String(value)}
                       isLoading={loadingListTiang}
                       options={listTiang}
                       onValueChange={onChange}
@@ -217,15 +218,13 @@ export default function EditSurveyDetailForm({
 
               {/* Konstruksi */}
               <div className="grid gap-2">
-                <Label required htmlFor="konstruksi">
-                  Konstruksi
-                </Label>
+                <Label htmlFor="konstruksi">Konstruksi</Label>
                 <Controller
                   name="id_konstruksi"
                   control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableSelect
+                      value={String(value)}
                       isLoading={loadingConstructionList}
                       options={constructionList}
                       onValueChange={(newValue, option) => {
@@ -244,7 +243,7 @@ export default function EditSurveyDetailForm({
                   Panjang Jaringan (meter)
                 </Label>
                 <Input
-                  id="panjangJaringan"
+                  id="panjang_jaringan"
                   type="number"
                   max={999}
                   {...register('panjang_jaringan', {
@@ -259,8 +258,9 @@ export default function EditSurveyDetailForm({
                 <Controller
                   name="id_pole"
                   control={control}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableSelect
+                      value={String(value)}
                       isLoading={loadingPoleList}
                       options={poleList}
                       onValueChange={onChange}
@@ -281,7 +281,7 @@ export default function EditSurveyDetailForm({
                       isDisabled={disableSelectGrounding}
                       isLoading={loadingGroundingList}
                       options={groundingList}
-                      value={value?.toString()}
+                      value={String(value)}
                       onValueChange={onChange}
                       placeholder="Pilih Tipe Grounding"
                     />
