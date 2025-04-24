@@ -85,10 +85,6 @@ export default function RoutingMachine({
         styles: [{ color: '#aab6ff', weight: 4, opacity: 0.65 }]
       }
     })
-      .on('routingstart', () => {
-        setInstructionText && setInstructionText('Mencari rute...')
-        toast.info('Rute sedang diproses')
-      })
       .on('routesfound', e => {
         setInstructionText && setInstructionText('Rute berhasil dibuat.')
         toast.info('Rute berhasil ditemukan')
@@ -124,7 +120,6 @@ export default function RoutingMachine({
       })
 
       setInstructionText && setInstructionText('Rute berhasil dibuat.')
-      toast.info('Rute berhasil ditemukan')
 
       poleMarkersRef.current = markers
     }

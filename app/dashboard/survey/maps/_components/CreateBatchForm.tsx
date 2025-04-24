@@ -15,14 +15,18 @@ import useRouteStore from '@/lib/hooks/useRouteStore'
 import { IBatch } from '@/lib/types/maps'
 import { SurveyHeader } from '@/lib/types/survey'
 import { useAuth } from '@clerk/nextjs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import SearchableSelect from '../../_components/SearchableSelect'
 import { useGetConductorList } from '../../_hooks/@read/useGetConductorList'
 import { useCreateBatchMutation } from '../_hooks/useCreateBatchMutation'
 
-export default function CreateBatchForm() {
+export default function CreateBatchForm({
+  onSuccess
+}: {
+  onSuccess: () => void
+}) {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false)
 
@@ -54,7 +58,7 @@ export default function CreateBatchForm() {
   //#endregion  //*======== Utility ===========
 
   //#region  //*=========== Submit Form Handler ===========
-  const { mutate, isPending } = useCreateBatchMutation()
+  const { mutate, isPending, isSuccess } = useCreateBatchMutation()
   const { userId } = useAuth()
 
   function submitHandler(data: SurveyHeader) {
@@ -81,6 +85,14 @@ export default function CreateBatchForm() {
     }
     mutate(payload)
   }
+
+  useEffect(() => {
+    if (isSuccess) {
+      reset()
+      onSuccess()
+      setIsSheetOpen(false)
+    }
+  }, [isSuccess, reset, onSuccess])
   //#endregion  //*======== Submit Form Handler ===========
 
   return (

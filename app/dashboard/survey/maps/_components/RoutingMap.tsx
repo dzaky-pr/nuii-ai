@@ -75,7 +75,6 @@ export default function RoutingMap({
     if (waypoints.length === 0) {
       setWaypoints([latlng])
       setInstructionText('Tap pada peta untuk memilih titik tujuan.')
-      toast.info('Titik awal dipilih. Silakan pilih titik tujuan.')
     } else if (waypoints.length === 1) {
       setWaypoints([...waypoints, latlng])
     }
@@ -88,7 +87,6 @@ export default function RoutingMap({
 
     if (newWaypoints.length === 0) {
       setInstructionText('Tap pada peta untuk memilih titik awal')
-      toast.info('Titik awal dihapus. Silakan pilih titik awal baru.')
     }
   }
 

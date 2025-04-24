@@ -24,7 +24,7 @@ export default function MapPage() {
   const { route, setRoute, setEstimation } = useRouteStore()
   const { mutate, isPending } = useEstimationMutation()
 
-  const handleReset = () => {
+  const handleReset = (withToast: boolean) => {
     if (routingMode === 'select') {
       setWaypoints([])
       setRoute({})
@@ -34,8 +34,10 @@ export default function MapPage() {
       setRoute({})
       setEstimation({})
     }
+    if (withToast) {
+      toast.info('Rute berhasil direset.')
+    }
     setInstructionText('Tap pada peta untuk memilih titik awal.')
-    toast.info('Rute direset. Silakan pilih titik awal baru.')
   }
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export default function MapPage() {
         <div className="flex gap-4 self-end">
           <Button
             size="sm"
-            onClick={handleReset}
+            onClick={() => handleReset(true)}
             className="bg-red-500 text-white hover:bg-red-600 w-fit self-center"
             disabled={waypoints.length < 1}
           >
@@ -79,7 +81,7 @@ export default function MapPage() {
               Submit
             </Button>
           ) : (
-            <CreateBatchForm />
+            <CreateBatchForm onSuccess={() => handleReset(false)} />
           )}
         </div>
       </div>
