@@ -13,7 +13,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import {
   EditSurveyDetailForm as IEditSurveyDetailForm,
-  SurveyDetail,
+  SurveyDetailExtended,
   UpdateSurveyDetail
 } from '@/lib/types/survey'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
@@ -33,7 +33,7 @@ import SearchableSelect, { Option } from './SearchableSelect'
 export default function EditSurveyDetailForm({
   surveyDetail
 }: {
-  surveyDetail?: SurveyDetail
+  surveyDetail?: SurveyDetailExtended
 }) {
   //#region  //*=========== Initial State & Ref ===========
   const [showMapDialog, setShowMapDialog] = useState(false)
@@ -88,10 +88,10 @@ export default function EditSurveyDetailForm({
 
       if (label.includes('tm-11')) {
         setDisableSelectGrounding(true)
-        setValue('id_grounding', 1)
+        setValue('id_grounding_termination', 1)
       } else if (label.includes('arr')) {
         setDisableSelectGrounding(true)
-        setValue('id_grounding', 2)
+        setValue('id_grounding_termination', 2)
       } else {
         setDisableSelectGrounding(false)
       }
@@ -150,11 +150,14 @@ export default function EditSurveyDetailForm({
       id_detail: surveyDetail?.id ?? 0,
       detail: {
         ...data,
+
         id_konstruksi: Number(data.id_konstruksi),
         id_material_tiang: Number(data.id_material_tiang),
-        ...(data.id_pole ? { id_pole: Number(data.id_pole) } : {}),
-        ...(data.id_grounding
-          ? { id_grounding: Number(data.id_grounding) }
+        ...(data.id_pole_supporter
+          ? { id_pole: Number(data.id_pole_supporter) }
+          : {}),
+        ...(data.id_grounding_termination
+          ? { id_grounding: Number(data.id_grounding_termination) }
           : {})
       }
     }
@@ -256,7 +259,7 @@ export default function EditSurveyDetailForm({
               <div className="grid gap-2">
                 <Label>Pole Suporter</Label>
                 <Controller
-                  name="id_pole"
+                  name="id_pole_supporter"
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableSelect
@@ -274,7 +277,7 @@ export default function EditSurveyDetailForm({
               <div className="grid gap-2">
                 <Label>Grounding</Label>
                 <Controller
-                  name="id_grounding"
+                  name="id_grounding_termination"
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableSelect

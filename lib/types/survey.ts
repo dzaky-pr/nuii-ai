@@ -38,9 +38,22 @@ export interface SurveyDetail {
   deleted_at: string | null
 }
 
+export interface SurveyDetailExtended
+  extends Omit<SurveyDetail, 'id_pole' | 'id_grounding'> {
+  id_pole_supporter?: string
+  id_grounding_termination?: number
+  nama_konstruksi: string
+  nama_material_tiang: string
+}
+
 export interface ISurvey {
   header: DetailedSurveyHeader
   detail: SurveyDetail[]
+}
+
+export interface ISurveyExtended {
+  header: DetailedSurveyHeader
+  detail: SurveyDetailExtended[]
 }
 
 export interface CreateExistingSurvey {
@@ -61,7 +74,7 @@ export interface CreateSurveyForm {
 
 export interface EditSurveyHeaderForm extends SurveyHeader {}
 
-export interface EditSurveyDetailForm extends SurveyDetail {}
+export interface EditSurveyDetailForm extends SurveyDetailExtended {}
 
 export interface UpdateSurveyHeader {
   id_header: number
@@ -70,7 +83,7 @@ export interface UpdateSurveyHeader {
 
 export interface UpdateSurveyDetail {
   id_detail: number
-  detail: Omit<SurveyDetail, 'id'>
+  detail: Omit<SurveyDetailExtended, 'id'>
 }
 
 export interface SurveyLite {

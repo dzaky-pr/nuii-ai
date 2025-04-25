@@ -5,13 +5,13 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
-import { SurveyDetail } from '@/lib/types/survey'
+import { SurveyDetailExtended } from '@/lib/types/survey'
 import Image from 'next/image'
 
 export default function SurveyDetailModal({
   surveyDetail
 }: {
-  surveyDetail?: SurveyDetail
+  surveyDetail?: SurveyDetailExtended
 }) {
   const { isOpen, close } = useOverlayStore()
   const modalId = 'detail-survey-modal'

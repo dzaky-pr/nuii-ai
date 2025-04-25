@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
-import { SurveyDetail } from '@/lib/types/survey'
+import { SurveyDetailExtended } from '@/lib/types/survey'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import DeleteSurveyModal from '../_components/DeleteSurveyModal'
 import EditSurveyDetailForm from '../_components/EditSurveyDetailForm'
-import MapViewerDialog from '../_components/MapViewerDialog'
+import LeafletMapViewerDialog from '../_components/LeafletMapViewerDialog'
 import SurveyDetailModal from '../_components/SurveyDetailModal'
 import SurveyRABModal from '../_components/SurveyRABModal'
 import { useDeleteSurveyDetailMutation } from '../_hooks/@delete/useDeleteSurveyDetailMutation'
@@ -31,9 +31,8 @@ const tableHeader = [
 ]
 
 export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
-  const [selectedSurvey, setSelectedSurvey] = useState<SurveyDetail | null>(
-    null
-  )
+  const [selectedSurvey, setSelectedSurvey] =
+    useState<SurveyDetailExtended | null>(null)
   const [isMounted, setIsMounted] = useState<boolean>(false)
 
   const router = useRouter()
@@ -99,7 +98,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => open('map-viewer-modal')}
+              onClick={() => open('leaflet-map-viewer-modal')}
             >
               Lihat Map
             </Button>
@@ -198,7 +197,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           </p>
         </div>
       </div>
-      <MapViewerDialog surveys={survey.detail} />
+      <LeafletMapViewerDialog surveys={survey.detail} />
       <SurveyRABModal surveyId={surveyId} />
       <SurveyDetailModal surveyDetail={selectedSurvey!!} />
       <EditSurveyDetailForm surveyDetail={selectedSurvey!!} />
