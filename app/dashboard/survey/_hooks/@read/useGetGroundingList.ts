@@ -16,9 +16,9 @@ const useGetGroundingList = () => {
     groundingList: isPending
       ? []
       : data
-      ? data.map(({ id, nama_grounding }) => ({
+      ? data.map(({ id, nama_grounding_termination }) => ({
           value: id.toString(),
-          label: nama_grounding
+          label: nama_grounding_termination
         }))
       : [],
     loadingGroundingList: isPending

@@ -28,7 +28,7 @@ import { useGetPoleList } from '../_hooks/@read/useGetPoleList'
 import { useGetTiangList } from '../_hooks/@read/useGetTiangList'
 import { useUpdateSurveyDetailMutation } from '../_hooks/@update/useUpdateSurveyDetailMutation'
 import MapPicker from './MapPicker'
-import SearchableSelect, { Option } from './SearchableSelect'
+import SearchableCombobox, { Option } from './SearchableCombobox'
 
 export default function EditSurveyDetailForm({
   surveyDetail
@@ -146,18 +146,25 @@ export default function EditSurveyDetailForm({
   }, [close, isSuccess, reset])
 
   const submitHandler = (data: IEditSurveyDetailForm) => {
+    const {
+      nama_grounding_termination,
+      nama_konstruksi,
+      nama_material_tiang,
+      nama_pole_supporter,
+      ...rest
+    } = data
     const payload: UpdateSurveyDetail = {
       id_detail: surveyDetail?.id ?? 0,
       detail: {
-        ...data,
+        ...rest,
 
-        id_konstruksi: Number(data.id_konstruksi),
-        id_material_tiang: Number(data.id_material_tiang),
-        ...(data.id_pole_supporter
-          ? { id_pole_supporter: data.id_pole_supporter }
+        id_konstruksi: Number(rest.id_konstruksi),
+        id_material_tiang: Number(rest.id_material_tiang),
+        ...(rest.id_pole_supporter
+          ? { id_pole_supporter: rest.id_pole_supporter }
           : {}),
-        ...(data.id_grounding_termination
-          ? { id_grounding_termination: Number(data.id_grounding_termination) }
+        ...(rest.id_grounding_termination
+          ? { id_grounding_termination: Number(rest.id_grounding_termination) }
           : {})
       }
     }
@@ -208,7 +215,7 @@ export default function EditSurveyDetailForm({
                   name="id_material_tiang"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       value={String(value)}
                       isLoading={loadingListTiang}
                       options={listTiang}
@@ -226,7 +233,7 @@ export default function EditSurveyDetailForm({
                   name="id_konstruksi"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       value={String(value)}
                       isLoading={loadingConstructionList}
                       options={constructionList}
@@ -262,7 +269,7 @@ export default function EditSurveyDetailForm({
                   name="id_pole_supporter"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       value={String(value)}
                       isLoading={loadingPoleList}
                       options={poleList}
@@ -280,7 +287,7 @@ export default function EditSurveyDetailForm({
                   name="id_grounding_termination"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       isDisabled={disableSelectGrounding}
                       isLoading={loadingGroundingList}
                       options={groundingList}

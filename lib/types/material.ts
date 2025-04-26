@@ -28,7 +28,7 @@ export type IMaterialWithLog = Omit<
 
 export interface IGroundingLite {
   id: string
-  nama_grounding: string
+  nama_grounding_termination: string
 }
 
 export interface IPoleLite {

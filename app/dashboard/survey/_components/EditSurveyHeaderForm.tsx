@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useGetConductorList } from '../_hooks/@read/useGetConductorList'
 import { useUpdateSurveyHeaderMutation } from '../_hooks/@update/useUpdateSurveyHeaderMutation'
-import SearchableSelect from './SearchableSelect'
+import SearchableCombobox from './SearchableCombobox'
 
 export default function EditSurveyHeaderForm({
   surveyHeader
@@ -133,7 +133,7 @@ export default function EditSurveyHeaderForm({
                   name="lokasi"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       value={value}
                       options={dummyLocations}
                       onValueChange={onChange}
@@ -150,7 +150,7 @@ export default function EditSurveyHeaderForm({
                   name="id_material_konduktor"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       value={String(value)}
                       isLoading={loadingConductorList}
                       options={conductorList}
@@ -168,7 +168,7 @@ export default function EditSurveyHeaderForm({
                   name="nama_pekerjaan"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       value={value}
                       options={jobOptions.map(item => ({
                         value: item,
@@ -188,7 +188,7 @@ export default function EditSurveyHeaderForm({
                   name="status_survey"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       value={value}
                       options={surveyStatusOptions}
                       onValueChange={onChange}

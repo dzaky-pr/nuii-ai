@@ -19,7 +19,7 @@ import { Camera } from 'react-camera-pro'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import MapPicker from './MapPicker'
-import SearchableSelect, { Option } from './SearchableSelect'
+import SearchableCombobox, { Option } from './SearchableCombobox'
 
 import {
   Dialog,
@@ -318,7 +318,7 @@ export default function CreateSurveyForm() {
                     control={control}
                     rules={{ required: isCustomSurvey }}
                     render={({ field: { onChange } }) => (
-                      <SearchableSelect
+                      <SearchableCombobox
                         isLoading={loadingSurveyNameList}
                         options={surveyNameList}
                         onValueChange={onChange}
@@ -339,7 +339,7 @@ export default function CreateSurveyForm() {
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -362,10 +362,10 @@ export default function CreateSurveyForm() {
                     control={control}
                     rules={{ required: isCustomSurvey }}
                     render={() => (
-                      <SearchableSelect
+                      <SearchableCombobox
                         options={dummyLocations}
                         onValueChange={value => {
-                          setValue('header.lokasi', value, {
+                          setValue('header.lokasi', value ?? '', {
                             shouldValidate: true
                           })
                         }}
@@ -402,7 +402,7 @@ export default function CreateSurveyForm() {
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       isLoading={loadingListTiang}
                       options={listTiang}
                       onValueChange={onChange}
@@ -422,7 +422,7 @@ export default function CreateSurveyForm() {
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       isLoading={loadingConstructionList}
                       options={constructionList}
                       onValueChange={(newValue, option) => {
@@ -445,7 +445,7 @@ export default function CreateSurveyForm() {
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}
@@ -478,7 +478,7 @@ export default function CreateSurveyForm() {
                   name="detail.id_pole_supporter"
                   control={control}
                   render={({ field: { onChange } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       isLoading={loadingPoleList}
                       options={poleList}
                       onValueChange={onChange}
@@ -495,7 +495,7 @@ export default function CreateSurveyForm() {
                   name="detail.id_grounding_termination"
                   control={control}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       isDisabled={disableSelectGrounding}
                       isLoading={loadingGroundingList}
                       options={groundingList}

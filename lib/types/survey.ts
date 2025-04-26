@@ -42,8 +42,10 @@ export interface SurveyDetailExtended
   extends Omit<SurveyDetail, 'id_pole_supporter' | 'id_grounding_termination'> {
   id_pole_supporter?: string
   id_grounding_termination?: number
-  nama_konstruksi: string
-  nama_material_tiang: string
+  nama_konstruksi?: string
+  nama_material_tiang?: string
+  nama_grounding_termination?: string
+  nama_pole_supporter?: string
 }
 
 export interface ISurvey {

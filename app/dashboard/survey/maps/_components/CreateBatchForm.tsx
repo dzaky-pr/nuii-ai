@@ -18,7 +18,7 @@ import { useAuth } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import SearchableSelect from '../../_components/SearchableSelect'
+import SearchableCombobox from '../../_components/SearchableCombobox'
 import { useGetConductorList } from '../../_hooks/@read/useGetConductorList'
 import { useCreateBatchMutation } from '../_hooks/useCreateBatchMutation'
 
@@ -165,7 +165,7 @@ export default function CreateBatchForm({
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -186,10 +186,10 @@ export default function CreateBatchForm({
                   name="lokasi"
                   control={control}
                   render={() => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       options={dummyLocations}
                       onValueChange={value => {
-                        setValue('lokasi', value, {
+                        setValue('lokasi', value ?? '', {
                           shouldValidate: true
                         })
                       }}
@@ -221,7 +221,7 @@ export default function CreateBatchForm({
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange } }) => (
-                    <SearchableSelect
+                    <SearchableCombobox
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}
