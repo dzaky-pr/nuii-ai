@@ -100,10 +100,10 @@ export default function CreateSurveyForm() {
 
       if (label.includes('tm-11')) {
         setDisableSelectGrounding(true)
-        setValue('detail.id_grounding', 1)
+        setValue('detail.id_grounding_termination', 1)
       } else if (label.includes('arr')) {
         setDisableSelectGrounding(true)
-        setValue('detail.id_grounding', 2)
+        setValue('detail.id_grounding_termination', 2)
       } else {
         setDisableSelectGrounding(false)
       }
@@ -206,11 +206,11 @@ export default function CreateSurveyForm() {
           ...rest.detail,
           id_konstruksi: Number(data.detail.id_konstruksi),
           id_material_tiang: Number(data.detail.id_material_tiang),
-          ...(data.detail.id_pole
-            ? { id_pole: Number(data.detail.id_pole) }
+          ...(data.detail.id_pole_supporter
+            ? { id_pole: Number(data.detail.id_pole_supporter) }
             : {}),
-          ...(data.detail.id_grounding
-            ? { id_grounding: Number(data.detail.id_grounding) }
+          ...(data.detail.id_grounding_termination
+            ? { id_grounding: Number(data.detail.id_grounding_termination) }
             : {})
         }
       }
@@ -223,11 +223,11 @@ export default function CreateSurveyForm() {
           ...rest.detail,
           id_konstruksi: Number(data.detail.id_konstruksi),
           id_material_tiang: Number(data.detail.id_material_tiang),
-          ...(data.detail.id_pole
-            ? { id_pole: Number(data.detail.id_pole) }
+          ...(data.detail.id_pole_supporter
+            ? { id_pole: Number(data.detail.id_pole_supporter) }
             : {}),
-          ...(data.detail.id_grounding
-            ? { id_grounding: Number(data.detail.id_grounding) }
+          ...(data.detail.id_grounding_termination
+            ? { id_grounding: Number(data.detail.id_grounding_termination) }
             : {})
         }
       }
@@ -475,7 +475,7 @@ export default function CreateSurveyForm() {
               <div className="grid gap-2">
                 <Label>Pole Suporter</Label>
                 <Controller
-                  name="detail.id_pole"
+                  name="detail.id_pole_supporter"
                   control={control}
                   render={({ field: { onChange } }) => (
                     <SearchableSelect
@@ -492,7 +492,7 @@ export default function CreateSurveyForm() {
               <div className="grid gap-2">
                 <Label>Grounding</Label>
                 <Controller
-                  name="detail.id_grounding"
+                  name="detail.id_grounding_termination"
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableSelect

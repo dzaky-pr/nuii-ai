@@ -154,10 +154,10 @@ export default function EditSurveyDetailForm({
         id_konstruksi: Number(data.id_konstruksi),
         id_material_tiang: Number(data.id_material_tiang),
         ...(data.id_pole_supporter
-          ? { id_pole: Number(data.id_pole_supporter) }
+          ? { id_pole_supporter: data.id_pole_supporter }
           : {}),
         ...(data.id_grounding_termination
-          ? { id_grounding: Number(data.id_grounding_termination) }
+          ? { id_grounding_termination: Number(data.id_grounding_termination) }
           : {})
       }
     }
@@ -343,11 +343,9 @@ export default function EditSurveyDetailForm({
                       <Button
                         variant="outline"
                         onClick={() => {
+                          setValue('lat', surveyDetail?.lat || '')
+                          setValue('long', surveyDetail?.long || '')
                           setShowMapDialog(false)
-                          reset({
-                            lat: '0',
-                            long: '0'
-                          })
                         }}
                       >
                         Batal
@@ -369,7 +367,7 @@ export default function EditSurveyDetailForm({
                       height={192}
                       className="object-cover"
                     />
-                    <Button type="button" onClick={() => reset({ foto: '' })}>
+                    <Button type="button" onClick={() => setValue('foto', '')}>
                       Ambil Ulang Foto
                     </Button>
                   </>

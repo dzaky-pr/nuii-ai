@@ -24,8 +24,8 @@ export interface SurveyDetail {
   id: number
   id_material_tiang: number
   id_konstruksi: number
-  id_pole: number
-  id_grounding: number
+  id_pole_supporter: number
+  id_grounding_termination: number
   penyulang: string
   panjang_jaringan: number
   long: string
@@ -39,7 +39,7 @@ export interface SurveyDetail {
 }
 
 export interface SurveyDetailExtended
-  extends Omit<SurveyDetail, 'id_pole' | 'id_grounding'> {
+  extends Omit<SurveyDetail, 'id_pole_supporter' | 'id_grounding_termination'> {
   id_pole_supporter?: string
   id_grounding_termination?: number
   nama_konstruksi: string
