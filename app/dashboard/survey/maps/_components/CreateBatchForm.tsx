@@ -70,16 +70,18 @@ export default function CreateBatchForm({
       toast.info('Data tiang dalam estimasi tidak ditemukan!')
       return
     }
+    const { penyulang, ...rest } = data
+
     const payload: IBatch = {
       header: {
-        ...data,
+        ...rest,
         user_id: userId ?? '',
-        id_material_konduktor: Number(data.id_material_konduktor)
+        id_material_konduktor: Number(rest.id_material_konduktor)
       },
       details: estimation?.poles.map(pole => ({
         id_material_tiang: pole.id_tiang,
         id_konstruksi: pole.id_konstruksi,
-        penyulang: data.penyulang,
+        penyulang,
         panjang_jaringan: pole.panjang_jaringan,
         long: String(pole.longitude),
         lat: String(pole.latitude),
@@ -87,6 +89,7 @@ export default function CreateBatchForm({
         foto: '-'
       }))
     }
+
     mutate(payload)
   }
 
