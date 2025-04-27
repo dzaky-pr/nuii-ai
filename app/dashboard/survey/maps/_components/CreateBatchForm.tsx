@@ -164,8 +164,9 @@ export default function CreateBatchForm({
                   name="nama_pekerjaan"
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={value}
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -185,8 +186,9 @@ export default function CreateBatchForm({
                 <Controller
                   name="lokasi"
                   control={control}
-                  render={() => (
+                  render={({ field: { value } }) => (
                     <SearchableCombobox
+                      value={value}
                       options={dummyLocations}
                       onValueChange={value => {
                         setValue('lokasi', value ?? '', {
@@ -220,8 +222,9 @@ export default function CreateBatchForm({
                   name="id_material_konduktor"
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={String(value)}
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}

@@ -317,8 +317,9 @@ export default function CreateSurveyForm() {
                     name="id_header"
                     control={control}
                     rules={{ required: isCustomSurvey }}
-                    render={({ field: { onChange } }) => (
+                    render={({ field: { onChange, value } }) => (
                       <SearchableCombobox
+                        value={value?.toString()}
                         isLoading={loadingSurveyNameList}
                         options={surveyNameList}
                         onValueChange={onChange}
@@ -338,8 +339,9 @@ export default function CreateSurveyForm() {
                   name="header.nama_pekerjaan"
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={value}
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -361,8 +363,9 @@ export default function CreateSurveyForm() {
                     name="header.lokasi"
                     control={control}
                     rules={{ required: isCustomSurvey }}
-                    render={() => (
+                    render={({ field: { value } }) => (
                       <SearchableCombobox
+                        value={value}
                         options={dummyLocations}
                         onValueChange={value => {
                           setValue('header.lokasi', value ?? '', {
@@ -401,8 +404,9 @@ export default function CreateSurveyForm() {
                   name="detail.id_material_tiang"
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={value.toString()}
                       isLoading={loadingListTiang}
                       options={listTiang}
                       onValueChange={onChange}
@@ -421,8 +425,9 @@ export default function CreateSurveyForm() {
                   name="detail.id_konstruksi"
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={value.toString()}
                       isLoading={loadingConstructionList}
                       options={constructionList}
                       onValueChange={(newValue, option) => {
@@ -444,8 +449,9 @@ export default function CreateSurveyForm() {
                   name="header.id_material_konduktor"
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={value.toString()}
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}
@@ -477,8 +483,9 @@ export default function CreateSurveyForm() {
                 <Controller
                   name="detail.id_pole_supporter"
                   control={control}
-                  render={({ field: { onChange } }) => (
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={value.toString()}
                       isLoading={loadingPoleList}
                       options={poleList}
                       onValueChange={onChange}
