@@ -3,6 +3,7 @@ import { IMaterial } from './material'
 export type TSurveyStatus = 'Belum_Disetujui' | 'Disetujui'
 
 export interface SurveyHeader {
+  excel_archive: { file_path: string; file_name: string }[]
   id: number
   nama_survey: string
   nama_pekerjaan: string

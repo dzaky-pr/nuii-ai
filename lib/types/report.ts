@@ -113,3 +113,58 @@ export interface DetailPole {
   data_pole: DataPoleClass
   materials: Material[]
 }
+
+export interface SurveyHeader {
+  id: number
+  nama_survey: string
+  nama_pekerjaan: string
+  lokasi: string
+  status_survey: string
+  id_material_konduktor: number
+  user_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface SurveyArchive {
+  archive_id: number
+  file_name: string
+  file_path: string
+  survey_header_id: number
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export interface UploadExcelArchiveResponse {
+  code: number
+  message: string
+  status: boolean
+  data: {
+    header: SurveyHeader
+    archive: SurveyArchive
+  }
+}
+
+export interface UploadExcelArchivePayload {
+  header: {
+    nama_survey: string
+    nama_pekerjaan: string
+    lokasi: string
+    user_id: string
+    id_material_konduktor: number
+  }
+  file: {
+    file_name: string
+    file_path: string
+  }
+}
+
+export interface UploadFormValues {
+  nama_survey: string
+  nama_pekerjaan: string
+  lokasi: string
+  user_id: string
+  id_material_konduktor: string
+  file_path: string
+}

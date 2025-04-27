@@ -47,9 +47,13 @@ export default function SearchableCombobox({
 
   const filteredOptions = React.useMemo(() => {
     if (isLoading) return []
-    return options.filter(option =>
-      option.label.toLowerCase().includes(debouncedQuery.toLowerCase())
-    )
+    return options.filter(option => {
+      const label = option.label ?? ''
+      return options.filter(option => {
+        const label = option.label ?? ''
+        return label.toLowerCase().includes(debouncedQuery.toLowerCase())
+      })
+    })
   }, [options, debouncedQuery, isLoading])
 
   const handleSelect = (selectedValue: string | null) => {

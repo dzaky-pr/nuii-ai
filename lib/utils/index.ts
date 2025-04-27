@@ -221,3 +221,16 @@ export function convertToExtendedCoreMessages(
 
   return result
 }
+
+export function getSessionDefault(field: string) {
+  if (typeof window === 'undefined') return undefined
+  const stored = sessionStorage.getItem(field)
+  return stored ? JSON.parse(stored) : undefined
+}
+
+export function removeSessionFile(fields: string | string[]) {
+  if (typeof window === 'undefined') return
+
+  const keys = Array.isArray(fields) ? fields : [fields]
+  keys.forEach(key => sessionStorage.removeItem(key))
+}
