@@ -128,7 +128,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                   <tr key={index} className="text-center">
                     <td className="border p-2">{index + 1}</td>
                     <td className="border p-2">
-                      {item.foto !== '-' ? (
+                      {item.foto && item.foto !== '-' ? (
                         <Image
                           src={item.foto}
                           alt="Foto Survey"

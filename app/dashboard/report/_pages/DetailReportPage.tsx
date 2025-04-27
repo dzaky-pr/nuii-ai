@@ -207,17 +207,18 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                 Lat: {item.lat}, <br /> Long: {item.long}
                               </>
                             ),
-                            Foto: item.foto ? (
-                              <Image
-                                src={item.foto}
-                                alt="Foto Survey"
-                                width={100}
-                                height={60}
-                                className="object-cover"
-                              />
-                            ) : (
-                              'Foto tidak tersedia.'
-                            ),
+                            Foto:
+                              item.foto !== '-' && item.foto ? (
+                                <Image
+                                  src={item.foto}
+                                  alt="Foto Survey"
+                                  width={100}
+                                  height={60}
+                                  className="object-cover"
+                                />
+                              ) : (
+                                'Foto tidak tersedia.'
+                              ),
                             Keterangan: item.keterangan,
                             'Nama Petugas': item.petugas_survey,
                             'Dibuat Pada': `${format(
