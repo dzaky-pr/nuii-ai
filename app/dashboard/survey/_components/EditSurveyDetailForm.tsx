@@ -70,9 +70,16 @@ export default function EditSurveyDetailForm({
   useEffect(() => {
     if (surveyDetail) {
       const { id, created_at, updated_at, deleted_at, ...survey } = surveyDetail
-      reset(survey)
+      reset({
+        ...survey,
+        id_konstruksi: survey.id_konstruksi,
+        id_material_tiang: survey.id_material_tiang,
+        id_grounding_termination: survey.id_grounding_termination,
+        id_pole_supporter: survey.id_pole_supporter
+      })
     }
   }, [reset, surveyDetail])
+
   //#endregion  //*======== Form ===========
 
   //#region  //*=========== Get Data Hooks ===========
@@ -81,6 +88,8 @@ export default function EditSurveyDetailForm({
   const { groundingList, loadingGroundingList } = useGetGroundingList()
   const { poleList, loadingPoleList } = useGetPoleList()
   //#endregion  //*======== Get Data Hooks ===========
+
+  console.log(groundingList)
 
   useEffect(() => {
     if (selectedConstruction?.label) {
@@ -214,15 +223,20 @@ export default function EditSurveyDetailForm({
                 <Controller
                   name="id_material_tiang"
                   control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <SearchableCombobox
-                      value={String(value)}
-                      isLoading={loadingListTiang}
-                      options={listTiang}
-                      onValueChange={onChange}
-                      placeholder="Pilih Tiang"
-                    />
-                  )}
+                  render={({ field: { onChange, value } }) => {
+                    const selected = listTiang.find(
+                      opt => opt.value === String(value)
+                    )
+                    return (
+                      <SearchableCombobox
+                        isLoading={loadingListTiang}
+                        options={listTiang}
+                        value={selected?.value}
+                        onValueChange={onChange}
+                        placeholder="Pilih Tiang"
+                      />
+                    )
+                  }}
                 />
               </div>
 
@@ -232,18 +246,20 @@ export default function EditSurveyDetailForm({
                 <Controller
                   name="id_konstruksi"
                   control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <SearchableCombobox
-                      value={String(value)}
-                      isLoading={loadingConstructionList}
-                      options={constructionList}
-                      onValueChange={(newValue, option) => {
-                        onChange(newValue)
-                        setSelectedConstruction(option)
-                      }}
-                      placeholder="Pilih Konstruksi"
-                    />
-                  )}
+                  render={({ field: { onChange, value } }) => {
+                    const selected = constructionList.find(
+                      opt => opt.value === String(value)
+                    )
+                    return (
+                      <SearchableCombobox
+                        isLoading={loadingConstructionList}
+                        options={constructionList}
+                        value={selected?.value}
+                        onValueChange={onChange}
+                        placeholder="Pilih Konstruksi"
+                      />
+                    )
+                  }}
                 />
               </div>
 
@@ -268,15 +284,20 @@ export default function EditSurveyDetailForm({
                 <Controller
                   name="id_pole_supporter"
                   control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <SearchableCombobox
-                      value={String(value)}
-                      isLoading={loadingPoleList}
-                      options={poleList}
-                      onValueChange={onChange}
-                      placeholder="Pilih Pole Suporter"
-                    />
-                  )}
+                  render={({ field: { onChange, value } }) => {
+                    const selected = poleList.find(
+                      opt => opt.value === String(value)
+                    )
+                    return (
+                      <SearchableCombobox
+                        isLoading={loadingPoleList}
+                        options={poleList}
+                        value={selected?.value}
+                        onValueChange={onChange}
+                        placeholder="Pilih Pole Suporter"
+                      />
+                    )
+                  }}
                 />
               </div>
 
@@ -286,16 +307,21 @@ export default function EditSurveyDetailForm({
                 <Controller
                   name="id_grounding_termination"
                   control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <SearchableCombobox
-                      isDisabled={disableSelectGrounding}
-                      isLoading={loadingGroundingList}
-                      options={groundingList}
-                      value={String(value)}
-                      onValueChange={onChange}
-                      placeholder="Pilih Tipe Grounding"
-                    />
-                  )}
+                  render={({ field: { onChange, value } }) => {
+                    const selected = groundingList.find(
+                      opt => opt.value === String(value)
+                    )
+                    return (
+                      <SearchableCombobox
+                        isDisabled={disableSelectGrounding}
+                        isLoading={loadingGroundingList}
+                        options={groundingList}
+                        value={selected?.value}
+                        onValueChange={onChange}
+                        placeholder="Pilih Tipe Grounding"
+                      />
+                    )
+                  }}
                 />
               </div>
 
@@ -365,7 +391,7 @@ export default function EditSurveyDetailForm({
               {/* Foto */}
               <div className="grid gap-2">
                 <Label>Foto Titik Survey</Label>
-                {photoValue ? (
+                {photoValue && photoValue !== '-' ? (
                   <>
                     <Image
                       src={photoValue}

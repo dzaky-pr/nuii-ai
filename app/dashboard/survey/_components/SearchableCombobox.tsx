@@ -26,7 +26,7 @@ export interface Option {
 
 interface SearchableComboboxProps {
   options: Option[]
-  value?: string
+  value?: string | number
   onValueChange: (value: string | null, option?: Option) => void
   placeholder: string
   isLoading?: boolean
@@ -71,6 +71,8 @@ export default function SearchableCombobox({
     setOpen(false)
   }
 
+  const selectedOption = options.find(o => o.value === value)
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -84,9 +86,7 @@ export default function SearchableCombobox({
           )}
           disabled={isDisabled || isLoading}
         >
-          {value
-            ? options.find(option => option.value === value)?.label
-            : placeholder}
+          {selectedOption?.label ?? placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

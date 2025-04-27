@@ -16,9 +16,9 @@ const useGetPoleList = () => {
     poleList: isPending
       ? []
       : data
-      ? data.map(({ id, nama_pole }) => ({
+      ? data.map(({ id, nama_pole_supporter }) => ({
           value: id.toString(),
-          label: nama_pole
+          label: nama_pole_supporter
         }))
       : [],
     loadingPoleList: isPending

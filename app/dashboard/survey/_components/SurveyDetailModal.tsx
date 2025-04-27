@@ -37,7 +37,7 @@ export default function SurveyDetailModal({
             </div>
             <div className="flex justify-between">
               <p>Foto</p>
-              {surveyDetail?.foto ? (
+              {surveyDetail?.foto && surveyDetail?.foto !== '-' ? (
                 <Image
                   src={surveyDetail.foto}
                   alt="Foto Survey"

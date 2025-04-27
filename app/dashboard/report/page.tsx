@@ -235,7 +235,7 @@ export default function ReportPage() {
                     control={control}
                     render={({ field: { onChange, value } }) => (
                       <SearchableCombobox
-                        value={value}
+                        value={value ?? undefined}
                         options={jobOptions.map(item => ({
                           value: item,
                           label: item
@@ -255,7 +255,7 @@ export default function ReportPage() {
                     control={control}
                     render={({ field: { onChange, value } }) => (
                       <SearchableCombobox
-                        value={value}
+                        value={value ?? undefined}
                         options={dummyLocations}
                         onValueChange={onChange}
                         placeholder="Pilih Lokasi"
@@ -272,7 +272,7 @@ export default function ReportPage() {
                     name="id_material_konduktor"
                     render={({ field: { onChange, value } }) => (
                       <SearchableCombobox
-                        value={value}
+                        value={value ?? undefined}
                         isLoading={loadingConductorList}
                         options={conductorList}
                         onValueChange={onChange}

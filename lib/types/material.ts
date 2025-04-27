@@ -33,5 +33,5 @@ export interface IGroundingLite {
 
 export interface IPoleLite {
   id: string
-  nama_pole: string
+  nama_pole_supporter: string
 }

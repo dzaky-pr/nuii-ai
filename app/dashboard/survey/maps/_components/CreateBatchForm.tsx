@@ -166,7 +166,7 @@ export default function CreateBatchForm({
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value}
+                      value={value ?? undefined}
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -188,7 +188,7 @@ export default function CreateBatchForm({
                   control={control}
                   render={({ field: { value } }) => (
                     <SearchableCombobox
-                      value={value}
+                      value={value ?? undefined}
                       options={dummyLocations}
                       onValueChange={value => {
                         setValue('lokasi', value ?? '', {
@@ -224,7 +224,7 @@ export default function CreateBatchForm({
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={String(value)}
+                      value={value ?? undefined}
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}

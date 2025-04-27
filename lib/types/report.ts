@@ -90,11 +90,11 @@ export interface DetailGrounding {
 
 export interface DataPoleClass {
   id: number
-  nama_grounding?: string
+  nama_grounding_termination?: string
   created_at: string
   updated_at: string
   deleted_at: null
-  nama_pole?: string
+  nama_pole_supporter?: string
 }
 
 export interface Material {

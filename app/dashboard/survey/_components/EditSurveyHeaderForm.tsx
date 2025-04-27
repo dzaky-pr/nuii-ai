@@ -134,7 +134,7 @@ export default function EditSurveyHeaderForm({
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value}
+                      value={value ?? undefined}
                       options={dummyLocations}
                       onValueChange={onChange}
                       placeholder="Pilih Lokasi"
@@ -151,7 +151,7 @@ export default function EditSurveyHeaderForm({
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={String(value)}
+                      value={value ?? undefined}
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}
@@ -169,7 +169,7 @@ export default function EditSurveyHeaderForm({
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value}
+                      value={value ?? undefined}
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -189,7 +189,7 @@ export default function EditSurveyHeaderForm({
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value}
+                      value={value ?? undefined}
                       options={surveyStatusOptions}
                       onValueChange={onChange}
                       placeholder="Pilih Status"

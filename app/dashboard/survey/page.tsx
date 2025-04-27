@@ -134,7 +134,9 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <EditSurveyHeaderForm surveyHeader={selectedSurvey!!} />
+      {/* <EditSurveyHeaderForm surveyHeader={selectedSurvey!!} /> */}
+      {selectedSurvey && <EditSurveyHeaderForm surveyHeader={selectedSurvey} />}
+
       <DeleteSurveyModal
         onSubmit={() => {
           if (selectedSurvey) {

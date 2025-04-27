@@ -269,9 +269,10 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                         {poleTableHeader.map((header, idx) => {
                           const poleMap: Record<string, string | number> = {
                             ID: item.data_pole.id,
-                            'Nama Pole': item.data_pole.nama_pole ?? '',
+                            'Nama Pole':
+                              item.data_pole.nama_pole_supporter ?? '',
                             'Nama Grounding':
-                              item.data_pole.nama_grounding ?? '',
+                              item.data_pole.nama_grounding_termination ?? '',
                             'Dibuat Pada': `${format(
                               item.data_pole.created_at,
                               'EEEE, d MMM yyyy HH:mm',

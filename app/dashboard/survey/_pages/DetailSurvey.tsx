@@ -12,7 +12,6 @@ import DeleteSurveyModal from '../_components/DeleteSurveyModal'
 import EditSurveyDetailForm from '../_components/EditSurveyDetailForm'
 import LeafletMapViewerDialog from '../_components/LeafletMapViewerDialog'
 import SurveyDetailModal from '../_components/SurveyDetailModal'
-import SurveyRABModal from '../_components/SurveyRABModal'
 import { useDeleteSurveyDetailMutation } from '../_hooks/@delete/useDeleteSurveyDetailMutation'
 import { useGetSurveyDetail } from '../_hooks/@read/useGetSurveyDetail'
 
@@ -102,13 +101,13 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
             >
               Lihat Map
             </Button>
-            <Button
+            {/* <Button
               size="sm"
               variant="outline"
               onClick={() => open('rab-survey-modal')}
             >
               Lihat RAB
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -124,68 +123,77 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
               </tr>
             </thead>
             <tbody>
-              {survey.detail.map((item, index) => (
-                <tr key={index} className="text-center">
-                  <td className="border p-2">{index + 1}</td>
-                  <td className="border p-2">
-                    {item.foto !== '-' ? (
-                      <Image
-                        src={item.foto}
-                        alt="Foto Survey"
-                        width={100}
-                        height={60}
-                        className="object-cover"
-                      />
-                    ) : (
-                      'Foto tidak tersedia.'
-                    )}
-                  </td>
-                  <td className="border p-2">{survey.header.lokasi}</td>
-                  <td className="border p-2">{item.penyulang}</td>
-                  <td className="border p-2">{item.id_material_tiang}</td>
-                  <td className="border p-2">{item.id_konstruksi}</td>
-                  <td className="border p-2">{item.panjang_jaringan}</td>
-                  <td className="border p-2">
-                    Lat: {item.lat}, <br /> Long: {item.long}
-                  </td>
-                  <td className="border p-2">{item.petugas_survey}</td>
-                  <td className="border p-2">{item.keterangan}</td>
-                  <td className="border p-2 flex flex-col justify-center gap-2">
-                    <button
-                      className="text-green-500"
-                      onClick={() => {
-                        setSelectedSurvey(item)
-                        open('detail-survey-modal')
-                      }}
-                    >
-                      Lihat Detail
-                    </button>
-                    <div className="flex justify-center items-center gap-2">
+              {survey?.detail?.length ? (
+                survey.detail.map((item, index) => (
+                  <tr key={index} className="text-center">
+                    <td className="border p-2">{index + 1}</td>
+                    <td className="border p-2">
+                      {item.foto !== '-' ? (
+                        <Image
+                          src={item.foto}
+                          alt="Foto Survey"
+                          width={100}
+                          height={60}
+                          className="object-cover"
+                        />
+                      ) : (
+                        'Foto tidak tersedia.'
+                      )}
+                    </td>
+                    <td className="border p-2">{survey.header.lokasi}</td>
+                    <td className="border p-2">{item.penyulang}</td>
+                    <td className="border p-2">{item.id_material_tiang}</td>
+                    <td className="border p-2">{item.id_konstruksi}</td>
+                    <td className="border p-2">{item.panjang_jaringan}</td>
+                    <td className="border p-2">
+                      Lat: {item.lat}, <br /> Long: {item.long}
+                    </td>
+                    <td className="border p-2">{item.petugas_survey}</td>
+                    <td className="border p-2">{item.keterangan}</td>
+                    <td className="border p-2 flex flex-col justify-center gap-2">
                       <button
-                        className="text-blue-500"
+                        className="text-green-500"
                         onClick={() => {
                           setSelectedSurvey(item)
-                          open('edit-survey-detail-modal')
+                          open('detail-survey-modal')
                         }}
                       >
-                        Edit
+                        Lihat Detail
                       </button>
-                      <button
-                        className="text-red-500"
-                        onClick={() => {
-                          setSelectedSurvey(item)
-                          open('delete-survey-modal')
-                        }}
-                      >
-                        Hapus
-                      </button>
-                    </div>
+                      <div className="flex justify-center items-center gap-2">
+                        <button
+                          className="text-blue-500"
+                          onClick={() => {
+                            setSelectedSurvey(item)
+                            open('edit-survey-detail-modal')
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="text-red-500"
+                          onClick={() => {
+                            setSelectedSurvey(item)
+                            open('delete-survey-modal')
+                          }}
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr className="text-center">
+                  <td colSpan={11} className="py-4 font-medium">
+                    Data detail survey tidak tersedia.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
+
         <div className="flex flex-col gap-2">
           <p>
             Panjang Total Jaringan Manual:{' '}
@@ -197,18 +205,24 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           </p>
         </div>
       </div>
+
+      {/* Modals */}
       <LeafletMapViewerDialog surveys={survey.detail} />
-      <SurveyRABModal surveyId={surveyId} />
-      <SurveyDetailModal surveyDetail={selectedSurvey!!} />
-      <EditSurveyDetailForm surveyDetail={selectedSurvey!!} />
-      <DeleteSurveyModal
-        onSubmit={() => {
-          if (selectedSurvey) {
-            deleteSurveyDetail(selectedSurvey.id!!)
-          }
-        }}
-        onCancel={() => setSelectedSurvey(null)}
-      />
+      {/* <SurveyRABModal surveyId={surveyId} /> */}
+      {selectedSurvey && (
+        <>
+          <SurveyDetailModal surveyDetail={selectedSurvey} />
+          <EditSurveyDetailForm surveyDetail={selectedSurvey} />
+          <DeleteSurveyModal
+            onSubmit={() => {
+              if (selectedSurvey?.id) {
+                deleteSurveyDetail(selectedSurvey.id)
+              }
+            }}
+            onCancel={() => setSelectedSurvey(null)}
+          />
+        </>
+      )}
     </>
   )
 }

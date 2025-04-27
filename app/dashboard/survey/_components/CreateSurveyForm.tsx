@@ -205,13 +205,7 @@ export default function CreateSurveyForm() {
         detail: {
           ...rest.detail,
           id_konstruksi: Number(data.detail.id_konstruksi),
-          id_material_tiang: Number(data.detail.id_material_tiang),
-          ...(data.detail.id_pole_supporter
-            ? { id_pole: Number(data.detail.id_pole_supporter) }
-            : {}),
-          ...(data.detail.id_grounding_termination
-            ? { id_grounding: Number(data.detail.id_grounding_termination) }
-            : {})
+          id_material_tiang: Number(data.detail.id_material_tiang)
         }
       }
 
@@ -222,13 +216,7 @@ export default function CreateSurveyForm() {
         detail: {
           ...rest.detail,
           id_konstruksi: Number(data.detail.id_konstruksi),
-          id_material_tiang: Number(data.detail.id_material_tiang),
-          ...(data.detail.id_pole_supporter
-            ? { id_pole: Number(data.detail.id_pole_supporter) }
-            : {}),
-          ...(data.detail.id_grounding_termination
-            ? { id_grounding: Number(data.detail.id_grounding_termination) }
-            : {})
+          id_material_tiang: Number(data.detail.id_material_tiang)
         }
       }
 
@@ -319,7 +307,7 @@ export default function CreateSurveyForm() {
                     rules={{ required: isCustomSurvey }}
                     render={({ field: { onChange, value } }) => (
                       <SearchableCombobox
-                        value={value?.toString()}
+                        value={value ?? undefined}
                         isLoading={loadingSurveyNameList}
                         options={surveyNameList}
                         onValueChange={onChange}
@@ -341,7 +329,7 @@ export default function CreateSurveyForm() {
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value}
+                      value={value ?? undefined}
                       options={jobOptions.map(item => ({
                         value: item,
                         label: item
@@ -365,7 +353,7 @@ export default function CreateSurveyForm() {
                     rules={{ required: isCustomSurvey }}
                     render={({ field: { value } }) => (
                       <SearchableCombobox
-                        value={value}
+                        value={value ?? undefined}
                         options={dummyLocations}
                         onValueChange={value => {
                           setValue('header.lokasi', value ?? '', {
@@ -406,7 +394,7 @@ export default function CreateSurveyForm() {
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value.toString()}
+                      value={value ?? undefined}
                       isLoading={loadingListTiang}
                       options={listTiang}
                       onValueChange={onChange}
@@ -427,7 +415,7 @@ export default function CreateSurveyForm() {
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value.toString()}
+                      value={value ?? undefined}
                       isLoading={loadingConstructionList}
                       options={constructionList}
                       onValueChange={(newValue, option) => {
@@ -451,7 +439,7 @@ export default function CreateSurveyForm() {
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value.toString()}
+                      value={value ?? undefined}
                       isLoading={loadingConductorList}
                       options={conductorList}
                       onValueChange={onChange}
@@ -485,7 +473,7 @@ export default function CreateSurveyForm() {
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
-                      value={value.toString()}
+                      value={value ?? undefined}
                       isLoading={loadingPoleList}
                       options={poleList}
                       onValueChange={onChange}
@@ -503,10 +491,10 @@ export default function CreateSurveyForm() {
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
+                      value={value ?? undefined}
                       isDisabled={disableSelectGrounding}
                       isLoading={loadingGroundingList}
                       options={groundingList}
-                      value={value?.toString()}
                       onValueChange={onChange}
                       placeholder="Pilih Tipe Grounding"
                     />
