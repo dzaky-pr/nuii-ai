@@ -3,8 +3,6 @@
 import { Button } from '@/components/ui/button'
 import { baseURL } from '@/lib/tools/api'
 import { useAuth } from '@clerk/nextjs'
-import { format } from 'date-fns'
-import { id } from 'date-fns/locale'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -147,18 +145,18 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                     Lokasi: report.data_survey.lokasi,
                     'Status Survey': report.data_survey.status_survey,
                     'ID Material Konduktor':
-                      report.data_survey.id_material_konduktor,
-                    'ID User': report.data_survey.user_id,
-                    'Dibuat Pada': `${format(
-                      report.data_survey.created_at,
-                      'EEEE, d MMM yyyy HH:mm',
-                      { locale: id }
-                    )} WIB`,
-                    'Diperbarui Pada': `${format(
-                      report.data_survey.updated_at,
-                      'EEEE, d MMM yyyy HH:mm',
-                      { locale: id }
-                    )} WIB`
+                      report.data_survey.id_material_konduktor
+                    // 'ID User': report.data_survey.user_id
+                    // 'Dibuat Pada': `${format(
+                    //   report.data_survey.created_at,
+                    //   'EEEE, d MMM yyyy HH:mm',
+                    //   { locale: id }
+                    // )} WIB`,
+                    // 'Diperbarui Pada': `${format(
+                    //   report.data_survey.updated_at,
+                    //   'EEEE, d MMM yyyy HH:mm',
+                    //   { locale: id }
+                    // )} WIB`
                   }
 
                   return (
@@ -196,10 +194,10 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             ID: item.id,
                             'ID Material Tiang': item.id_material_tiang,
                             'ID Konstruksi': item.id_konstruksi,
-                            'ID Header': item.id_header,
-                            'ID Pole Suporter': item.id_pole_supporter,
+                            // 'ID Header': item.id_header,
+                            'ID Pole Suporter': item.id_pole_supporter ?? '-',
                             'ID Grounding Termination':
-                              item.id_grounding_termination,
+                              item.id_grounding_termination ?? '-',
                             Penyulang: item.penyulang,
                             'Panjang Jaringan': `${item.panjang_jaringan} m`,
                             Koordinat: (
@@ -219,18 +217,21 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                               ) : (
                                 'Foto tidak tersedia.'
                               ),
-                            Keterangan: item.keterangan,
-                            'Nama Petugas': item.petugas_survey,
-                            'Dibuat Pada': `${format(
-                              item.created_at,
-                              'EEEE, d MMM yyyy HH:mm',
-                              { locale: id }
-                            )} WIB`,
-                            'Diperbarui Pada': `${format(
-                              item.updated_at,
-                              'EEEE, d MMM yyyy HH:mm',
-                              { locale: id }
-                            )} WIB`
+                            Keterangan:
+                              !item.keterangan || item.keterangan == ''
+                                ? '-'
+                                : item.keterangan,
+                            'Nama Petugas': item.petugas_survey
+                            // 'Dibuat Pada': `${format(
+                            //   item.created_at,
+                            //   'EEEE, d MMM yyyy HH:mm',
+                            //   { locale: id }
+                            // )} WIB`,
+                            // 'Diperbarui Pada': `${format(
+                            //   item.updated_at,
+                            //   'EEEE, d MMM yyyy HH:mm',
+                            //   { locale: id }
+                            // )} WIB`
                           }
 
                         return (
@@ -248,8 +249,8 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
         </div>
         <div className="flex flex-col gap-4">
           <h4 className="font-medium">Detail Pole</h4>
-          {!report.detail_poles ? (
-            <p className="text-sm">Detail pole tidak tersedia.</p>
+          {report.detail_poles.length === 0 ? (
+            <p className="text-sm">Tidak ada Pole Supporter</p>
           ) : (
             report.detail_poles.map((item, index) => (
               <div key={index} className="flex flex-col gap-4">
@@ -273,17 +274,17 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             'Nama Pole':
                               item.data_pole.nama_pole_supporter ?? '',
                             'Nama Grounding':
-                              item.data_pole.nama_grounding_termination ?? '',
-                            'Dibuat Pada': `${format(
-                              item.data_pole.created_at,
-                              'EEEE, d MMM yyyy HH:mm',
-                              { locale: id }
-                            )} WIB`,
-                            'Diperbarui Pada': `${format(
-                              item.data_pole.updated_at,
-                              'EEEE, d MMM yyyy HH:mm',
-                              { locale: id }
-                            )} WIB`
+                              item.data_pole.nama_grounding_termination ?? ''
+                            // 'Dibuat Pada': `${format(
+                            //   item.data_pole.created_at,
+                            //   'EEEE, d MMM yyyy HH:mm',
+                            //   { locale: id }
+                            // )} WIB`,
+                            // 'Diperbarui Pada': `${format(
+                            //   item.data_pole.updated_at,
+                            //   'EEEE, d MMM yyyy HH:mm',
+                            //   { locale: id }
+                            // )} WIB`
                           }
 
                           return (
@@ -330,6 +331,8 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                   material.data_material.nama_material,
                                 'Satuan Material':
                                   material.data_material.satuan_material,
+                                'Berat Material':
+                                  material.data_material.berat_material,
                                 'Harga Material':
                                   material.data_material.harga_material,
                                 'Pasang RAB': material.data_material.pasang_rab,
@@ -338,16 +341,16 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                   material.data_material.jenis_material,
                                 'Kategori Material':
                                   material.data_material.kategori_material,
-                                'Dibuat Pada': `${format(
-                                  material.data_material.created_at,
-                                  'EEEE, d MMM yyyy HH:mm',
-                                  { locale: id }
-                                )} WIB`,
-                                'Diperbarui Pada': `${format(
-                                  material.data_material.updated_at,
-                                  'EEEE, d MMM yyyy HH:mm',
-                                  { locale: id }
-                                )} WIB`,
+                                // 'Dibuat Pada': `${format(
+                                //   material.data_material.created_at,
+                                //   'EEEE, d MMM yyyy HH:mm',
+                                //   { locale: id }
+                                // )} WIB`,
+                                // 'Diperbarui Pada': `${format(
+                                //   material.data_material.updated_at,
+                                //   'EEEE, d MMM yyyy HH:mm',
+                                //   { locale: id }
+                                // )} WIB`,
                                 'Tipe Pekerjaan': material.tipe_pekerjaan,
                                 Kuantitas: material.kuantitas,
                                 'Total Kuantitas': material.total_kuantitas,
@@ -403,6 +406,8 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                           'Nama Material': item.data_tiang?.nama_material ?? '',
                           'Satuan Material':
                             item.data_tiang?.satuan_material ?? '',
+                          'Berat Material':
+                            item.data_tiang?.berat_material ?? '',
                           'Harga Material':
                             item.data_tiang?.harga_material ?? 0,
                           'Pasang RAB': item.data_tiang?.pasang_rab ?? 0,
@@ -411,16 +416,16 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             item.data_tiang?.jenis_material ?? '',
                           'Kategori Material':
                             item.data_tiang?.kategori_material ?? '',
-                          'Dibuat Pada': `${format(
-                            item.data_tiang?.created_at ?? '',
-                            'EEEE, d MMM yyyy HH:mm',
-                            { locale: id }
-                          )} WIB`,
-                          'Diperbarui Pada': `${format(
-                            item.data_tiang?.updated_at ?? '',
-                            'EEEE, d MMM yyyy HH:mm',
-                            { locale: id }
-                          )} WIB`,
+                          // 'Dibuat Pada': `${format(
+                          //   item.data_tiang?.created_at ?? '',
+                          //   'EEEE, d MMM yyyy HH:mm',
+                          //   { locale: id }
+                          // )} WIB`,
+                          // 'Diperbarui Pada': `${format(
+                          //   item.data_tiang?.updated_at ?? '',
+                          //   'EEEE, d MMM yyyy HH:mm',
+                          //   { locale: id }
+                          // )} WIB`,
                           'Total Kuantitas': item.total_kuantitas,
                           'Total Berat': item.total_berat,
                           'Total Harga Material': item.total_harga_material,
@@ -471,17 +476,17 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             'Nama Konstruksi':
                               item.data_konstruksi.nama_konstruksi,
                             'Nomor Konstruksi':
-                              item.data_konstruksi.nomor_konstruksi,
-                            'Dibuat Pada': `${format(
-                              item.data_konstruksi.created_at,
-                              'EEEE, d MMM yyyy HH:mm',
-                              { locale: id }
-                            )} WIB`,
-                            'Diperbarui Pada': `${format(
-                              item.data_konstruksi.updated_at,
-                              'EEEE, d MMM yyyy HH:mm',
-                              { locale: id }
-                            )} WIB`
+                              item.data_konstruksi.nomor_konstruksi
+                            // 'Dibuat Pada': `${format(
+                            //   item.data_konstruksi.created_at,
+                            //   'EEEE, d MMM yyyy HH:mm',
+                            //   { locale: id }
+                            // )} WIB`,
+                            // 'Diperbarui Pada': `${format(
+                            //   item.data_konstruksi.updated_at,
+                            //   'EEEE, d MMM yyyy HH:mm',
+                            //   { locale: id }
+                            // )} WIB`
                           }
 
                           return (
@@ -528,6 +533,8 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                   material.data_material.nama_material,
                                 'Satuan Material':
                                   material.data_material.satuan_material,
+                                'Berat Material':
+                                  material.data_material.berat_material,
                                 'Harga Material':
                                   material.data_material.harga_material,
                                 'Pasang RAB': material.data_material.pasang_rab,
@@ -536,16 +543,16 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                   material.data_material.jenis_material,
                                 'Kategori Material':
                                   material.data_material.kategori_material,
-                                'Dibuat Pada': `${format(
-                                  material.data_material.created_at,
-                                  'EEEE, d MMM yyyy HH:mm',
-                                  { locale: id }
-                                )} WIB`,
-                                'Diperbarui Pada': `${format(
-                                  material.data_material.updated_at,
-                                  'EEEE, d MMM yyyy HH:mm',
-                                  { locale: id }
-                                )} WIB`,
+                                // 'Dibuat Pada': `${format(
+                                //   material.data_material.created_at,
+                                //   'EEEE, d MMM yyyy HH:mm',
+                                //   { locale: id }
+                                // )} WIB`,
+                                // 'Diperbarui Pada': `${format(
+                                //   material.data_material.updated_at,
+                                //   'EEEE, d MMM yyyy HH:mm',
+                                //   { locale: id }
+                                // )} WIB`,
                                 'Tipe Pekerjaan': material.tipe_pekerjaan,
                                 Kuantitas: material.kuantitas,
                                 'Total Kuantitas': material.total_kuantitas,
@@ -602,6 +609,8 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             item.data_konduktor?.nama_material ?? '',
                           'Satuan Material':
                             item.data_konduktor?.satuan_material ?? '',
+                          'Berat Material':
+                            item.data_konduktor?.berat_material ?? '',
                           'Harga Material':
                             item.data_konduktor?.harga_material ?? 0,
                           'Pasang RAB': item.data_konduktor?.pasang_rab ?? 0,
@@ -610,16 +619,16 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             item.data_konduktor?.jenis_material ?? '',
                           'Kategori Material':
                             item.data_konduktor?.kategori_material ?? '',
-                          'Dibuat Pada': `${format(
-                            item.data_konduktor?.created_at ?? '',
-                            'EEEE, d MMM yyyy HH:mm',
-                            { locale: id }
-                          )} WIB`,
-                          'Diperbarui Pada': `${format(
-                            item.data_konduktor?.updated_at ?? '',
-                            'EEEE, d MMM yyyy HH:mm',
-                            { locale: id }
-                          )} WIB`,
+                          // 'Dibuat Pada': `${format(
+                          //   item.data_konduktor?.created_at ?? '',
+                          //   'EEEE, d MMM yyyy HH:mm',
+                          //   { locale: id }
+                          // )} WIB`,
+                          // 'Diperbarui Pada': `${format(
+                          //   item.data_konduktor?.updated_at ?? '',
+                          //   'EEEE, d MMM yyyy HH:mm',
+                          //   { locale: id }
+                          // )} WIB`,
                           'Total Kuantitas': item.total_kuantitas,
                           'Total Berat': item.total_berat,
                           'Total Harga Material': item.total_harga_material,

@@ -4,17 +4,17 @@ export const surveyHeaderTableHeader = [
   'Nama Pekerjaan',
   'Lokasi',
   'Status Survey',
-  'ID Material Konduktor',
-  'ID User',
-  'Dibuat Pada',
-  'Diperbarui Pada'
+  'ID Material Konduktor'
+  // 'ID User'
+  // 'Dibuat Pada',
+  // 'Diperbarui Pada'
 ]
 
 export const surveyDetailTableHeader = [
   'ID',
   'ID Material Tiang',
   'ID Konstruksi',
-  'ID Header',
+  // 'ID Header',
   'ID Pole Suporter',
   'ID Grounding Termination',
   'Penyulang',
@@ -22,25 +22,25 @@ export const surveyDetailTableHeader = [
   'Koordinat',
   'Foto',
   'Keterangan',
-  'Nama Petugas',
-  'Dibuat Pada',
-  'Diperbarui Pada'
+  'Nama Petugas'
+  // 'Dibuat Pada',
+  // 'Diperbarui Pada'
 ]
 
 export const poleTableHeader = [
   'ID',
   'Nama Pole',
-  'Nama Grounding',
-  'Dibuat Pada',
-  'Diperbarui Pada'
+  'Nama Grounding'
+  // 'Dibuat Pada',
+  // 'Diperbarui Pada'
 ]
 
 export const constructionTableHeader = [
   'ID',
   'Nama Konstruksi',
-  'Nomor Konstruksi',
-  'Dibuat Pada',
-  'Diperbarui Pada'
+  'Nomor Konstruksi'
+  // 'Dibuat Pada',
+  // 'Diperbarui Pada'
 ]
 
 export const materialTableHeader = [
@@ -55,8 +55,8 @@ export const materialTableHeader = [
   'Bongkar',
   'Jenis Material',
   'Kategori Material',
-  'Dibuat Pada',
-  'Diperbarui Pada',
+  // 'Dibuat Pada',
+  // 'Diperbarui Pada',
   'Tipe Pekerjaan',
   'Kuantitas',
   'Total Kuantitas',
@@ -78,8 +78,8 @@ export const materialTableHeaderLite = [
   'Bongkar',
   'Jenis Material',
   'Kategori Material',
-  'Dibuat Pada',
-  'Diperbarui Pada',
+  // 'Dibuat Pada',
+  // 'Diperbarui Pada',
   'Total Kuantitas',
   'Total Berat',
   'Total Harga Material',
