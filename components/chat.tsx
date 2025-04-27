@@ -23,6 +23,7 @@ export function Chat({
   const [dynamicStreamProtocol, setDynamicStreamProtocol] =
     useState<StreamProtocol>('data')
 
+  // 1. Ambil model dari cookie
   useEffect(() => {
     const modelFromCookie = getCookie('selected-model')
 
@@ -32,10 +33,15 @@ export function Chat({
     } else {
       setSelectedModelId(modelFromCookie)
     }
+  }, [])
 
-    setDynamicStreamProtocol(
-      selectedModelId === 'nuii-ai:nuii-ai' ? 'text' : 'data'
-    )
+  // 2. Update streamProtocol setelah selectedModelId benar
+  useEffect(() => {
+    if (selectedModelId) {
+      setDynamicStreamProtocol(
+        selectedModelId === 'nuii-ai:nuii-ai' ? 'text' : 'data'
+      )
+    }
   }, [selectedModelId])
 
   const handleSearchModeToggle = (isSearchMode: boolean) => {
