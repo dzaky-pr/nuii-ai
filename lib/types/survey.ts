@@ -10,7 +10,7 @@ export interface SurveyHeader {
   lokasi: string
   status_survey: TSurveyStatus
   user_id: string
-  id_material_konduktor: number
+  id_material_konduktor: number | string
   created_at: string
   updated_at: string
   deleted_at: string | null

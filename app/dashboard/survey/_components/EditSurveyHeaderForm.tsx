@@ -45,12 +45,23 @@ export default function EditSurveyHeaderForm({
     control
   } = methods
 
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+
   useEffect(() => {
-    if (surveyHeader) {
-      const { id, created_at, updated_at, deleted_at, ...survey } = surveyHeader
-      reset(survey)
+    if (isInitialLoad && surveyHeader && conductorList.length > 0) {
+      // Buat object baru dengan semua field header sebagai string
+      reset({
+        nama_survey: surveyHeader.nama_survey || '',
+        lokasi: surveyHeader.lokasi || '',
+        id_material_konduktor: String(surveyHeader.id_material_konduktor || ''),
+        nama_pekerjaan: surveyHeader.nama_pekerjaan || '',
+        status_survey: surveyHeader.status_survey || '',
+        user_id: surveyHeader.user_id || ''
+      })
+      setIsInitialLoad(false)
     }
-  }, [reset, surveyHeader])
+  }, [isInitialLoad, surveyHeader, conductorList, reset])
+
   //#endregion  //*======== Form ===========
 
   const handleCloseSheet = () => {
@@ -82,9 +93,9 @@ export default function EditSurveyHeaderForm({
         id_material_konduktor: Number(data.id_material_konduktor)
       }
     }
-
     mutate(payload)
   }
+
   //#endregion  //*======== Submit Form Handler ===========
 
   return (
@@ -154,7 +165,13 @@ export default function EditSurveyHeaderForm({
                       value={value ?? undefined}
                       isLoading={loadingConductorList}
                       options={conductorList}
-                      onValueChange={onChange}
+                      // onValueChange={(val, option) => {
+                      //   console.log('Jenis Konduktor Change:', { val, option })
+                      //   onChange(option?.value ?? '')
+                      // }}
+                      onValueChange={(val, option) =>
+                        onChange(option?.value ?? '')
+                      }
                       placeholder="Pilih Jenis Konduktor"
                     />
                   )}
@@ -174,7 +191,13 @@ export default function EditSurveyHeaderForm({
                         value: item,
                         label: item
                       }))}
-                      onValueChange={onChange}
+                      // onValueChange={(val, option) => {
+                      //   console.log('Nama Pekerjaan Change:', { val, option })
+                      //   onChange(option?.value ?? '')
+                      // }}
+                      onValueChange={(val, option) =>
+                        onChange(option?.value ?? '')
+                      }
                       placeholder="Pilih Nama Pekerjaan"
                     />
                   )}

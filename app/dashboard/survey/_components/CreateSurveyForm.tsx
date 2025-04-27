@@ -119,10 +119,18 @@ export default function CreateSurveyForm() {
   useEffect(() => {
     if (isCustomSurvey) {
       setValue('detail.panjang_jaringan', 0)
-    } else if (!isCustomSurvey && surveyDetail?.header.lokasi) {
-      setValue('header.lokasi', surveyDetail.header.lokasi)
+    } else if (!isCustomSurvey && surveyDetail) {
+      setValue('header.lokasi', surveyDetail.header.lokasi ?? '')
+      setValue(
+        'header.nama_pekerjaan',
+        surveyDetail.header.nama_pekerjaan ?? ''
+      )
+      setValue(
+        'header.id_material_konduktor',
+        surveyDetail.header.id_material_konduktor ?? ''
+      )
     }
-  }, [isCustomSurvey, setValue, surveyDetail?.header.lokasi])
+  }, [isCustomSurvey, surveyDetail, setValue])
 
   //#region  //*=========== Utility ===========
   const handleCloseSheet = () => {
@@ -323,22 +331,30 @@ export default function CreateSurveyForm() {
                 <Label required htmlFor="pekerjaan">
                   Nama Pekerjaan
                 </Label>
-                <Controller
-                  name="header.nama_pekerjaan"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange, value } }) => (
-                    <SearchableCombobox
-                      value={value ?? undefined}
-                      options={jobOptions.map(item => ({
-                        value: item,
-                        label: item
-                      }))}
-                      onValueChange={onChange}
-                      placeholder="Pilih Nama Pekerjaan"
-                    />
-                  )}
-                />
+                {isCustomSurvey ? (
+                  <Controller
+                    name="header.nama_pekerjaan"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { onChange, value } }) => (
+                      <SearchableCombobox
+                        value={value ?? undefined}
+                        options={jobOptions.map(item => ({
+                          value: item,
+                          label: item
+                        }))}
+                        onValueChange={onChange}
+                        placeholder="Pilih Nama Pekerjaan"
+                      />
+                    )}
+                  />
+                ) : (
+                  <Input
+                    className="bg-muted"
+                    readOnly
+                    {...register('header.nama_pekerjaan', { required: true })}
+                  />
+                )}
               </div>
 
               {/* Lokasi/ULP */}
@@ -367,6 +383,7 @@ export default function CreateSurveyForm() {
                 ) : (
                   <Input
                     readOnly
+                    className="bg-muted"
                     {...register('header.lokasi', { required: isCustomSurvey })}
                   />
                 )}
@@ -433,20 +450,34 @@ export default function CreateSurveyForm() {
                 <Label required htmlFor="konduktor">
                   Jenis Konduktor
                 </Label>
-                <Controller
-                  name="header.id_material_konduktor"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange, value } }) => (
-                    <SearchableCombobox
-                      value={value ?? undefined}
-                      isLoading={loadingConductorList}
-                      options={conductorList}
-                      onValueChange={onChange}
-                      placeholder="Pilih Jenis Konduktor"
-                    />
-                  )}
-                />
+                {isCustomSurvey ? (
+                  <Controller
+                    name="header.id_material_konduktor"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { onChange, value } }) => (
+                      <SearchableCombobox
+                        value={value ?? undefined}
+                        isLoading={loadingConductorList}
+                        options={conductorList}
+                        onValueChange={onChange}
+                        placeholder="Pilih Jenis Konduktor"
+                      />
+                    )}
+                  />
+                ) : (
+                  <Input
+                    readOnly
+                    className="bg-muted"
+                    value={
+                      conductorList.find(
+                        conductor =>
+                          String(conductor.value) ===
+                          String(watch('header.id_material_konduktor'))
+                      )?.label ?? ''
+                    }
+                  />
+                )}
               </div>
 
               {/* Panjang Jaringan */}
