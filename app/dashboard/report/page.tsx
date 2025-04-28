@@ -292,7 +292,7 @@ export default function ReportPage() {
                       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
                         ['.xlsx']
                     }}
-                    maxSizeInBytes={5 * 1000000} // maksimal 5MB
+                    maxSizeInBytes={25 * 1000000} // maksimal 25MB
                   />
                 </div>
 

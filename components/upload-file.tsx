@@ -105,7 +105,7 @@ const UploadFile = React.forwardRef<HTMLDivElement, UploadFileProps>(
           let errorMessage = ''
 
           if (firstError.code === 'file-too-large') {
-            const sizeInMB = (maxSizeInBytes || 0) / 1_000_000
+            const sizeInMB = (maxSizeInBytes || 0) / 1000000
             errorMessage = `File is larger than ${sizeInMB}MB`
           } else if (firstError.code === 'file-invalid-type') {
             errorMessage = 'Invalid filetype. Please upload a valid file.'
