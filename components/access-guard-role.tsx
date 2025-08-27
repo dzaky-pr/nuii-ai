@@ -34,7 +34,11 @@ export default function AccessGuard({ children }: AccessGuardProps) {
   const role = String(user?.publicMetadata?.role || '')
 
   if (!isLoaded || !user || !role) {
-    return <Spinner />
+    return (
+      <div className="grid place-items-center min-h-svh">
+        <Spinner />
+      </div>
+    )
   }
 
   if (['admin', 'pengawas', 'surveyor'].includes(role)) {

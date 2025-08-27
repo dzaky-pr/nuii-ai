@@ -104,7 +104,7 @@ export default function SearchableCombobox({
               <div className="p-4 text-center text-muted">Loading...</div>
             ) : (
               <>
-                <CommandEmpty>No options found.</CommandEmpty>
+                <CommandEmpty>Tidak terdapat opsi.</CommandEmpty>
                 <CommandGroup>
                   {filteredOptions.map(option => (
                     <CommandItem

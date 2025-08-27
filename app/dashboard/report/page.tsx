@@ -25,7 +25,7 @@ import { dummyLocations } from '@/lib/data/survey'
 import { UploadFormValues } from '@/lib/types/report'
 import { getSessionDefault, removeSessionFile } from '@/lib/utils'
 import SearchableCombobox from '../survey/_components/SearchableCombobox'
-import { useGetConductorList } from '../survey/_hooks/@read/useGetConductorList'
+import { useGetConductors } from '../survey/_hooks/@read/components/conductors'
 import { useGetSurveyReportList } from './_hooks/useGetSurveyReportList'
 import { useUploadExcelArchiveMutation } from './_hooks/useUploadExcelArchiveMutation'
 
@@ -50,7 +50,7 @@ export default function ReportPage() {
   const { getToken, userId } = useAuth()
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyReportList()
-  const { conductorList, loadingConductorList } = useGetConductorList()
+  const { conductors, loadingConductors } = useGetConductors()
   const { mutate: uploadExcel, isPending: uploadLoading } =
     useUploadExcelArchiveMutation()
   const methods = useForm<UploadFormValues>({ mode: 'onTouched' })
@@ -273,8 +273,8 @@ export default function ReportPage() {
                     render={({ field: { onChange, value } }) => (
                       <SearchableCombobox
                         value={value ?? undefined}
-                        isLoading={loadingConductorList}
-                        options={conductorList}
+                        isLoading={loadingConductors}
+                        options={conductors}
                         onValueChange={onChange}
                         placeholder="Pilih Jenis Konduktor"
                       />

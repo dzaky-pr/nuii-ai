@@ -13,13 +13,13 @@ import { jobOptions } from '@/lib/constants'
 import { dummyLocations } from '@/lib/data/survey'
 import useRouteStore from '@/lib/hooks/useRouteStore'
 import { IBatch } from '@/lib/types/maps'
-import { SurveyHeader } from '@/lib/types/survey'
+import { SurveyHeader } from '@/lib/types/old-survey'
 import { useAuth } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import SearchableCombobox from '../../_components/SearchableCombobox'
-import { useGetConductorList } from '../../_hooks/@read/useGetConductorList'
+import { useGetConductors } from '../../_hooks/@read/components/conductors'
 import { useCreateBatchMutation } from '../_hooks/useCreateBatchMutation'
 
 interface SurveyHeaderForm extends SurveyHeader {
@@ -47,7 +47,7 @@ export default function CreateBatchForm({
   } = methods
   //#endregion  //*======== Form ===========
 
-  const { conductorList, loadingConductorList } = useGetConductorList()
+  const { conductors, loadingConductors } = useGetConductors()
   const { estimation } = useRouteStore()
 
   //#region  //*=========== Utility ===========
@@ -225,8 +225,8 @@ export default function CreateBatchForm({
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
-                      isLoading={loadingConductorList}
-                      options={conductorList}
+                      isLoading={loadingConductors}
+                      options={conductors}
                       onValueChange={onChange}
                       placeholder="Pilih Jenis Konduktor"
                     />

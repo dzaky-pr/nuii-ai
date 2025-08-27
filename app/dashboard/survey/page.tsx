@@ -1,16 +1,14 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { surveyStatus } from '@/lib/constants'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
-import { SurveyHeader } from '@/lib/types/survey'
+import { NotebookPen, Route } from 'lucide-react'
 import Link from 'next/link'
-import CreateSurveyForm from './_components/CreateSurveyForm'
-import DeleteSurveyModal from './_components/DeleteSurveyModal'
-import EditSurveyHeaderForm from './_components/EditSurveyHeaderForm'
-import { useDeleteSurveyHeaderMutation } from './_hooks/@delete/useDeleteSurveyHeaderMutation'
-import { useGetSurveyHeaderList } from './_hooks/@read/useGetSurveyHeaderList'
+import { CreateSurveyHeaderForm } from './_components/header/CreateSurveyHeaderForm'
+import { useGetSurveyHeaderList } from './_hooks/@read/survey-headers'
 
 const tableHeader = [
   '#',
@@ -22,23 +20,12 @@ const tableHeader = [
 ]
 
 export default function Page() {
-  const [selectedSurvey, setSelectedSurvey] = useState<SurveyHeader | null>(
-    null
-  )
-  const [isMounted, setIsMounted] = useState<boolean>(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyHeaderList()
-  const { mutate: deleteSurveyHeader, isSuccess: successDeleteSurveyHeader } =
-    useDeleteSurveyHeaderMutation()
 
   const { open, close } = useOverlayStore()
-
-  useEffect(() => {
-    if (successDeleteSurveyHeader) {
-      close('delete-survey-modal')
-    }
-  }, [close, successDeleteSurveyHeader])
 
   useEffect(() => {
     setIsMounted(true)
@@ -51,21 +38,33 @@ export default function Page() {
   return (
     <>
       <div className="py-4 px-6">
-        <CreateSurveyForm />
-        <div className="mt-4 px-4 flex flex-col gap-2">
-          <div className="flex justify-between w-full">
-            <h2 className="text-lg font-bold mb-4">Data Survey</h2>
-            <Button
-              asChild
-              size="sm"
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              <Link href="/dashboard/survey/maps">Rute & Estimasi</Link>
-            </Button>
+        <div className="mt-4 flex flex-col gap-2">
+          <div className="flex justify-between w-full items-center mb-4 sm:flex-row flex-col gap-4">
+            <h2 className="text-lg font-bold">Data Survey</h2>
+            <div className="flex gap-4 items-center sm:flex-row flex-col w-full sm:w-fit">
+              <Button
+                size="sm"
+                className="bg-green-500 text-white hover:bg-green-600 max-sm:w-full"
+                onClick={() => open('create-survey-header-sheets')}
+              >
+                <NotebookPen className="size-4 text-white mr-2 mb-0.5" />
+                Buat Survey Baru
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="bg-blue-500 hover:bg-blue-600 text-white max-sm:w-full"
+              >
+                <Link href="/dashboard/survey/maps">
+                  <Route className="size-4 text-white mr-2 mb-0.5" /> Rute &
+                  Estimasi
+                </Link>
+              </Button>
+            </div>
           </div>
           <div className="mb-4">
             <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse border border-gray-300">
+              <table className="w-full border-collapse border border-gray-300">
                 <thead>
                   <tr>
                     {tableHeader.map((item, index) => (
@@ -98,32 +97,12 @@ export default function Page() {
                           {surveyStatus[data.status_survey]}
                         </td>
                         <td className="border p-2">{data.user_id}</td>
-                        <td className="border p-2 flex flex-col justify-center items-center gap-2">
+                        <td className="border p-2">
                           <Link href={`/dashboard/survey/${data.id}`}>
-                            <button className="text-green-500">
+                            <button className="text-neutral-300 underline">
                               Lihat Detail
                             </button>
                           </Link>
-                          <div className="flex justify-center items-center gap-2">
-                            <button
-                              className="text-blue-500"
-                              onClick={() => {
-                                setSelectedSurvey(data)
-                                open('edit-survey-header-modal')
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="text-red-500"
-                              onClick={() => {
-                                setSelectedSurvey(data)
-                                open('delete-survey-modal')
-                              }}
-                            >
-                              Hapus
-                            </button>
-                          </div>
                         </td>
                       </tr>
                     ))
@@ -134,17 +113,8 @@ export default function Page() {
           </div>
         </div>
       </div>
-      {/* <EditSurveyHeaderForm surveyHeader={selectedSurvey!!} /> */}
-      {selectedSurvey && <EditSurveyHeaderForm surveyHeader={selectedSurvey} />}
 
-      <DeleteSurveyModal
-        onSubmit={() => {
-          if (selectedSurvey) {
-            deleteSurveyHeader(selectedSurvey.id!!)
-          }
-        }}
-        onCancel={() => setSelectedSurvey(null)}
-      />
+      <CreateSurveyHeaderForm />
     </>
   )
 }

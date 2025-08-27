@@ -2,50 +2,23 @@
 
 import { Button } from '@/components/ui/button'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
-import { SurveyDetailExtended } from '@/lib/types/survey'
 import { ArrowLeft } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import DeleteSurveyModal from '../_components/DeleteSurveyModal'
-import EditSurveyDetailForm from '../_components/EditSurveyDetailForm'
-import LeafletMapViewerDialog from '../_components/LeafletMapViewerDialog'
-import SurveyDetailModal from '../_components/SurveyDetailModal'
-import { useDeleteSurveyDetailMutation } from '../_hooks/@delete/useDeleteSurveyDetailMutation'
-import { useGetSurveyDetail } from '../_hooks/@read/useGetSurveyDetail'
-
-const tableHeader = [
-  '#',
-  'Foto',
-  'ULP',
-  'Penyulang',
-  'Nama Tiang',
-  'Konstruksi',
-  'Panjang Jaringan (meter)',
-  'Koordinat',
-  'Petugas',
-  'Keterangan',
-  'Aksi'
-]
+import { CreateCubicleForm } from '../_components/cubicle/CreateCubicleForm'
+import { CreateSKTMForm } from '../_components/sktm/CreateSKTMForm'
+import { CreateSUTMForm } from '../_components/sutm/CreateSUTMForm'
+import { useGetSurveyDetail } from '../_hooks/@read/survey-details'
 
 export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
-  const [selectedSurvey, setSelectedSurvey] =
-    useState<SurveyDetailExtended | null>(null)
   const [isMounted, setIsMounted] = useState<boolean>(false)
 
-  const router = useRouter()
   const { data: survey, isPending } = useGetSurveyDetail(surveyId)
-  const { mutate: deleteSurveyDetail, isSuccess: successDeleteSurveyDetail } =
-    useDeleteSurveyDetailMutation({ surveyId })
 
-  const { open, close } = useOverlayStore()
-
-  useEffect(() => {
-    if (successDeleteSurveyDetail) {
-      close('delete-survey-modal')
-    }
-  }, [close, successDeleteSurveyDetail])
+  const { open } = useOverlayStore()
+  const sktmFormId = 'create-sktm-form-sheets'
+  const sutmFormId = 'create-sutm-form-sheets'
+  const cubicleFormId = 'create-cubicle-form-sheets'
 
   useEffect(() => {
     setIsMounted(true)
@@ -57,7 +30,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
   if (isPending) {
     return (
-      <div className="grid place-items-center min-h-screen">
+      <div className="grid place-items-center min-h-[calc(100svh-65.6px)]">
         <h2 className="font-semibold">Loading...</h2>
       </div>
     )
@@ -65,7 +38,13 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
   if (!survey) {
     return (
-      <div className="grid place-items-center min-h-screen">
+      <div className="flex flex-col items-center justify-center gap-y-4 min-h-[calc(100svh-65.6px)] px-6 sm:px-10">
+        <Button asChild size="sm" variant="outline">
+          <Link href="/dashboard/survey">
+            <ArrowLeft className="size-4 mb-0.5 mr-2" />
+            Kembali
+          </Link>
+        </Button>
         <h2 className="font-semibold">Data survey tidak ditemukan.</h2>
       </div>
     )
@@ -73,156 +52,48 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
   return (
     <>
-      <div className="py-4 px-10 flex flex-col gap-8 mt-8">
-        <div className="flex md:justify-between md:items-center max-md:flex-col max-md:gap-8">
-          <div className="flex gap-4 items-center">
-            <Button
-              asChild
-              size="icon"
-              variant="outline"
-              onClick={() => router.back()}
-            >
+      <div className="flex flex-col px-6 sm:px-10 py-4 w-full">
+        <div className="flex w-full justify-between sm:flex-row flex-col gap-4">
+          <div className="flex gap-x-4 items-center justify-between sm:justify-center max-sm:flex-row-reverse">
+            <Button asChild size="sm" variant="outline" className="sm:size-10">
               <Link href="/dashboard/survey">
-                <ArrowLeft size={16} />
+                <ArrowLeft className="size-4 max-sm:hidden" />
+                <span className="sm:hidden">Kembali</span>
               </Link>
             </Button>
-            <h3 className="font-semibold">
-              Survey {survey?.header.nama_survey}
-            </h3>
+            <h1 className="text-xl font-semibold">
+              Survey {survey.nama_survey}
+            </h1>
           </div>
-          <div className="flex gap-4 items-center">
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/dashboard/report/${surveyId}`}>Lihat Report</Link>
+
+          <div className="flex sm:flex-row flex-col sm:w-fit w-full gap-4">
+            <Button
+              size="sm"
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={() => open(sktmFormId)}
+            >
+              Tambah SKTM
             </Button>
             <Button
               size="sm"
-              variant="outline"
-              onClick={() => open('leaflet-map-viewer-modal')}
+              className="bg-sky-500 hover:bg-sky-600 text-white"
+              onClick={() => open(sutmFormId)}
             >
-              Lihat Map
+              Tambah SUTM
             </Button>
-            {/* <Button
+            <Button
               size="sm"
-              variant="outline"
-              onClick={() => open('rab-survey-modal')}
+              className="bg-purple-500 hover:bg-purple-600 text-white"
+              onClick={() => open(cubicleFormId)}
             >
-              Lihat RAB
-            </Button> */}
+              Tambah Cubicle
+            </Button>
           </div>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                {tableHeader.map((item, index) => (
-                  <th key={index} className="border p-2">
-                    {item}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {survey?.detail?.length ? (
-                survey.detail.map((item, index) => (
-                  <tr key={index} className="text-center">
-                    <td className="border p-2">{index + 1}</td>
-                    <td className="border p-2">
-                      {item.foto && item.foto !== '-' ? (
-                        <Image
-                          src={item.foto}
-                          alt="Foto Survey"
-                          width={100}
-                          height={60}
-                          className="object-cover"
-                        />
-                      ) : (
-                        'Foto tidak tersedia.'
-                      )}
-                    </td>
-                    <td className="border p-2">{survey.header.lokasi}</td>
-                    <td className="border p-2">{item.penyulang}</td>
-                    <td className="border p-2">{item.id_material_tiang}</td>
-                    <td className="border p-2">{item.id_konstruksi}</td>
-                    <td className="border p-2">{item.panjang_jaringan}</td>
-                    <td className="border p-2">
-                      Lat: {item.lat}, <br /> Long: {item.long}
-                    </td>
-                    <td className="border p-2">{item.petugas_survey}</td>
-                    <td className="border p-2">{item.keterangan}</td>
-                    <td className="border p-2 flex flex-col justify-center gap-2">
-                      <button
-                        className="text-green-500"
-                        onClick={() => {
-                          setSelectedSurvey(item)
-                          open('detail-survey-modal')
-                        }}
-                      >
-                        Lihat Detail
-                      </button>
-                      <div className="flex justify-center items-center gap-2">
-                        <button
-                          className="text-blue-500"
-                          onClick={() => {
-                            setSelectedSurvey(item)
-                            open('edit-survey-detail-modal')
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="text-red-500"
-                          onClick={() => {
-                            setSelectedSurvey(item)
-                            open('delete-survey-modal')
-                          }}
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr className="text-center">
-                  <td colSpan={11} className="py-4 font-medium">
-                    Data detail survey tidak tersedia.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <p>
-            Panjang Total Jaringan Manual:{' '}
-            {survey.header.total_panjang_jaringan_manual} meter
-          </p>
-          <p>
-            Panjang Total Jaringan Otomatis:{' '}
-            {survey.header.total_panjang_jaringan_otomatis.toFixed(3)} meter
-          </p>
-        </div>
       </div>
-
-      {/* Modals */}
-      <LeafletMapViewerDialog surveys={survey.detail} />
-      {/* <SurveyRABModal surveyId={surveyId} /> */}
-      {selectedSurvey && (
-        <>
-          <SurveyDetailModal surveyDetail={selectedSurvey} />
-          <EditSurveyDetailForm surveyDetail={selectedSurvey} />
-          <DeleteSurveyModal
-            onSubmit={() => {
-              if (selectedSurvey?.id) {
-                deleteSurveyDetail(selectedSurvey.id)
-              }
-            }}
-            onCancel={() => setSelectedSurvey(null)}
-          />
-        </>
-      )}
+      <CreateSKTMForm sheetId={sktmFormId} surveyId={Number(surveyId)} />
+      <CreateSUTMForm sheetId={sutmFormId} surveyId={Number(surveyId)} />
+      <CreateCubicleForm sheetId={cubicleFormId} surveyId={Number(surveyId)} />
     </>
   )
 }
