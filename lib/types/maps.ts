@@ -1,4 +1,4 @@
-import { SurveyHeader } from './survey'
+import { ISurveyHeader, ICreateSurveyHeader } from './survey'
 
 export interface IMaps {
   name?: string
@@ -83,6 +83,6 @@ export interface BatchDetail {
 }
 
 export interface IBatch {
-  header: SurveyHeader
+  header: ICreateSurveyHeader
   details: BatchDetail[]
 }
