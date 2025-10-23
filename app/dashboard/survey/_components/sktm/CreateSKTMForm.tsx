@@ -3,11 +3,11 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle
 } from '@/components/ui/sheet'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { ICreateFirstSKTM } from '@/lib/types/survey'
@@ -338,7 +338,6 @@ export function CreateSKTMForm({
           </FormProvider>
         </SheetContent>
       </Sheet>
-
       <CloseSheetsConfirmationDialog
         reset={reset}
         sheetId={sheetId}

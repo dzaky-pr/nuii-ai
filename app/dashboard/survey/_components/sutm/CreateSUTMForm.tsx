@@ -197,7 +197,7 @@ export function CreateSUTMForm({
                   Konstruksi
                 </Label>
                 <Controller
-                  name="id_material_tiang"
+                  name="id_konstruksi"
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
@@ -217,7 +217,7 @@ export function CreateSUTMForm({
                   Pole Supporter
                 </Label>
                 <Controller
-                  name="id_material_tiang"
+                  name="id_pole_supporter"
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange, value } }) => (
@@ -365,7 +365,6 @@ export function CreateSUTMForm({
           </FormProvider>
         </SheetContent>
       </Sheet>
-
       <CloseSheetsConfirmationDialog
         reset={reset}
         sheetId={sheetId}

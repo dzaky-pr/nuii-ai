@@ -29,8 +29,6 @@ export function CreateSurveyHeaderForm() {
   const confirmCloseDialogId = `${sheetId}-close-confirm-dialog`
   //#endregion  //*======== Sheets & Dialog Manager ===========
 
-//   const { surveyNames, loadingSurveyNames } = useGetSurveyNames()
-
   //#region  //*=========== Form Handler ===========
   const methods = useForm<ICreateSurveyHeaderForm>({
     mode: 'onBlur',
@@ -72,16 +70,6 @@ export function CreateSurveyHeaderForm() {
   }, [reset, isSuccess, close])
 
   function submitHandler(data: ICreateSurveyHeaderForm) {
-    // const trimmedName = getValues('nama_survey').trim()
-    // const isSurveyNameExist = surveyNames.some(
-    //   opt => opt.value.toLowerCase() === trimmedName.toLowerCase()
-    // )
-
-    // if (isSurveyNameExist) {
-    //   toast.error('Nama survey sudah terpakai!')
-    //   return
-    // }
-
     const payload = {
       ...data,
       user_id: userId ?? '',
@@ -193,7 +181,6 @@ export function CreateSurveyHeaderForm() {
           </FormProvider>
         </SheetContent>
       </Sheet>
-
       <CloseSheetsConfirmationDialog
         reset={reset}
         sheetId={sheetId}
