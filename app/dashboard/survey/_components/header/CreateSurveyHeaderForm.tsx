@@ -2,11 +2,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle
 } from '@/components/ui/sheet'
 import { jobOptions } from '@/lib/constants'
 import { dummyLocations } from '@/lib/data/survey'
@@ -15,9 +15,7 @@ import { ICreateSurveyHeader } from '@/lib/types/survey'
 import { useAuth } from '@clerk/nextjs'
 import { useEffect } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { useCreateSurveyHeaderMutation } from '../../_hooks/@create/survey-header'
-import { useGetSurveyNames } from '../../_hooks/@read/survey-names'
 import SearchableCombobox from '../SearchableCombobox'
 import { CloseSheetsConfirmationDialog } from '../dialog/CloseSheetsConfirm'
 
@@ -31,7 +29,7 @@ export function CreateSurveyHeaderForm() {
   const confirmCloseDialogId = `${sheetId}-close-confirm-dialog`
   //#endregion  //*======== Sheets & Dialog Manager ===========
 
-  const { surveyNames, loadingSurveyNames } = useGetSurveyNames()
+//   const { surveyNames, loadingSurveyNames } = useGetSurveyNames()
 
   //#region  //*=========== Form Handler ===========
   const methods = useForm<ICreateSurveyHeaderForm>({
@@ -45,7 +43,6 @@ export function CreateSurveyHeaderForm() {
 
   const {
     formState: { isDirty, isValid, errors },
-    getValues,
     register,
     reset,
     setValue,
@@ -75,15 +72,15 @@ export function CreateSurveyHeaderForm() {
   }, [reset, isSuccess, close])
 
   function submitHandler(data: ICreateSurveyHeaderForm) {
-    const trimmedName = getValues('nama_survey').trim()
-    const isSurveyNameExist = surveyNames.some(
-      opt => opt.value.toLowerCase() === trimmedName.toLowerCase()
-    )
+    // const trimmedName = getValues('nama_survey').trim()
+    // const isSurveyNameExist = surveyNames.some(
+    //   opt => opt.value.toLowerCase() === trimmedName.toLowerCase()
+    // )
 
-    if (isSurveyNameExist) {
-      toast.error('Nama survey sudah terpakai!')
-      return
-    }
+    // if (isSurveyNameExist) {
+    //   toast.error('Nama survey sudah terpakai!')
+    //   return
+    // }
 
     const payload = {
       ...data,
@@ -188,7 +185,7 @@ export function CreateSurveyHeaderForm() {
                 onClick={() => {
                   errors && console.log('Error: ', errors)
                 }}
-                disabled={!isValid || isPending || loadingSurveyNames}
+                disabled={!isValid || isPending}
               >
                 Simpan Survey
               </Button>
