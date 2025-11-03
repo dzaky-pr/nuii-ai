@@ -25,7 +25,7 @@ export default function Page() {
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyHeaderList()
 
-  const { open, close } = useOverlayStore()
+  const { open } = useOverlayStore()
 
   useEffect(() => {
     setIsMounted(true)
@@ -81,7 +81,7 @@ export default function Page() {
                         Loading...
                       </td>
                     </tr>
-                  ) : !surveys ? (
+                  ) : !surveys || !surveys.length ? (
                     <tr className="text-center">
                       <td colSpan={6} className="py-4 font-medium">
                         Data survey tidak tersedia.

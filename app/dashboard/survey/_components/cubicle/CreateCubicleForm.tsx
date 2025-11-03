@@ -3,11 +3,11 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle
 } from '@/components/ui/sheet'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { ICreateCubicle } from '@/lib/types/survey/cubicle'
@@ -303,9 +303,9 @@ export function CreateCubicleForm({
                 onClick={() => {
                   errors && console.log('Error: ', errors)
                 }}
-                disabled={!isValid || isPending || loadingMaterials}
+                disabled={!isValid || isPending || photo === ''}
               >
-                Tambah SKTM
+                Tambah Cubicle
               </Button>
 
               <MapsPickerDialog dialogId={mapsDialogId} />

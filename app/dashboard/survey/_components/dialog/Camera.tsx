@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogPortal,
-  DialogTitle
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogPortal,
+	DialogTitle
 } from '@/components/ui/dialog'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { Camera } from 'react-camera-pro'
@@ -50,7 +50,7 @@ export function CameraDialog({
             <Button
               onClick={() => {
                 const photo = ref.current.takePhoto()
-                setValue('foto', photo)
+                setValue('foto', photo, { shouldDirty: true, shouldValidate: true })
                 close(dialogId)
               }}
             >

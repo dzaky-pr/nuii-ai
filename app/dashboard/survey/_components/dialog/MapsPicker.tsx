@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogPortal,
-  DialogTitle
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogPortal,
+	DialogTitle
 } from '@/components/ui/dialog'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { useFormContext } from 'react-hook-form'
@@ -41,8 +41,8 @@ export function MapsPickerDialog({ dialogId }: { dialogId: string }) {
               lng: Number(longitude)
             }}
             onPositionChange={newPos => {
-              setValue('lat', newPos.lat.toString())
-              setValue('long', newPos.lng.toString())
+              setValue('lat', newPos.lat.toString(), { shouldDirty: true, shouldValidate: true })
+              setValue('long', newPos.lng.toString(), { shouldDirty: true, shouldValidate: true })
             }}
           />
           <div className="mt-4 flex justify-end gap-2">

@@ -40,7 +40,7 @@ export function CreateSurveyHeaderForm() {
   })
 
   const {
-    formState: { isDirty, isValid, errors },
+    formState: { isDirty, isValid },
     register,
     reset,
     setValue,
@@ -170,9 +170,6 @@ export function CreateSurveyHeaderForm() {
 
               <Button
                 type="submit"
-                onClick={() => {
-                  errors && console.log('Error: ', errors)
-                }}
                 disabled={!isValid || isPending}
               >
                 Simpan Survey

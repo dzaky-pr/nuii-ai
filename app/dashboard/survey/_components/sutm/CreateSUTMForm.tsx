@@ -347,16 +347,9 @@ export function CreateSUTMForm({
                 onClick={() => {
                   errors && console.log('Error: ', errors)
                 }}
-                disabled={
-                  !isValid ||
-                  isPending ||
-                  loadingListTiang ||
-                  loadingConstructions ||
-                  loadingGroundings ||
-                  loadingPoles
-                }
+                disabled={!isValid || isPending || photo === ''}
               >
-                Tambah SKTM
+                Tambah SUTM
               </Button>
 
               <MapsPickerDialog dialogId={mapsDialogId} />

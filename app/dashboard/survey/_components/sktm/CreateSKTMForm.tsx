@@ -12,6 +12,7 @@ import {
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { ICreateFirstSKTM } from '@/lib/types/survey'
 import Image from 'next/image'
+import { useParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -34,6 +35,8 @@ export function CreateSKTMForm({
   sheetId: string
   surveyId: number
 }) {
+	const { survey_id } = useParams()
+
   const cameraRef = useRef<any>(null)
   const termination = useGetMaterials('terminasi', 'SKTM')
 
@@ -87,8 +90,8 @@ export function CreateSKTMForm({
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
-          setValue('lat', position.coords.latitude.toString())
-          setValue('long', position.coords.longitude.toString())
+          setValue('lat', position.coords.latitude.toString(), { shouldDirty: true, shouldValidate: true })
+          setValue('long', position.coords.longitude.toString(), { shouldDirty: true, shouldValidate: true })
           open(mapsDialogId)
         },
         error => {
@@ -117,6 +120,7 @@ export function CreateSKTMForm({
 
     const payload = {
       ...rest,
+	  id_survey_header: Number(survey_id),
       id_termination_masuk: id_termination
     } satisfies ICreateFirstSKTM
 
@@ -249,13 +253,13 @@ export function CreateSKTMForm({
 
               {/* With Arrester */}
               <div className="flex gap-2">
-                <Label required htmlFor="arrester">
+                <Label htmlFor="arrester">
                   Dengan Arrester?
                 </Label>
                 <Controller
                   name="has_arrester"
                   control={control}
-                  rules={{ required: true }}
+                  rules={{ required: false }}
                   render={({ field: { onChange, value } }) => (
                     <Checkbox checked={value} onCheckedChange={onChange} />
                   )}
@@ -305,7 +309,10 @@ export function CreateSKTMForm({
                     <Button
                       size="sm"
                       type="button"
-                      onClick={() => reset({ foto: '' })}
+                      onClick={() => {
+						setValue('foto', '')
+						open(camDialogId)
+					  }}
                     >
                       Ambil Ulang Foto
                     </Button>
@@ -327,7 +334,7 @@ export function CreateSKTMForm({
                 onClick={() => {
                   errors && console.log('Error: ', errors)
                 }}
-                disabled={!isValid || isPending}
+                disabled={!isValid || isPending || photo === ''}
               >
                 Tambah SKTM
               </Button>
