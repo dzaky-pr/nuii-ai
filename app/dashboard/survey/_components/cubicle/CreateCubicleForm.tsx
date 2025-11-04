@@ -3,11 +3,11 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
 } from '@/components/ui/sheet'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { ICreateCubicle } from '@/lib/types/survey/cubicle'
@@ -21,6 +21,7 @@ import { CameraDialog } from '../dialog/Camera'
 import { CloseSheetsConfirmationDialog } from '../dialog/CloseSheetsConfirm'
 import { MapsPickerDialog } from '../dialog/MapsPicker'
 import SearchableCombobox from '../SearchableCombobox'
+
 export function CreateCubicleForm({
   sheetId,
   surveyId
@@ -29,10 +30,8 @@ export function CreateCubicleForm({
   surveyId: number
 }) {
   const cameraRef = useRef<any>(null)
-  const { materials, loadingMaterials } = useGetMaterials(
-    'accessory',
-    'CUBICLE'
-  )
+  const { materials } = useGetMaterials('cubicle', 'CUBICLE')
+  const cubicleTypes = ['Incoming', 'Outgoing', 'Metering']
 
   //#region  //*=========== Sheets & Dialog Manager ===========
   const { isOpen, close, open } = useOverlayStore()
@@ -86,8 +85,14 @@ export function CreateCubicleForm({
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
-          setValue('lat', position.coords.latitude.toString())
-          setValue('long', position.coords.longitude.toString())
+          setValue('lat', position.coords.latitude.toString(), {
+            shouldDirty: true,
+            shouldValidate: true
+          })
+          setValue('long', position.coords.longitude.toString(), {
+            shouldDirty: true,
+            shouldValidate: true
+          })
           open(mapsDialogId)
         },
         error => {
@@ -115,10 +120,10 @@ export function CreateCubicleForm({
     const payload = {
       ...data,
       ...(data.id_cubicle_material !== 0
-        ? { id_cubicle_material: data.id_cubicle_material }
+        ? { id_cubicle_material: Number(data.id_cubicle_material) }
         : undefined),
       ...(data.cubicle_type !== ''
-        ? { id_cubicle_material: data.cubicle_type }
+        ? { cubicle_type: data.cubicle_type }
         : undefined)
     }
 
@@ -178,9 +183,9 @@ export function CreateCubicleForm({
                 />
               </div>
 
-              {/* ID Material Tiang */}
+              {/* ID Material Cubicle */}
               <div className="grid gap-2">
-                <Label htmlFor="tiang">Material Cubicle</Label>
+                <Label htmlFor="cubicle">Material Cubicle</Label>
                 <Controller
                   name="id_cubicle_material"
                   control={control}
@@ -200,11 +205,22 @@ export function CreateCubicleForm({
                   {/* Tipe Cubicle */}
                   <div className="grid gap-2">
                     <div className="flex justify-between">
-                      <Label htmlFor="keterangan">Tipe Cubicle</Label>
+                      <Label htmlFor="cubicle_type">Tipe Cubicle</Label>
                     </div>
-                    <Input
-                      placeholder="Masukkan tipe cubicle"
-                      {...register('cubicle_type')}
+                    <Controller
+                      name="cubicle_type"
+                      control={control}
+                      render={({ field: { onChange, value } }) => (
+                        <SearchableCombobox
+                          value={value ?? undefined}
+                          options={cubicleTypes.map(cubicle => ({
+                            label: cubicle,
+                            value: cubicle
+                          }))}
+                          onValueChange={onChange}
+                          placeholder="Pilih tipe cubicle"
+                        />
+                      )}
                     />
                   </div>
                 </>
@@ -225,13 +241,11 @@ export function CreateCubicleForm({
 
               {/* With Grounding */}
               <div className="flex gap-2">
-                <Label required htmlFor="arrester">
-                  Dengan Grounding?
-                </Label>
+                <Label htmlFor="grounding">Dengan Grounding?</Label>
                 <Controller
                   name="has_grounding"
                   control={control}
-                  rules={{ required: true }}
+                  rules={{ required: false }}
                   render={({ field: { onChange, value } }) => (
                     <Checkbox checked={value} onCheckedChange={onChange} />
                   )}
@@ -281,7 +295,10 @@ export function CreateCubicleForm({
                     <Button
                       size="sm"
                       type="button"
-                      onClick={() => reset({ foto: '' })}
+                      onClick={() => {
+                        setValue('foto', '')
+                        open(camDialogId)
+                      }}
                     >
                       Ambil Ulang Foto
                     </Button>
@@ -301,7 +318,9 @@ export function CreateCubicleForm({
                 size="sm"
                 type="submit"
                 onClick={() => {
-                  errors && console.log('Error: ', errors)
+                  if (errors) {
+                    console.log('Error: ', errors)
+                  }
                 }}
                 disabled={!isValid || isPending || photo === ''}
               >

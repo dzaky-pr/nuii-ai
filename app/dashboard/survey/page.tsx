@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { CreateSurveyHeaderForm } from './_components/header/CreateSurveyHeaderForm'
 import { useGetSurveyHeaderList } from './_hooks/@read/survey-headers'
 
-const tableHeader = [
+const tableHeaders = [
   '#',
   'Nama Survey',
   'Lokasi',
@@ -64,10 +64,10 @@ export default function Page() {
           </div>
           <div className="mb-4">
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
+              <table className="w-full border-collapse border">
                 <thead>
                   <tr>
-                    {tableHeader.map((item, index) => (
+                    {tableHeaders.map((item, index) => (
                       <th key={index} className="border p-2">
                         {item}
                       </th>

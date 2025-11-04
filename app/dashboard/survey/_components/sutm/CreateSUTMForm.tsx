@@ -2,11 +2,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
 } from '@/components/ui/sheet'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
 import { ICreateFirstSUTM } from '@/lib/types/survey'
@@ -35,8 +35,8 @@ export function CreateSUTMForm({
 
   const { listTiang, loadingListTiang } = useGetListTiang()
   const { poles, loadingPoles } = useGetPoles()
-  const {constructions, loadingConstructions} = useGetConstructions()
-  const {groundings, loadingGroundings} = useGetGroundings()
+  const { constructions, loadingConstructions } = useGetConstructions()
+  const { groundings, loadingGroundings } = useGetGroundings()
 
   //#region  //*=========== Sheets & Dialog Manager ===========
   const { isOpen, close, open } = useOverlayStore()
@@ -87,8 +87,14 @@ export function CreateSUTMForm({
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
-          setValue('lat', position.coords.latitude.toString())
-          setValue('long', position.coords.longitude.toString())
+          setValue('lat', position.coords.latitude.toString(), {
+            shouldDirty: true,
+            shouldValidate: true
+          })
+          setValue('long', position.coords.longitude.toString(), {
+            shouldDirty: true,
+            shouldValidate: true
+          })
           open(mapsDialogId)
         },
         error => {
@@ -325,7 +331,10 @@ export function CreateSUTMForm({
                     <Button
                       size="sm"
                       type="button"
-                      onClick={() => reset({ foto: '' })}
+                      onClick={() => {
+                        setValue('foto', '')
+                        open(camDialogId)
+                      }}
                     >
                       Ambil Ulang Foto
                     </Button>
@@ -345,7 +354,9 @@ export function CreateSUTMForm({
                 size="sm"
                 type="submit"
                 onClick={() => {
-                  errors && console.log('Error: ', errors)
+                  if (errors) {
+                    console.log('Error: ', errors)
+                  }
                 }}
                 disabled={!isValid || isPending || photo === ''}
               >
