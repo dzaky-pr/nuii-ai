@@ -15,6 +15,7 @@ import { useEffect, useRef } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useCreateSUTMMutation } from '../../_hooks/@create/sutm'
+import { useGetConductors } from '../../_hooks/@read/components/conductors'
 import { useGetConstructions } from '../../_hooks/@read/components/constructions'
 import { useGetGroundings } from '../../_hooks/@read/components/groundings'
 import { useGetListTiang } from '../../_hooks/@read/components/list-tiang'
@@ -33,6 +34,7 @@ export function CreateSUTMForm({
 }) {
   const cameraRef = useRef<any>(null)
 
+  const { conductors, loadingConductors } = useGetConductors()
   const { listTiang, loadingListTiang } = useGetListTiang()
   const { poles, loadingPoles } = useGetPoles()
   const { constructions, loadingConstructions } = useGetConstructions()
@@ -55,7 +57,13 @@ export function CreateSUTMForm({
       lat: '',
       foto: '',
       keterangan: '',
-      petugas_survey: ''
+      petugas_survey: '',
+      id_material_konduktor: 0,
+      id_grounding_termination: 0,
+      id_konstruksi: 0,
+      id_material_tiang: 0,
+      id_pole_supporter: 0,
+      panjang_jaringan: 0
     }
   })
 
@@ -119,6 +127,17 @@ export function CreateSUTMForm({
   }, [isSuccess, close, reset, sheetId])
 
   function submitHandler(data: ICreateFirstSUTM) {
+    if (
+      data.id_grounding_termination === 0 ||
+      data.id_konstruksi === 0 ||
+      data.id_material_konduktor === 0 ||
+      data.id_material_tiang === 0 ||
+      data.id_pole_supporter === 0
+    ) {
+      toast.warning('Harap lengkapi seluruh data terlebih dahulu!')
+      return
+    }
+
     mutate(data)
   }
   //#endregion  //*======== Submit Form Handler ===========
@@ -189,9 +208,31 @@ export function CreateSUTMForm({
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
+                      isLoading={loadingListTiang}
                       options={listTiang}
                       onValueChange={onChange}
                       placeholder="Pilih material tiang"
+                    />
+                  )}
+                />
+              </div>
+
+              {/* Jenis Konduktor */}
+              <div className="grid gap-2">
+                <Label required htmlFor="konduktor">
+                  Jenis Konduktor
+                </Label>
+                <Controller
+                  name="id_material_konduktor"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <SearchableCombobox
+                      value={value ?? undefined}
+                      isLoading={loadingConductors}
+                      options={conductors}
+                      onValueChange={onChange}
+                      placeholder="Pilih Jenis Konduktor"
                     />
                   )}
                 />
@@ -209,6 +250,7 @@ export function CreateSUTMForm({
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
+                      isLoading={loadingConstructions}
                       options={constructions}
                       onValueChange={onChange}
                       placeholder="Pilih konstruksi"
@@ -229,6 +271,7 @@ export function CreateSUTMForm({
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
+                      isLoading={loadingPoles}
                       options={poles}
                       onValueChange={onChange}
                       placeholder="Pilih pole supporter"
@@ -249,6 +292,7 @@ export function CreateSUTMForm({
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
+                      isLoading={loadingGroundings}
                       options={groundings}
                       onValueChange={onChange}
                       placeholder="Pilih grounding"

@@ -38,7 +38,7 @@ export function CreateSKTMForm({
   const { survey_id } = useParams()
 
   const cameraRef = useRef<any>(null)
-  const termination = useGetMaterials('terminasi', 'SKTM')
+  const { materials, loadingMaterials } = useGetMaterials('terminasi', 'SKTM')
 
   //#region  //*=========== Sheets & Dialog Manager ===========
   const { isOpen, close, open } = useOverlayStore()
@@ -200,7 +200,8 @@ export function CreateSKTMForm({
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
-                      options={termination.materials}
+                      isLoading={loadingMaterials}
+                      options={materials}
                       onValueChange={onChange}
                       placeholder="Pilih material terminasi"
                     />
