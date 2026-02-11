@@ -1,8 +1,11 @@
 'use client'
 
 import { CHAT_ID } from '@/lib/constants'
+import type { ChatUIMessage } from '@/lib/types'
+import { convertToUIMessages } from '@/lib/utils'
 import { getCookie, setCookie } from '@/lib/utils/cookies'
-import { Message, useChat } from 'ai/react'
+import { generateId } from 'ai'
+import { useChat } from '@ai-sdk/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { ChatMessages } from './chat-messages'
@@ -16,7 +19,7 @@ export function Chat({
   query
 }: {
   id: string
-  savedMessages?: Message[]
+  savedMessages?: ChatUIMessage[]
   query?: string
 }) {
   const [selectedModelId, setSelectedModelId] = useState<string>('')
@@ -60,41 +63,39 @@ export function Chat({
     isLoading,
     setMessages,
     stop,
-    append,
-    data,
-    setData
+    append
   } = useChat({
     streamProtocol: dynamicStreamProtocol,
-    initialMessages: savedMessages,
+    initialMessages: convertToUIMessages(savedMessages ?? []),
     id: CHAT_ID,
     body: {
       id
     },
-    sendExtraMessageFields: false,
+    sendExtraMessageFields: true,
     onFinish: () => {
       window.history.replaceState({}, '', `/search/${id}`)
     },
-    onError: error => {
+    onError: (error: { message: any }) => {
       toast.error(`Error in chat: ${error.message}`)
       console.error('Error in chat:', error)
     }
   })
 
   useEffect(() => {
-    setMessages(savedMessages)
+    setMessages(convertToUIMessages(savedMessages ?? []))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const onQuerySelect = (query: string) => {
     append({
+      id: generateId(),
       role: 'user',
-      content: query
+      parts: [{ type: 'text', text: query }]
     })
   }
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setData(undefined)
     handleSubmit(e)
   }
 
@@ -102,7 +103,6 @@ export function Chat({
     <div className="flex flex-col w-full max-w-3xl pt-14 pb-60 mx-auto stretch">
       <ChatMessages
         messages={messages}
-        data={data}
         onQuerySelect={onQuerySelect}
         isLoading={isLoading}
         chatId={id}

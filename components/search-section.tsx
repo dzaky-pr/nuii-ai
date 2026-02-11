@@ -2,8 +2,8 @@
 
 import { CHAT_ID } from '@/lib/constants'
 import type { SearchResults as TypeSearchResults } from '@/lib/types'
-import { ToolInvocation } from 'ai'
-import { useChat } from 'ai/react'
+import type { ToolInvocation } from '@/lib/types'
+import { useChat } from '@ai-sdk/react'
 import { CollapsibleMessage } from './collapsible-message'
 import { SearchSkeleton } from './default-skeleton'
 import { SearchResults } from './search-results'
@@ -26,7 +26,7 @@ export function SearchSection({
   const searchResults: TypeSearchResults =
     tool.state === 'result' ? tool.result : undefined
   const query = tool?.args?.query as string | undefined
-  const includeDomains = tool?.args?.includeDomains as string[] | undefined
+  const includeDomains = tool?.args?.include_domains as string[] | undefined
   const includeDomainsString = includeDomains
     ? ` [${includeDomains.join(', ')}]`
     : ''

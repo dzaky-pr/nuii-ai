@@ -1,6 +1,6 @@
 'use client'
 
-import { ToolInvocation } from 'ai'
+import type { ToolInvocation } from '@/lib/types'
 import RetrieveSection from './retrieve-section'
 import { SearchSection } from './search-section'
 import { VideoSearchSection } from './video-search-section'

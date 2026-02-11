@@ -1,7 +1,7 @@
-import { Message } from 'ai'
+import type { ChatUIMessage } from '@/lib/types'
 
 export interface BaseStreamConfig {
-  messages: Message[]
+  messages: ChatUIMessage[]
   model: string
   chatId: string
   searchMode: boolean

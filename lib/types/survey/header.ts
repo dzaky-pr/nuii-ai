@@ -11,6 +11,11 @@ export interface ISurveyHeader {
   lokasi: string
   status_survey: TSurveyStatus
   user_id: string
+  updated_at?: string
+  excel_archive?: {
+    file_path: string
+    file_name: string
+  }[]
 }
 
 export interface ICreateSurveyHeader {

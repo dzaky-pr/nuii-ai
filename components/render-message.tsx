@@ -1,4 +1,5 @@
-import { JSONValue, Message, ToolInvocation } from 'ai'
+import type { ChatUIMessage, ToolInvocation } from '@/lib/types'
+import { getMessageText } from '@/lib/utils'
 import { useMemo } from 'react'
 import { AnswerSection } from './answer-section'
 import { ReasoningAnswerSection } from './reasoning-answer-section'
@@ -7,7 +8,7 @@ import { ToolSection } from './tool-section'
 import { UserMessage } from './user-message'
 
 interface RenderMessageProps {
-  message: Message
+  message: ChatUIMessage
   messageId: string
   getIsOpen: (id: string) => boolean
   onOpenChange: (id: string, open: boolean) => void
@@ -23,66 +24,49 @@ export function RenderMessage({
   onQuerySelect,
   chatId
 }: RenderMessageProps) {
-  const relatedQuestions = useMemo(
+  const relatedQuestions = useMemo(() => {
+    const parts = message.parts.filter(
+      part => part.type === 'data-related-questions'
+    )
+    return parts.length > 0 ? parts[parts.length - 1].data : null
+  }, [message.parts])
+
+  const reasoningText = useMemo(
     () =>
-      message.annotations?.filter(
-        annotation => (annotation as any)?.type === 'related-questions'
-      ),
-    [message.annotations]
+      message.parts
+        .filter(part => part.type === 'reasoning')
+        .map(part => part.text)
+        .join('\n'),
+    [message.parts]
   )
+
+  const textContent = useMemo(() => getMessageText(message), [message])
 
   // render for manual tool call
   const toolData = useMemo(() => {
-    const toolAnnotations =
-      (message.annotations?.filter(
-        annotation =>
-          (annotation as unknown as { type: string }).type === 'tool_call'
-      ) as unknown as Array<{
-        data: {
-          args: string
-          toolCallId: string
-          toolName: string
-          result?: string
-          state: 'call' | 'result'
-        }
-      }>) || []
+    const toolParts = message.parts.filter(
+      part => part.type === 'data-tool_call'
+    )
 
-    // Group by toolCallId and prioritize 'result' state
-    const toolDataMap = toolAnnotations.reduce((acc, annotation) => {
-      const existing = acc.get(annotation.data.toolCallId)
-      if (!existing || annotation.data.state === 'result') {
-        acc.set(annotation.data.toolCallId, {
-          ...annotation.data,
-          args: annotation.data.args ? JSON.parse(annotation.data.args) : {},
-          result:
-            annotation.data.result && annotation.data.result !== 'undefined'
-              ? JSON.parse(annotation.data.result)
-              : undefined
+    const toolDataMap = toolParts.reduce((acc, part) => {
+      const existing = acc.get(part.data.toolCallId)
+      if (!existing || part.data.state === 'result') {
+        acc.set(part.data.toolCallId, {
+          toolCallId: part.data.toolCallId,
+          toolName: part.data.toolName,
+          state: part.data.state,
+          args: part.data.args,
+          result: part.data.result
         } as ToolInvocation)
       }
       return acc
     }, new Map<string, ToolInvocation>())
 
     return Array.from(toolDataMap.values())
-  }, [message.annotations])
+  }, [message.parts])
 
   if (message.role === 'user') {
-    return <UserMessage message={message.content} />
-  }
-
-  if (message.toolInvocations?.length) {
-    return (
-      <>
-        {message.toolInvocations.map(tool => (
-          <ToolSection
-            key={tool.toolCallId}
-            tool={tool}
-            isOpen={getIsOpen(messageId)}
-            onOpenChange={open => onOpenChange(messageId, open)}
-          />
-        ))}
-      </>
-    )
+    return <UserMessage message={textContent} />
   }
 
   return (
@@ -95,11 +79,11 @@ export function RenderMessage({
           onOpenChange={open => onOpenChange(tool.toolCallId, open)}
         />
       ))}
-      {message.reasoning ? (
+      {reasoningText ? (
         <ReasoningAnswerSection
           content={{
-            reasoning: message.reasoning,
-            answer: message.content
+            reasoning: reasoningText,
+            answer: textContent
           }}
           isOpen={getIsOpen(messageId)}
           onOpenChange={open => onOpenChange(messageId, open)}
@@ -107,22 +91,20 @@ export function RenderMessage({
         />
       ) : (
         <AnswerSection
-          content={message.content}
+          content={textContent}
           isOpen={getIsOpen(messageId)}
           onOpenChange={open => onOpenChange(messageId, open)}
           chatId={chatId}
         />
       )}
-      {!message.toolInvocations &&
-        relatedQuestions &&
-        relatedQuestions.length > 0 && (
-          <RelatedQuestions
-            annotations={relatedQuestions as JSONValue[]}
-            onQuerySelect={onQuerySelect}
-            isOpen={getIsOpen(`${messageId}-related`)}
-            onOpenChange={open => onOpenChange(`${messageId}-related`, open)}
-          />
-        )}
+      {relatedQuestions && (
+        <RelatedQuestions
+          items={relatedQuestions.items}
+          onQuerySelect={onQuerySelect}
+          isOpen={getIsOpen(`${messageId}-related`)}
+          onOpenChange={open => onOpenChange(`${messageId}-related`, open)}
+        />
+      )}
     </>
   )
 }

@@ -1,31 +1,20 @@
-import {
-  CoreMessage,
-  DataStreamWriter,
-  generateId,
-  generateText,
-  JSONValue
-} from 'ai'
+import { generateId, generateText, ModelMessage, UIMessageStreamWriter } from 'ai'
 import { z } from 'zod'
 import { searchSchema } from '../schema/search'
 import { search } from '../tools/search'
-import { ExtendedCoreMessage } from '../types'
+import type { ChatUIMessage } from '../types'
 import { getToolCallModel } from '../utils/registry'
 import { parseToolCallXml } from './parse-tool-call'
 
-interface ToolExecutionResult {
-  toolCallDataAnnotation: ExtendedCoreMessage | null
-  toolCallMessages: CoreMessage[]
-}
-
 export async function executeToolCall(
-  coreMessages: CoreMessage[],
-  dataStream: DataStreamWriter,
+  coreMessages: ModelMessage[],
+  writer: UIMessageStreamWriter<ChatUIMessage>,
   model: string,
   searchMode: boolean
-): Promise<ToolExecutionResult> {
+): Promise<ModelMessage[]> {
   // If search mode is disabled, return empty tool call
   if (!searchMode) {
-    return { toolCallDataAnnotation: null, toolCallMessages: [] }
+    return []
   }
 
   const toolCallModel = getToolCallModel(model)
@@ -75,19 +64,20 @@ export async function executeToolCall(
   const toolCall = parseToolCallXml(toolSelectionResponse.text, searchSchema)
 
   if (!toolCall || toolCall.tool === '') {
-    return { toolCallDataAnnotation: null, toolCallMessages: [] }
+    return []
   }
 
-  const toolCallAnnotation = {
-    type: 'tool_call',
+  const toolCallId = `call_${generateId()}`
+  writer.write({
+    type: 'data-tool_call',
+    id: toolCallId,
     data: {
       state: 'call',
-      toolCallId: `call_${generateId()}`,
+      toolCallId,
       toolName: toolCall.tool,
-      args: JSON.stringify(toolCall.parameters)
+      args: toolCall.parameters
     }
-  }
-  dataStream.writeData(toolCallAnnotation)
+  })
 
   // Support for search tool only for now
   const searchResults = await search(
@@ -98,25 +88,19 @@ export async function executeToolCall(
     toolCall.parameters?.exclude_domains
   )
 
-  const updatedToolCallAnnotation = {
-    ...toolCallAnnotation,
+  writer.write({
+    type: 'data-tool_call',
+    id: toolCallId,
     data: {
-      ...toolCallAnnotation.data,
-      result: JSON.stringify(searchResults),
-      state: 'result'
+      state: 'result',
+      toolCallId,
+      toolName: toolCall.tool,
+      args: toolCall.parameters,
+      result: searchResults
     }
-  }
-  dataStream.writeMessageAnnotation(updatedToolCallAnnotation)
+  })
 
-  const toolCallDataAnnotation: ExtendedCoreMessage = {
-    role: 'data',
-    content: {
-      type: 'tool_call',
-      data: updatedToolCallAnnotation.data
-    } as JSONValue
-  }
-
-  const toolCallMessages: CoreMessage[] = [
+  const toolCallMessages: ModelMessage[] = [
     {
       role: 'assistant',
       content: `Tool call result: ${JSON.stringify(searchResults)}`
@@ -127,5 +111,5 @@ export async function executeToolCall(
     }
   ]
 
-  return { toolCallDataAnnotation, toolCallMessages }
+  return toolCallMessages
 }

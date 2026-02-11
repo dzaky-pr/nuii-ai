@@ -1,4 +1,5 @@
 import { createManualToolStreamResponse } from '@/lib/streaming/create-manual-tool-stream'
+import { convertToUIMessages, getMessageText } from '@/lib/utils'
 import { isProviderEnabled } from '@/lib/utils/registry'
 import { cookies } from 'next/headers'
 
@@ -8,7 +9,9 @@ const DEFAULT_MODEL = 'groq:llama-3.3-70b-versatile'
 
 export async function POST(req: Request) {
   try {
-    const { messages, id: chatId } = await req.json()
+    const body = await req.json()
+    const messages = convertToUIMessages(body.messages ?? [])
+    const chatId = body.id
     const referer = req.headers.get('referer')
     const isSharePage = referer?.includes('/share/')
 
@@ -31,7 +34,8 @@ export async function POST(req: Request) {
       })
     }
     if (provider === 'nuii-ai') {
-      const userQuery = messages[messages.length - 1].content
+      const lastMessage = messages[messages.length - 1]
+      const userQuery = lastMessage ? getMessageText(lastMessage) : ''
       const response = await fetch(`${process.env.RUNPOD_SERVER_URL}/tanya`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

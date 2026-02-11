@@ -1,12 +1,11 @@
-import { JSONValue, Message } from 'ai'
+import type { ChatUIMessage, ToolInvocation } from '@/lib/types'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { RenderMessage } from './render-message'
 import { ToolSection } from './tool-section'
 import { Spinner } from './ui/spinner'
 
 interface ChatMessagesProps {
-  messages: Message[]
-  data: JSONValue[] | undefined
+  messages: ChatUIMessage[]
   onQuerySelect: (query: string) => void
   isLoading: boolean
   chatId?: string
@@ -14,7 +13,6 @@ interface ChatMessagesProps {
 
 export function ChatMessages({
   messages,
-  data,
   onQuerySelect,
   isLoading,
   chatId
@@ -44,28 +42,24 @@ export function ChatMessages({
 
   // get last tool data for manual tool call
   const lastToolData = useMemo(() => {
-    if (!data || !Array.isArray(data) || data.length === 0) return null
+    const toolParts: ToolInvocation[] = []
+    messages.forEach(message => {
+      message.parts.forEach(part => {
+        if (part.type === 'data-tool_call') {
+          toolParts.push({
+            toolCallId: part.data.toolCallId,
+            toolName: part.data.toolName,
+            state: part.data.state,
+            args: part.data.args,
+            result: part.data.result
+          })
+        }
+      })
+    })
 
-    const lastItem = data[data.length - 1] as {
-      type: 'tool_call'
-      data: {
-        toolCallId: string
-        state: 'call' | 'result'
-        toolName: string
-        args: string
-      }
-    }
-
-    if (lastItem.type !== 'tool_call') return null
-
-    const toolData = lastItem.data
-    return {
-      state: 'call' as const,
-      toolCallId: toolData.toolCallId,
-      toolName: toolData.toolName,
-      args: toolData.args ? JSON.parse(toolData.args) : undefined
-    }
-  }, [data])
+    if (toolParts.length === 0) return null
+    return toolParts[toolParts.length - 1]
+  }, [messages])
 
   if (!messages.length) return null
 

@@ -1,4 +1,4 @@
-import { CoreMessage, smoothStream, streamText } from 'ai'
+import { ModelMessage, smoothStream, streamText } from 'ai'
 import { retrieveTool } from '../tools/retrieve'
 import { searchTool } from '../tools/search'
 import { videoSearchTool } from '../tools/video-search'
@@ -30,7 +30,7 @@ export function researcher({
   model,
   searchMode
 }: {
-  messages: CoreMessage[]
+  messages: ModelMessage[]
   model: string
   searchMode: boolean
 }): ResearcherReturn {

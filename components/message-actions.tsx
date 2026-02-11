@@ -2,7 +2,7 @@
 
 import { CHAT_ID } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { useChat } from 'ai/react'
+import { useChat } from '@ai-sdk/react'
 import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import { ChatShare } from './chat-share'

@@ -1,4 +1,4 @@
-import { CoreMessage, JSONValue } from 'ai'
+import { JSONValue, UIMessage } from 'ai'
 
 export type SearchResults = {
   images: SearchResultImage[]
@@ -57,20 +57,37 @@ export type SerperSearchResultItem = {
   position: number
 }
 
+export type ToolInvocation = {
+  toolCallId: string
+  toolName: string
+  state: 'call' | 'result'
+  args?: Record<string, unknown>
+  result?: unknown
+}
+
+export type ChatDataParts = {
+  tool_call: {
+    state: 'call' | 'result'
+    toolCallId: string
+    toolName: string
+    args?: Record<string, unknown>
+    result?: unknown
+  }
+  'related-questions': {
+    items: Array<{ query: string }>
+  }
+}
+
+export type ChatUIMessage = UIMessage<never, ChatDataParts>
+
 export interface Chat extends Record<string, any> {
   id: string
   title: string
   createdAt: Date
   userId: string
   path: string
-  messages: ExtendedCoreMessage[] // Note: Changed from AIMessage to ExtendedCoreMessage
+  messages: ChatUIMessage[]
   sharePath?: string
-}
-
-// ExtendedCoreMessage for saveing annotations
-export type ExtendedCoreMessage = Omit<CoreMessage, 'role' | 'content'> & {
-  role: CoreMessage['role'] | 'data'
-  content: CoreMessage['content'] | JSONValue
 }
 
 export type AIMessage = {

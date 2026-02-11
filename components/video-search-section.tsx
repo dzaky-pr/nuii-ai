@@ -3,7 +3,7 @@
 import { DefaultSkeleton } from './default-skeleton'
 import { Section, ToolArgsSection } from './section'
 import type { SerperSearchResults } from '@/lib/types'
-import { ToolInvocation } from 'ai'
+import type { ToolInvocation } from '@/lib/types'
 import { VideoSearchResults } from './video-search-results'
 import { CollapsibleMessage } from './collapsible-message'
 

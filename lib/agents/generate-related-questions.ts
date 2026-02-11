@@ -1,15 +1,15 @@
 import { relatedSchema } from '@/lib/schema/related'
-import { CoreMessage, generateObject } from 'ai'
+import { ModelMessage, generateObject } from 'ai'
 import { getToolCallModel } from '../utils/registry'
 
 export async function generateRelatedQuestions(
-  messages: CoreMessage[],
+  messages: ModelMessage[],
   model: string
 ) {
   const lastMessages = messages.slice(-1).map(message => ({
     ...message,
     role: 'user'
-  })) as CoreMessage[]
+  })) as ModelMessage[]
 
   // Langsung memilih model berdasarkan nama model
   const currentModel = getToolCallModel(model)

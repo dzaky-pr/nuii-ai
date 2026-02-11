@@ -1,7 +1,8 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Message } from 'ai'
+import type { ChatUIMessage } from '@/lib/types'
+import { generateId } from 'ai'
 import { ArrowUp, MessageCirclePlus, Square } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -17,11 +18,11 @@ interface ChatPanelProps {
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   isLoading: boolean
-  messages: Message[]
-  setMessages: (messages: Message[]) => void
+  messages: ChatUIMessage[]
+  setMessages: (messages: ChatUIMessage[]) => void
   query?: string
   stop: () => void
-  append: (message: any) => void
+  append: (message: ChatUIMessage) => void
   onSearchModeToggle: (isSearchMode: boolean) => void
 }
 
@@ -63,8 +64,9 @@ export function ChatPanel({
   useEffect(() => {
     if (isFirstRender.current && query && query.trim().length > 0) {
       append({
+        id: generateId(),
         role: 'user',
-        content: query
+        parts: [{ type: 'text', text: query }]
       })
       isFirstRender.current = false
     }

@@ -337,10 +337,12 @@ export default function ReportPage() {
                     <td className="border p-2">{data.nama_survey}</td>
                     <td className="border p-2">{data.lokasi}</td>
                     <td className="border p-2">
-                      {format(data.updated_at, 'EEEE, d MMM yyyy HH:mm', {
-                        locale: id
-                      })}{' '}
-                      WIB
+                      {data.updated_at
+                        ? format(data.updated_at, 'EEEE, d MMM yyyy HH:mm', {
+                            locale: id
+                          })
+                        : '-'}{' '}
+                      {data.updated_at ? 'WIB' : ''}
                     </td>
                     <td className="border p-2">{data.user_id}</td>
                     <td className="border p-2">
@@ -352,7 +354,7 @@ export default function ReportPage() {
                           handleDownloadReport({
                             id: data.id.toString(),
                             nama_survey: data.nama_survey,
-                            excel_archive: data.excel_archive
+                            excel_archive: data.excel_archive ?? []
                           })
                         }
                       >

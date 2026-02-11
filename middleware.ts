@@ -5,7 +5,10 @@ const isProtectedRoute = createRouteMatcher(['/dashboard(.*)'])
 const isAdminRoute = createRouteMatcher(['/dashboard/manage-users'])
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) await auth.protect()
+  if (isProtectedRoute(req)) {
+    const { userId, redirectToSignIn } = await auth()
+    if (!userId) return redirectToSignIn()
+  }
 
   if (
     isAdminRoute(req) &&

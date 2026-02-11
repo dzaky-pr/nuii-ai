@@ -1,7 +1,7 @@
 'use client'
 
 import { CHAT_ID } from '@/lib/constants'
-import { useChat } from 'ai/react'
+import { useChat } from '@ai-sdk/react'
 import { Check, Lightbulb, Loader2 } from 'lucide-react'
 import { CollapsibleMessage } from './collapsible-message'
 import { DefaultSkeleton } from './default-skeleton'

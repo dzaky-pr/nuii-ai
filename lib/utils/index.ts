@@ -1,39 +1,10 @@
 import { type Model } from '@/lib/types/models'
-import {
-  convertToCoreMessages,
-  CoreMessage,
-  CoreToolMessage,
-  generateId,
-  JSONValue,
-  Message,
-  ToolInvocation
-} from 'ai'
+import { generateId, JSONValue } from 'ai'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { ExtendedCoreMessage } from '../types'
+import type { ChatDataParts, ChatUIMessage, ToolInvocation } from '../types'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
-}
-
-/**
- * Takes an array of AIMessage and modifies each message where the role is 'tool'.
- * Changes the role to 'assistant' and converts the content to a JSON string.
- * Returns the modified messages as an array of CoreMessage.
- *
- * @param aiMessages - Array of AIMessage
- * @returns modifiedMessages - Array of modified messages
- */
-export function transformToolMessages(messages: CoreMessage[]): CoreMessage[] {
-  return messages.map(message =>
-    message.role === 'tool'
-      ? {
-          ...message,
-          role: 'assistant',
-          content: JSON.stringify(message.content),
-          type: 'tool'
-        }
-      : message
-  ) as CoreMessage[]
 }
 
 /**
@@ -56,170 +27,177 @@ export function getDefaultModelId(models: Model[]): string {
   return createModelId(models[0])
 }
 
-function addToolMessageToChat({
-  toolMessage,
-  messages
-}: {
-  toolMessage: CoreToolMessage
-  messages: Array<Message>
-}): Array<Message> {
-  return messages.map(message => {
-    if (message.toolInvocations) {
-      return {
-        ...message,
-        toolInvocations: message.toolInvocations.map(toolInvocation => {
-          const toolResult = toolMessage.content.find(
-            tool => tool.toolCallId === toolInvocation.toolCallId
-          )
-
-          if (toolResult) {
-            return {
-              ...toolInvocation,
-              state: 'result',
-              result: toolResult.result
-            }
-          }
-
-          return toolInvocation
-        })
-      }
-    }
-
-    return message
-  })
+type LegacyMessage = {
+  id?: string
+  role: string
+  content?: unknown
+  annotations?: JSONValue[]
+  toolInvocations?: ToolInvocation[]
+  reasoning?: string
 }
 
-export function convertToUIMessages(
-  messages: Array<ExtendedCoreMessage>
-): Array<Message> {
-  let pendingAnnotations: JSONValue[] = []
+type ChatDataPart =
+  | {
+      type: 'data-tool_call'
+      id?: string
+      data: ChatDataParts['tool_call']
+    }
+  | {
+      type: 'data-related-questions'
+      id?: string
+      data: ChatDataParts['related-questions']
+    }
+
+function isChatUIMessage(value: unknown): value is ChatUIMessage {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Array.isArray((value as ChatUIMessage).parts)
+  )
+}
+
+function extractTextContent(content: unknown): string {
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content
+      .map(part => {
+        if (part && typeof part === 'object' && 'type' in part) {
+          if ((part as { type: string }).type === 'text' && 'text' in part) {
+            return String((part as { text: string }).text)
+          }
+        }
+        return ''
+      })
+      .join('')
+  }
+  return ''
+}
+
+function asToolCallDataPart(tool: ToolInvocation): ChatDataPart {
+  return {
+    type: 'data-tool_call',
+    id: tool.toolCallId,
+    data: {
+      toolCallId: tool.toolCallId,
+      toolName: tool.toolName,
+      state: tool.state,
+      args: tool.args,
+      result: tool.result
+    }
+  }
+}
+
+function annotationToDataPart(annotation: JSONValue): ChatDataPart | null {
+  if (!annotation || typeof annotation !== 'object') return null
+  if (!('type' in annotation) || !('data' in annotation)) return null
+
+  const typed = annotation as { type: string; data: unknown }
+  if (typed.type === 'tool_call') {
+    const data = typed.data as ChatDataParts['tool_call']
+    return {
+      type: 'data-tool_call',
+      id: data.toolCallId,
+      data
+    }
+  }
+  if (typed.type === 'related-questions') {
+    return {
+      type: 'data-related-questions',
+      data: typed.data as ChatDataParts['related-questions']
+    }
+  }
+  return null
+}
+
+export function convertToUIMessages(messages: unknown[]): ChatUIMessage[] {
+  if (!Array.isArray(messages) || messages.length === 0) return []
+  if (isChatUIMessage(messages[0])) return messages as ChatUIMessage[]
+
+  const result: ChatUIMessage[] = []
+  const pendingDataParts: ChatDataPart[] = []
   let pendingReasoning: string | undefined
 
-  return messages.reduce((chatMessages: Array<Message>, message) => {
-    // Handle tool messages
-    if (message.role === 'tool') {
-      return addToolMessageToChat({
-        toolMessage: message as CoreToolMessage,
-        messages: chatMessages
-      })
+  for (const rawMessage of messages as LegacyMessage[]) {
+    if (!rawMessage || typeof rawMessage !== 'object') {
+      continue
     }
 
-    // Store data message content for next assistant message
-    if (message.role === 'data') {
+    if (rawMessage.role === 'data') {
+      const annotation = rawMessage.content as JSONValue
+      const dataPart = annotationToDataPart(annotation)
+      if (dataPart) {
+        pendingDataParts.push(dataPart)
+        continue
+      }
       if (
-        message.content !== null &&
-        message.content !== undefined &&
-        typeof message.content !== 'string' &&
-        typeof message.content !== 'number' &&
-        typeof message.content !== 'boolean'
+        annotation &&
+        typeof annotation === 'object' &&
+        'type' in annotation &&
+        annotation.type === 'reasoning' &&
+        'data' in annotation
       ) {
-        const content = message.content as JSONValue
-        if (
-          content &&
-          typeof content === 'object' &&
-          'type' in content &&
-          'data' in content
-        ) {
-          if (content.type === 'reasoning') {
-            pendingReasoning = content.data as string
-          } else {
-            pendingAnnotations.push(content)
-          }
-        }
+        pendingReasoning = String(annotation.data)
       }
-      return chatMessages
+      continue
     }
 
-    let textContent = ''
-    let toolInvocations: Array<ToolInvocation> = []
+    const parts: ChatUIMessage['parts'] = []
 
-    // Handle message content
-    if (message.content) {
-      if (typeof message.content === 'string') {
-        textContent = message.content
-      } else if (Array.isArray(message.content)) {
-        for (const content of message.content) {
-          if (content && typeof content === 'object' && 'type' in content) {
-            if (content.type === 'text' && 'text' in content) {
-              textContent += content.text
-            } else if (
-              content.type === 'tool-call' &&
-              'toolCallId' in content &&
-              'toolName' in content &&
-              'args' in content
-            ) {
-              toolInvocations.push({
-                state: 'call',
-                toolCallId: content.toolCallId,
-                toolName: content.toolName,
-                args: content.args
-              } as ToolInvocation)
-            }
-          }
-        }
+    if (rawMessage.role === 'assistant') {
+      if (pendingReasoning) {
+        parts.push({ type: 'reasoning', text: pendingReasoning })
+        pendingReasoning = undefined
+      }
+      if (pendingDataParts.length > 0) {
+        parts.push(...pendingDataParts)
+        pendingDataParts.length = 0
       }
     }
 
-    // Create new message
-    const newMessage: Message = {
-      id: generateId(),
-      role: message.role,
-      content: textContent,
-      toolInvocations: toolInvocations.length > 0 ? toolInvocations : undefined,
-      // Add pending annotations and reasoning if this is an assistant message
-      ...(message.role === 'assistant' && {
-        ...(pendingAnnotations.length > 0 && {
-          annotations: pendingAnnotations
-        }),
-        ...(pendingReasoning && { reasoning: pendingReasoning })
+    if (rawMessage.reasoning) {
+      parts.push({ type: 'reasoning', text: rawMessage.reasoning })
+    }
+
+    const textContent = extractTextContent(rawMessage.content)
+    if (textContent) {
+      parts.push({ type: 'text', text: textContent })
+    }
+
+    if (Array.isArray(rawMessage.annotations)) {
+      rawMessage.annotations
+        .map(annotationToDataPart)
+        .filter(Boolean)
+        .forEach(part => parts.push(part as ChatDataPart))
+    }
+
+    if (Array.isArray(rawMessage.toolInvocations)) {
+      rawMessage.toolInvocations.forEach(tool => {
+        parts.push(asToolCallDataPart(tool))
       })
     }
 
-    chatMessages.push(newMessage)
+    const role =
+      rawMessage.role === 'user' ||
+      rawMessage.role === 'assistant' ||
+      rawMessage.role === 'system'
+        ? rawMessage.role
+        : 'assistant'
 
-    // Clear pending data after adding them
-    if (message.role === 'assistant') {
-      pendingAnnotations = []
-      pendingReasoning = undefined
-    }
-
-    return chatMessages
-  }, [])
-}
-
-export function convertToExtendedCoreMessages(
-  messages: Message[]
-): ExtendedCoreMessage[] {
-  const result: ExtendedCoreMessage[] = []
-
-  for (const message of messages) {
-    // Convert annotations to data messages
-    if (message.annotations && message.annotations.length > 0) {
-      message.annotations.forEach(annotation => {
-        result.push({
-          role: 'data',
-          content: annotation
-        })
-      })
-    }
-
-    // Convert reasoning to data message
-    if (message.reasoning) {
-      result.push({
-        role: 'data',
-        content: {
-          type: 'reasoning',
-          data: message.reasoning
-        } as JSONValue
-      })
-    }
-
-    // Convert current message
-    const converted = convertToCoreMessages([message])
-    result.push(...converted)
+    result.push({
+      id: rawMessage.id || generateId(),
+      role,
+      parts
+    })
   }
 
   return result
+}
+
+export function getMessageText(message: ChatUIMessage): string {
+  return message.parts
+    .filter(part => part.type === 'text')
+    .map(part => part.text)
+    .join('')
 }
 
 export function getSessionDefault(field: string) {
