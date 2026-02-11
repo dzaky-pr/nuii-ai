@@ -3,11 +3,11 @@ import { TSurveyStatus } from '../types/survey'
 export const CHAT_ID = 'search' as const
 
 export const jobOptions = [
-  'Pasang Baru',
-  'Perubahan Daya',
-  'PFK',
-  'Konfigurasi Jaringan',
-  'Penyulang Baru'
+  { value: 'Pasang Baru', label: 'Pasang Baru' },
+  { value: 'Perubahan Daya', label: 'Perubahan Daya' },
+  { value: 'PFK', label: 'PFK' },
+  { value: 'Konfigurasi Jaringan', label: 'Konfigurasi Jaringan' },
+  { value: 'Penyulang Baru', label: 'Penyulang Baru' }
 ]
 
 export const surveyStatusOptions = [

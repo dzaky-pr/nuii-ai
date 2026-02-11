@@ -2,11 +2,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
 } from '@/components/ui/sheet'
 import { jobOptions } from '@/lib/constants'
 import { dummyLocations } from '@/lib/data/survey'
@@ -19,8 +19,10 @@ import { useCreateSurveyHeaderMutation } from '../../_hooks/@create/survey-heade
 import SearchableCombobox from '../SearchableCombobox'
 import { CloseSheetsConfirmationDialog } from '../dialog/CloseSheetsConfirm'
 
-export interface ICreateSurveyHeaderForm
-  extends Omit<ICreateSurveyHeader, 'user_id' | 'status_survey'> {}
+export interface ICreateSurveyHeaderForm extends Omit<
+  ICreateSurveyHeader,
+  'user_id' | 'status_survey'
+> {}
 
 export function CreateSurveyHeaderForm() {
   //#region  //*=========== Sheets & Dialog Manager ===========
@@ -133,10 +135,7 @@ export function CreateSurveyHeaderForm() {
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
-                      options={jobOptions.map(item => ({
-                        value: item,
-                        label: item
-                      }))}
+                      options={jobOptions}
                       onValueChange={onChange}
                       placeholder="Pilih nama pekerjaan"
                     />
@@ -168,10 +167,7 @@ export function CreateSurveyHeaderForm() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                disabled={!isValid || isPending}
-              >
+              <Button type="submit" disabled={!isValid || isPending}>
                 Simpan Survey
               </Button>
             </form>

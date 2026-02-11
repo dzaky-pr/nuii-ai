@@ -1,16 +1,24 @@
+'use client'
+
 import { cn } from '@/lib/utils'
-import { getUserRoleServer } from '@/lib/utils/roles'
-import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs'
-import { headers } from 'next/headers'
+import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import HistoryContainer from './history-container'
 import { ModeToggle } from './mode-toggle'
 import { IconLogo } from './ui/icons'
 import UserButtonCustom from './user-button'
 
-export const Header: React.FC = async () => {
-  const role = await getUserRoleServer()
-  const pathname = (await headers()).get('next-url') || '' // Ambil URL dari headers
+const formatRoleLabel = (role: unknown) => {
+  if (typeof role !== 'string' || role.length === 0) return 'Not Verified'
+
+  return role.charAt(0).toUpperCase() + role.slice(1)
+}
+
+export const Header: React.FC = () => {
+  const pathname = usePathname()
+  const { user } = useUser()
+  const role = user?.publicMetadata?.role
 
   return (
     <header className="shadow-lg bg-background px-6 sm:px-10 py-3 sticky top-0 w-full flex justify-between items-center z-10 backdrop-blur md:backdrop-blur-none">
@@ -30,13 +38,7 @@ export const Header: React.FC = async () => {
 
           <SignedIn>
             <div className="flex flex-row items-center justify-center gap-2">
-              <p>
-                Role:{' '}
-                {role
-                  ? role.toString().charAt(0).toUpperCase() +
-                    role.toString().slice(1)
-                  : 'Not Verified'}
-              </p>
+              <p>Role: {formatRoleLabel(role)}</p>
               <div className="border w-fit h-fit flex p-1.5 border-primary rounded-full">
                 <UserButtonCustom />
               </div>

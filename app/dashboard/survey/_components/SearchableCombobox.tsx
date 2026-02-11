@@ -47,12 +47,12 @@ export default function SearchableCombobox({
 
   const filteredOptions = React.useMemo(() => {
     if (isLoading) return []
+    if (!options || !Array.isArray(options)) return []
     return options.filter(option => {
-      const label = option.label ?? ''
-      return options.filter(option => {
-        const label = option.label ?? ''
-        return label.toLowerCase().includes(debouncedQuery.toLowerCase())
-      })
+      if (!option || typeof option !== 'object') return false
+      const label = String(option.label ?? '')
+      const query = String(debouncedQuery ?? '')
+      return label.toLowerCase().includes(query.toLowerCase())
     })
   }, [options, debouncedQuery, isLoading])
 
@@ -72,6 +72,9 @@ export default function SearchableCombobox({
   }
 
   const selectedOption = options.find(o => o.value === value)
+  const displayValue = selectedOption?.label
+    ? String(selectedOption.label)
+    : placeholder
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -86,7 +89,7 @@ export default function SearchableCombobox({
           )}
           disabled={isDisabled || isLoading}
         >
-          {selectedOption?.label ?? placeholder}
+          {displayValue}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -106,21 +109,32 @@ export default function SearchableCombobox({
               <>
                 <CommandEmpty>Tidak terdapat opsi.</CommandEmpty>
                 <CommandGroup>
-                  {filteredOptions.map(option => (
-                    <CommandItem
-                      key={option.value}
-                      value={option.value}
-                      onSelect={handleSelect}
-                    >
-                      {option.label}
-                      <Check
-                        className={cn(
-                          'ml-auto h-4 w-4',
-                          value === option.value ? 'opacity-100' : 'opacity-0'
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
+                  {filteredOptions.map(option => {
+                    // Ensure we have a valid option object
+                    if (
+                      !option ||
+                      typeof option !== 'object' ||
+                      !option.value ||
+                      !option.label
+                    ) {
+                      return null
+                    }
+                    return (
+                      <CommandItem
+                        key={String(option.value)}
+                        value={String(option.value)}
+                        onSelect={handleSelect}
+                      >
+                        {String(option.label)}
+                        <Check
+                          className={cn(
+                            'ml-auto h-4 w-4',
+                            value === option.value ? 'opacity-100' : 'opacity-0'
+                          )}
+                        />
+                      </CommandItem>
+                    )
+                  })}
                 </CommandGroup>
               </>
             )}

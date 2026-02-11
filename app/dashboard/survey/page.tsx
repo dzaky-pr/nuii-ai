@@ -5,15 +5,19 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { surveyStatus } from '@/lib/constants'
 import useOverlayStore from '@/lib/hooks/useOverlayStore'
+import { ISurveyHeader } from '@/lib/types/survey'
 import { NotebookPen, Route } from 'lucide-react'
 import Link from 'next/link'
 import { CreateSurveyHeaderForm } from './_components/header/CreateSurveyHeaderForm'
+import { UpdateSurveyHeaderForm } from './_components/header/UpdateSurveyHeaderForm'
 import { useGetSurveyHeaderList } from './_hooks/@read/survey-headers'
+import { useDeleteSurveyHeaderMutation } from './_hooks/@create/survey-header'
 
 const tableHeaders = [
   '#',
   'Nama Survey',
   'Lokasi',
+  'Tipe',
   'Status',
   'ID Pengguna',
   'Aksi'
@@ -21,11 +25,27 @@ const tableHeaders = [
 
 export default function Page() {
   const [isMounted, setIsMounted] = useState(false)
+  const [selectedSurvey, setSelectedSurvey] = useState<ISurveyHeader | null>(
+    null
+  )
 
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyHeaderList()
 
+  const { mutate: deleteSurvey } = useDeleteSurveyHeaderMutation()
+
   const { open } = useOverlayStore()
+
+  const handleDeleteSurvey = (id: number) => {
+    if (confirm('Apakah Anda yakin ingin menghapus survey ini?')) {
+      deleteSurvey(id)
+    }
+  }
+
+  const openUpdateForm = (survey: ISurveyHeader) => {
+    setSelectedSurvey(survey)
+    open('update-survey-header-sheets')
+  }
 
   useEffect(() => {
     setIsMounted(true)
@@ -77,35 +97,67 @@ export default function Page() {
                 <tbody>
                   {loadingGetSurveys ? (
                     <tr className="text-center">
-                      <td colSpan={6} className="py-4 font-medium">
+                      <td colSpan={7} className="py-4 font-medium">
                         Loading...
                       </td>
                     </tr>
                   ) : !surveys || !surveys.length ? (
                     <tr className="text-center">
-                      <td colSpan={6} className="py-4 font-medium">
+                      <td colSpan={7} className="py-4 font-medium">
                         Data survey tidak tersedia.
                       </td>
                     </tr>
                   ) : (
-                    surveys?.map((data, index) => (
-                      <tr key={index} className="text-center">
-                        <td className="border p-2">{index + 1}</td>
-                        <td className="border p-2">{data.nama_survey}</td>
-                        <td className="border p-2">{data.lokasi}</td>
-                        <td className="border p-2 ">
-                          {surveyStatus[data.status_survey]}
-                        </td>
-                        <td className="border p-2">{data.user_id}</td>
-                        <td className="border p-2">
-                          <Link href={`/dashboard/survey/${data.id}`}>
-                            <button className="text-neutral-300 underline">
-                              Lihat Detail
-                            </button>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))
+                    surveys?.map((data, index) => {
+                      const isBatchSurvey = data.SurveySequance?.some(
+                        seq => seq.tipe === 'SUTM'
+                      )
+                      return (
+                        <tr key={index} className="text-center">
+                          <td className="border p-2">{index + 1}</td>
+                          <td className="border p-2">{data.nama_survey}</td>
+                          <td className="border p-2">{data.lokasi}</td>
+                          <td className="border p-2">
+                            <span
+                              className={`px-2 py-1 rounded text-xs font-medium ${isBatchSurvey ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}
+                            >
+                              {isBatchSurvey ? 'Batch' : 'Manual'}
+                            </span>
+                          </td>
+                          <td className="border p-2 ">
+                            {surveyStatus[data.status_survey]}
+                          </td>
+                          <td className="border p-2">{data.user_id}</td>
+                          <td className="border p-2">
+                            <div className="flex gap-2 justify-center">
+                              <Link
+                                href={
+                                  isBatchSurvey
+                                    ? `/dashboard/survey/auto-survey/${data.id}`
+                                    : `/dashboard/survey/${data.id}`
+                                }
+                              >
+                                <button className="text-blue-600 underline text-sm">
+                                  Lihat Detail
+                                </button>
+                              </Link>
+                              <button
+                                onClick={() => openUpdateForm(data)}
+                                className="text-green-600 underline text-sm"
+                              >
+                                Update
+                              </button>
+                              <button
+                                onClick={() => handleDeleteSurvey(data.id)}
+                                className="text-red-600 underline text-sm"
+                              >
+                                Hapus
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
                   )}
                 </tbody>
               </table>
@@ -114,6 +166,7 @@ export default function Page() {
         </div>
       </div>
       <CreateSurveyHeaderForm />
+      <UpdateSurveyHeaderForm surveyData={selectedSurvey || undefined} />
     </>
   )
 }

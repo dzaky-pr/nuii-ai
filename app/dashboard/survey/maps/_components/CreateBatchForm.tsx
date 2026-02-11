@@ -35,7 +35,7 @@ export default function CreateBatchForm({
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false)
 
   //#region  //*=========== Form ===========
-  const methods = useForm<SurveyHeaderForm>({ mode: 'onBlur' })
+  const methods = useForm<SurveyHeaderForm>({ mode: 'onChange' })
 
   const {
     control,
@@ -167,10 +167,7 @@ export default function CreateBatchForm({
                   render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
-                      options={jobOptions.map(item => ({
-                        value: item,
-                        label: item
-                      }))}
+                      options={jobOptions}
                       onValueChange={onChange}
                       placeholder="Pilih Nama Pekerjaan"
                     />
@@ -186,15 +183,12 @@ export default function CreateBatchForm({
                 <Controller
                   name="lokasi"
                   control={control}
-                  render={({ field: { value } }) => (
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
                     <SearchableCombobox
                       value={value ?? undefined}
                       options={dummyLocations}
-                      onValueChange={value => {
-                        setValue('lokasi', value ?? '', {
-                          shouldValidate: true
-                        })
-                      }}
+                      onValueChange={onChange}
                       placeholder="Pilih Lokasi"
                     />
                   )}

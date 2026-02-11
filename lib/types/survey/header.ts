@@ -11,6 +11,7 @@ export interface ISurveyHeader {
   lokasi: string
   status_survey: TSurveyStatus
   user_id: string
+  SurveySequance?: ISurveySequence[]
 }
 
 export interface ICreateSurveyHeader {

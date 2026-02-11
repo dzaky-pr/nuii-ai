@@ -100,6 +100,7 @@ export default function RoutingMap({
       {routingMode === 'select' ? (
         waypoints.length >= 2 ? (
           <RoutingMachine
+            key="select-mode"
             setInstructionText={setInstructionText}
             waypoints={waypoints}
           />
@@ -114,6 +115,7 @@ export default function RoutingMap({
       ) : (
         routingMode === 'view' && (
           <RoutingMachine
+            key="view-mode"
             waypoints={waypoints}
             apiRoutes={estimation?.routes}
             apiPoles={estimation?.poles}

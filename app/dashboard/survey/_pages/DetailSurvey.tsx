@@ -8,26 +8,34 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { CreateCubicleForm } from '../_components/cubicle/CreateCubicleForm'
+import { UpdateCubicleForm } from '../_components/cubicle/UpdateCubicleForm'
 import { CreateSKTMForm } from '../_components/sktm/CreateSKTMForm'
 import { CreateSUTMForm } from '../_components/sutm/CreateSUTMForm'
 import { useGetSurveyDetail } from '../_hooks/@read/survey-details'
+import {
+  useUpdateCubicleMutation,
+  useDeleteCubicleMutation
+} from '../_hooks/@create/cubicle'
 
-const surveySequenceHeaders = ['ID', 'Tipe', 'Urutan']
+const surveySequenceHeaders = ['No', 'Tipe', 'Urutan', 'ID']
 const surveyCubicleHeaders = [
-  'ID',
+  'No',
   'Tipe Cubicle',
   'Penyulang',
   'Koordinat',
   'Foto',
   'Keterangan',
-  'Petugas Survey'
+  'Petugas Survey',
+  'ID',
+  'Aksi'
 ]
 const surveyAppTmHeaders = [
-  'ID',
+  'No',
   'Keterangan',
   'Penyulang',
   'Koordinat',
-  'Foto'
+  'Foto',
+  'ID'
 ]
 
 export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
@@ -37,13 +45,29 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   const [hideSutmPole, setHideSutmPole] = useState(false)
   const [hideCubiclePole, setHideCubiclePole] = useState(false)
   const [hideAppTm, setHideAppTm] = useState(false)
+  const [selectedCubicle, setSelectedCubicle] = useState<any>(null)
 
   const { data: survey, isPending } = useGetSurveyDetail(surveyId)
+
+  const updateCubicleMutation = useUpdateCubicleMutation(Number(surveyId))
+  const deleteCubicleMutation = useDeleteCubicleMutation(Number(surveyId))
 
   const { open } = useOverlayStore()
   const sktmFormId = 'create-sktm-form-sheets'
   const sutmFormId = 'create-sutm-form-sheets'
   const cubicleFormId = 'create-cubicle-form-sheets'
+  const updateCubicleFormId = 'update-cubicle-form-sheets'
+
+  const handleUpdateCubicle = (cubicleData: any) => {
+    setSelectedCubicle(cubicleData)
+    open(updateCubicleFormId)
+  }
+
+  const handleDeleteCubicle = (id: number) => {
+    if (confirm('Apakah Anda yakin ingin menghapus cubicle ini?')) {
+      deleteCubicleMutation.mutate(id)
+    }
+  }
 
   useEffect(() => {
     setIsMounted(true)
@@ -118,24 +142,28 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
         <div className="overflow-x-auto">
           <table className="w-full border-collapse border border-gray-300">
-            <tr>
-              <th className="text-start p-4 border w-96">Nama Survey</th>
-              <td className="text-start p-4 border">{survey.nama_survey}</td>
-            </tr>
-            <tr>
-              <th className="text-start p-4 border w-96">Nama Pekerjaan</th>
-              <td className="text-start p-4 border">{survey.nama_pekerjaan}</td>
-            </tr>
-            <tr>
-              <th className="text-start p-4 border w-96">Lokasi</th>
-              <td className="text-start p-4 border">{survey.lokasi}</td>
-            </tr>
-            <tr>
-              <th className="text-start p-4 border w-96">Status</th>
-              <td className="text-start p-4 border">
-                {survey.status_survey.replace('_', ' ')}
-              </td>
-            </tr>
+            <tbody>
+              <tr>
+                <th className="text-start p-4 border w-96">Nama Survey</th>
+                <td className="text-start p-4 border">{survey.nama_survey}</td>
+              </tr>
+              <tr>
+                <th className="text-start p-4 border w-96">Nama Pekerjaan</th>
+                <td className="text-start p-4 border">
+                  {survey.nama_pekerjaan}
+                </td>
+              </tr>
+              <tr>
+                <th className="text-start p-4 border w-96">Lokasi</th>
+                <td className="text-start p-4 border">{survey.lokasi}</td>
+              </tr>
+              <tr>
+                <th className="text-start p-4 border w-96">Status</th>
+                <td className="text-start p-4 border">
+                  {survey.status_survey.replace('_', ' ')}
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
 
@@ -164,11 +192,13 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           >
             <table className="w-full border-collapse border">
               <thead>
-                {surveySequenceHeaders.map((item, index) => (
-                  <th key={index} className="border p-2">
-                    {item}
-                  </th>
-                ))}
+                <tr>
+                  {surveySequenceHeaders.map((item, index) => (
+                    <th key={index} className="border p-2">
+                      {item}
+                    </th>
+                  ))}
+                </tr>
               </thead>
               <tbody>
                 {isPending ? (
@@ -187,9 +217,10 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                 ) : (
                   survey.survey_sequence.map((data, index) => (
                     <tr key={index} className="text-center">
-                      <td className="border p-2">{data.id}</td>
+                      <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{data.tipe}</td>
                       <td className="border p-2">{data.urutan}</td>
+                      <td className="border p-2">{data.id}</td>
                     </tr>
                   ))
                 )}
@@ -223,30 +254,32 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           >
             <table className="w-full border-collapse border">
               <thead>
-                {surveyCubicleHeaders.map((item, index) => (
-                  <th key={index} className="border p-2">
-                    {item}
-                  </th>
-                ))}
+                <tr>
+                  {surveyCubicleHeaders.map((item, index) => (
+                    <th key={index} className="border p-2">
+                      {item}
+                    </th>
+                  ))}
+                </tr>
               </thead>
               <tbody>
                 {isPending ? (
                   <tr className="text-center">
-                    <td colSpan={7} className="py-4 font-medium">
+                    <td colSpan={9} className="py-4 font-medium">
                       Loading...
                     </td>
                   </tr>
                 ) : !survey.cubicle_surveys ||
                   !survey.cubicle_surveys.length ? (
                   <tr className="text-center">
-                    <td colSpan={7} className="py-4 font-medium">
+                    <td colSpan={9} className="py-4 font-medium">
                       Data tiang cubicle tidak tersedia.
                     </td>
                   </tr>
                 ) : (
                   survey.cubicle_surveys.map((data, index) => (
                     <tr key={index} className="text-center">
-                      <td className="border p-2">{data.id}</td>
+                      <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{data.cubicle_type}</td>
                       <td className="border p-2">{data.penyulang}</td>
                       <td className="border p-2">
@@ -265,6 +298,23 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                       </td>
                       <td className="border p-2">{data.keterangan}</td>
                       <td className="border p-2">{data.petugas_survey}</td>
+                      <td className="border p-2">{data.id}</td>
+                      <td className="border p-2">
+                        <div className="flex gap-1 justify-center">
+                          <button
+                            onClick={() => handleUpdateCubicle(data)}
+                            className="text-blue-600 underline text-xs"
+                          >
+                            Update
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCubicle(data.id)}
+                            className="text-red-600 underline text-xs"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -298,29 +348,31 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           >
             <table className="w-full border-collapse border">
               <thead>
-                {surveyAppTmHeaders.map((item, index) => (
-                  <th key={index} className="border p-2">
-                    {item}
-                  </th>
-                ))}
+                <tr>
+                  {surveyAppTmHeaders.map((item, index) => (
+                    <th key={index} className="border p-2">
+                      {item}
+                    </th>
+                  ))}
+                </tr>
               </thead>
               <tbody>
                 {isPending ? (
                   <tr className="text-center">
-                    <td colSpan={7} className="py-4 font-medium">
+                    <td colSpan={6} className="py-4 font-medium">
                       Loading...
                     </td>
                   </tr>
                 ) : !survey.app_tm_surveys || !survey.app_tm_surveys.length ? (
                   <tr className="text-center">
-                    <td colSpan={7} className="py-4 font-medium">
+                    <td colSpan={6} className="py-4 font-medium">
                       Data tiang cubicle tidak tersedia.
                     </td>
                   </tr>
                 ) : (
                   survey.app_tm_surveys.map((data, index) => (
                     <tr key={index} className="text-center">
-                      <td className="border p-2">{data.id}</td>
+                      <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{data.keterangan}</td>
                       <td className="border p-2">{data.penyulang}</td>
                       <td className="border p-2">
@@ -337,6 +389,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                           className="object-cover"
                         />
                       </td>
+                      <td className="border p-2">{data.id}</td>
                     </tr>
                   ))
                 )}
@@ -348,6 +401,11 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
       <CreateSKTMForm sheetId={sktmFormId} surveyId={Number(surveyId)} />
       <CreateSUTMForm sheetId={sutmFormId} surveyId={Number(surveyId)} />
       <CreateCubicleForm sheetId={cubicleFormId} surveyId={Number(surveyId)} />
+      <UpdateCubicleForm
+        sheetId={updateCubicleFormId}
+        surveyId={Number(surveyId)}
+        cubicleData={selectedCubicle}
+      />
     </>
   )
 }
