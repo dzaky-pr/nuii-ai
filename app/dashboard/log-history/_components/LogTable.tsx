@@ -20,15 +20,15 @@ export function LogTable() {
   const [isMounted, setIsMounted] = React.useState<boolean>(false)
   const { listAll, loadingListAll } = useGetLog()
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = React.useState<number>(1)
+  const [limit, setLimit] = React.useState<number>(10)
+
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
 
   if (!isMounted) return null
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = React.useState<number>(1)
-  const [limit, setLimit] = React.useState<number>(10)
 
   // Filter client-side berdasarkan nama material
   const filteredList = searchTerm
