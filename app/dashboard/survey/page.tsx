@@ -14,12 +14,13 @@ import { useGetSurveyHeaderList } from './_hooks/@read/survey-headers'
 import { useDeleteSurveyHeaderMutation } from './_hooks/@create/survey-header'
 
 const tableHeaders = [
-  '#',
+  'No.',
   'Nama Survey',
   'Lokasi',
   'Tipe',
   'Status',
   'ID Pengguna',
+  'Dibuat Pada',
   'Aksi'
 ]
 
@@ -97,13 +98,13 @@ export default function Page() {
                 <tbody>
                   {loadingGetSurveys ? (
                     <tr className="text-center">
-                      <td colSpan={7} className="py-4 font-medium">
+                      <td colSpan={8} className="py-4 font-medium">
                         Loading...
                       </td>
                     </tr>
                   ) : !surveys || !surveys.length ? (
                     <tr className="text-center">
-                      <td colSpan={7} className="py-4 font-medium">
+                      <td colSpan={8} className="py-4 font-medium">
                         Data survey tidak tersedia.
                       </td>
                     </tr>
@@ -128,6 +129,33 @@ export default function Page() {
                             {surveyStatus[data.status_survey]}
                           </td>
                           <td className="border p-2">{data.user_id}</td>
+                          <td className="border p-2">
+                            <div className="flex flex-col">
+                              <span>
+                                {new Date(data.created_at).toLocaleDateString(
+                                  'id-ID',
+                                  {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                  }
+                                )}
+                              </span>
+                              <span className="text-[10px] text-gray-500 font-mono">
+                                {new Date(data.created_at).toLocaleTimeString(
+                                  'id-ID',
+                                  {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: false,
+                                    timeZone: 'Asia/Jakarta'
+                                  }
+                                )}{' '}
+                                WIB
+                              </span>
+                            </div>
+                          </td>
                           <td className="border p-2">
                             <div className="flex gap-2 justify-center">
                               <Link

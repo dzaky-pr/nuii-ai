@@ -11,6 +11,8 @@ export interface ISurveyHeader {
   lokasi: string
   status_survey: TSurveyStatus
   user_id: string
+  created_at: string
+  updated_at: string
   SurveySequance?: ISurveySequence[]
 }
 

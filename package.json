@@ -7,7 +7,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up -d --build",
+    "docker:prod": "docker compose -f docker-compose.prod.yml up -d --build",
+    "docker:down": "docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.prod.yml down",
+    "docker:logs": "docker compose logs -f",
+    "docker:restart": "docker compose -f docker-compose.dev.yml restart",
+    "docker:ps": "docker compose ps",
+    "docker:clean": "docker compose -f docker-compose.dev.yml down -v --rmi local && docker compose -f docker-compose.prod.yml down -v --rmi local"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.22",

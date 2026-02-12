@@ -1,0 +1,50 @@
+services:
+  nuii:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: nuii_frontend_prod
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3000:3000'
+    env_file: .env
+    depends_on:
+      - redis
+      - searxng
+    networks:
+      - nuii_network
+
+  redis:
+    image: redis:alpine
+    container_name: nuii_frontend_redis
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6380:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - nuii_network
+
+  searxng:
+    image: searxng/searxng
+    container_name: nuii_searxng
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${SEARXNG_PORT:-8080}:8080'
+    env_file: .env
+    volumes:
+      - ./searxng-limiter.toml:/etc/searxng/limiter.toml
+      - ./searxng-settings.yml:/etc/searxng/settings.yml
+      - searxng_data:/data
+    networks:
+      - nuii_network
+
+volumes:
+  redis_data:
+  searxng_data:
+
+networks:
+  nuii_network:
+    driver: bridge
