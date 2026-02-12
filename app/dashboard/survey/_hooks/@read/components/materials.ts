@@ -24,11 +24,11 @@ export function useGetMaterials(type: MaterialType, survey: SurveyType) {
     materials: isPending
       ? []
       : data
-      ? data.map(({ id_material, nama_material }) => ({
-          value: id_material.toString(),
-          label: nama_material
-        }))
-      : [],
+        ? data.map(({ id, nama_material }) => ({
+            value: id.toString(),
+            label: nama_material
+          }))
+        : [],
     loadingMaterials: isPending
   }
 }

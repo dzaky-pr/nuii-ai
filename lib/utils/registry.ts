@@ -4,7 +4,7 @@ import { experimental_createProviderRegistry as createProviderRegistry } from 'a
 import { createOllama } from 'ollama-ai-provider'
 
 export const registry = createProviderRegistry({
-  groq,
+  groq: groq as any,
   'nuii-ai': createOllama({
     baseURL: `${process.env.RUNPOD_SERVER_URL}`
   })

@@ -18,6 +18,14 @@ import { id } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 import UploadFile from '@/components/upload-file'
 import { jobOptions } from '@/lib/constants'
@@ -45,6 +53,9 @@ export default function ReportPage() {
     null
   )
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState<boolean>(false)
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [limit, setLimit] = useState<number>(10)
 
   // Hooks lainnya
   const { getToken, userId } = useAuth()
@@ -191,6 +202,28 @@ export default function ReportPage() {
     }
   }
 
+  // Pagination processing
+  const totalItems = surveys ? surveys.length : 0
+  const totalPages = Math.ceil(totalItems / limit)
+  const paginatedList = surveys
+    ? surveys.slice((currentPage - 1) * limit, currentPage * limit)
+    : []
+
+  // Pagination handlers
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages))
+  }
+
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLimit = parseInt(e.target.value)
+    setLimit(newLimit)
+    setCurrentPage(1)
+  }
+
   return (
     <div className="mt-4 py-4 px-10">
       <div className="flex justify-between w-full">
@@ -236,10 +269,7 @@ export default function ReportPage() {
                     render={({ field: { onChange, value } }) => (
                       <SearchableCombobox
                         value={value ?? undefined}
-                        options={jobOptions.map(item => ({
-                          value: item,
-                          label: item
-                        }))}
+                        options={jobOptions}
                         onValueChange={onChange}
                         placeholder="Pilih Nama Pekerjaan"
                       />
@@ -306,44 +336,44 @@ export default function ReportPage() {
       </div>
 
       <div className="mb-4">
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
                 {tableHeader.map((item, index) => (
-                  <th key={index} className="border p-2">
-                    {item}
-                  </th>
+                  <TableHead key={index}>{item}</TableHead>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {loadingGetSurveys ? (
-                <tr className="text-center">
-                  <td colSpan={6} className="py-4 font-medium">
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Loading...
-                  </td>
-                </tr>
-              ) : !surveys ? (
-                <tr className="text-center">
-                  <td colSpan={6} className="py-4 font-medium">
+                  </TableCell>
+                </TableRow>
+              ) : totalItems === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Data survey tidak tersedia.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
-                surveys.map((data, index) => (
-                  <tr key={index} className="text-center">
-                    <td className="border p-2">{index + 1}</td>
-                    <td className="border p-2">{data.nama_survey}</td>
-                    <td className="border p-2">{data.lokasi}</td>
-                    <td className="border p-2">
+                paginatedList.map((data, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      {(currentPage - 1) * limit + index + 1}
+                    </TableCell>
+                    <TableCell>{data.nama_survey}</TableCell>
+                    <TableCell>{data.lokasi}</TableCell>
+                    <TableCell>
                       {format(data.updated_at, 'EEEE, d MMM yyyy HH:mm', {
                         locale: id
                       })}{' '}
                       WIB
-                    </td>
-                    <td className="border p-2">{data.user_id}</td>
-                    <td className="border p-2">
+                    </TableCell>
+                    <TableCell>{data.user_id}</TableCell>
+                    <TableCell>
                       <Button
                         size="sm"
                         variant="outline"
@@ -352,7 +382,7 @@ export default function ReportPage() {
                           handleDownloadReport({
                             id: data.id.toString(),
                             nama_survey: data.nama_survey,
-                            excel_archive: data.excel_archive
+                            excel_archive: data.excel_archive ?? []
                           })
                         }
                       >
@@ -360,12 +390,47 @@ export default function ReportPage() {
                           ? 'Downloading...'
                           : 'Download Report'}
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
+        </div>
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between mt-4">
+          <div>
+            <span>Show </span>
+            <select
+              value={limit}
+              onChange={handleLimitChange}
+              className="border p-1 rounded"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+            <span> entries</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border text-blue-500 hover:text-blue-600 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border text-blue-500 hover:text-blue-600 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

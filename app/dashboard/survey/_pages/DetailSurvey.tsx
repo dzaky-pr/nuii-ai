@@ -16,6 +16,14 @@ import {
   useUpdateCubicleMutation,
   useDeleteCubicleMutation
 } from '../_hooks/@create/cubicle'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 const surveySequenceHeaders = ['No', 'Tipe', 'Urutan', 'ID Ref']
 const surveyCubicleHeaders = [
@@ -174,31 +182,35 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
-            <tbody>
-              <tr>
-                <th className="text-start p-4 border w-96">Nama Survey</th>
-                <td className="text-start p-4 border">{survey.nama_survey}</td>
-              </tr>
-              <tr>
-                <th className="text-start p-4 border w-96">Nama Pekerjaan</th>
-                <td className="text-start p-4 border">
-                  {survey.nama_pekerjaan}
-                </td>
-              </tr>
-              <tr>
-                <th className="text-start p-4 border w-96">Lokasi</th>
-                <td className="text-start p-4 border">{survey.lokasi}</td>
-              </tr>
-              <tr>
-                <th className="text-start p-4 border w-96">Status</th>
-                <td className="text-start p-4 border">
-                  {survey.status_survey.replace('_', ' ')}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="rounded-md border">
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableHead className="w-96 text-start font-bold">
+                  Nama Survey
+                </TableHead>
+                <TableCell>{survey.nama_survey}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-96 text-start font-bold">
+                  Nama Pekerjaan
+                </TableHead>
+                <TableCell>{survey.nama_pekerjaan}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-96 text-start font-bold">
+                  Lokasi
+                </TableHead>
+                <TableCell>{survey.lokasi}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-96 text-start font-bold">
+                  Status
+                </TableHead>
+                <TableCell>{survey.status_survey.replace('_', ' ')}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
 
         <div className="flex flex-col gap-y-4">
@@ -220,52 +232,50 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
           <div
             className={cn(
-              'overflow-x-auto w-full',
+              'w-full rounded-md border',
               hideSurveySequence ? 'hidden' : 'block'
             )}
           >
-            <table className="w-full border-collapse border">
-              <thead>
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {surveySequenceHeaders.map((item, index) => (
-                    <th key={index} className="border p-2">
-                      {item}
-                    </th>
+                    <TableHead key={index}>{item}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {isPending ? (
-                  <tr className="text-center">
-                    <td colSpan={3} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
                       Loading...
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : !survey.SurveySequance || !survey.SurveySequance.length ? (
-                  <tr className="text-center">
-                    <td colSpan={4} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
                       Data urutan tiang tidak tersedia.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   survey.SurveySequance.map((data, index) => (
-                    <tr key={index} className="text-center">
-                      <td className="border p-2">{index + 1}</td>
-                      <td className="border p-2">{data.tipe}</td>
-                      <td className="border p-2">{data.urutan}</td>
-                      <td className="border p-2">
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{data.tipe}</TableCell>
+                      <TableCell>{data.urutan}</TableCell>
+                      <TableCell>
                         <a
                           href={`#${data.tipe.toLowerCase()}-section`}
                           className="text-blue-600 hover:underline font-medium"
                         >
                           {data.survey_detail_id}
                         </a>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
 
@@ -288,43 +298,38 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
           <div
             className={cn(
-              'overflow-x-auto w-full',
+              'w-full rounded-md border',
               hideSktmSection ? 'hidden' : 'block'
             )}
           >
-            <table className="w-full border-collapse border">
-              <thead>
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {surveySktmHeaders.map((item, index) => (
-                    <th key={index} className="border p-2">
-                      {item}
-                    </th>
+                    <TableHead key={index}>{item}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {isPending ? (
-                  <tr className="text-center">
-                    <td colSpan={11} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={11} className="h-24 text-center">
                       Loading...
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : !survey.sktm_surveys || !survey.sktm_surveys.length ? (
-                  <tr className="text-center">
-                    <td colSpan={11} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={11} className="h-24 text-center">
                       Data SKTM tidak tersedia.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   survey.sktm_surveys.flatMap(sktm =>
                     sktm.sktm_details.map((detail, index) => (
-                      <tr
-                        key={`${sktm.id}-${detail.id}`}
-                        className="text-center"
-                      >
-                        <td className="border p-2">{index + 1}</td>
-                        <td className="border p-2">{detail.penyulang}</td>
-                        <td className="border p-2 text-start min-w-[200px]">
+                      <TableRow key={`${sktm.id}-${detail.id}`}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{detail.penyulang}</TableCell>
+                        <TableCell className="text-start min-w-[200px]">
                           {sktm.sktm_components &&
                           sktm.sktm_components.length > 0 ? (
                             <ul className="list-disc pl-4 text-xs">
@@ -338,20 +343,18 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                           ) : (
                             '-'
                           )}
-                        </td>
-                        <td className="border p-2">
-                          {detail.panjang_jaringan}
-                        </td>
-                        <td className="border p-2">{detail.diameter_kabel}</td>
-                        <td className="border p-2">
+                        </TableCell>
+                        <TableCell>{detail.panjang_jaringan}</TableCell>
+                        <TableCell>{detail.diameter_kabel}</TableCell>
+                        <TableCell>
                           Lat: {detail.lat}
                           <br />
                           Long: {detail.long}
-                        </td>
-                        <td className="border p-2">
+                        </TableCell>
+                        <TableCell>
                           {detail.has_arrester ? 'Ya' : 'Tidak'}
-                        </td>
-                        <td className="border p-2 justify-center flex">
+                        </TableCell>
+                        <TableCell className="justify-center flex">
                           {detail.foto && detail.foto !== '-' ? (
                             <Image
                               src={detail.foto}
@@ -365,16 +368,16 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                               No Image
                             </span>
                           )}
-                        </td>
-                        <td className="border p-2">{detail.keterangan}</td>
-                        <td className="border p-2">{detail.petugas_survey}</td>
-                        <td className="border p-2">{detail.id}</td>
-                      </tr>
+                        </TableCell>
+                        <TableCell>{detail.keterangan}</TableCell>
+                        <TableCell>{detail.petugas_survey}</TableCell>
+                        <TableCell>{detail.id}</TableCell>
+                      </TableRow>
                     ))
                   )
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
 
@@ -397,66 +400,59 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
           <div
             className={cn(
-              'overflow-x-auto w-full',
+              'w-full rounded-md border',
               hideSutmSection ? 'hidden' : 'block'
             )}
           >
-            <table className="w-full border-collapse border">
-              <thead>
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {surveySutmHeaders.map((item, index) => (
-                    <th key={index} className="border p-2">
-                      {item}
-                    </th>
+                    <TableHead key={index}>{item}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {isPending ? (
-                  <tr className="text-center">
-                    <td colSpan={13} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={13} className="h-24 text-center">
                       Loading...
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : !survey.sutm_surveys || !survey.sutm_surveys.length ? (
-                  <tr className="text-center">
-                    <td colSpan={13} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={13} className="h-24 text-center">
                       Data SUTM tidak tersedia.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   survey.sutm_surveys.flatMap(sutm =>
                     sutm.sutm_details.map((detail, index) => (
-                      <tr
-                        key={`${sutm.id}-${detail.id}`}
-                        className="text-center"
-                      >
-                        <td className="border p-2">{index + 1}</td>
-                        <td className="border p-2">{detail.penyulang}</td>
-                        <td className="border p-2">
+                      <TableRow key={`${sutm.id}-${detail.id}`}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{detail.penyulang}</TableCell>
+                        <TableCell>
                           {sutm.material_konduktor?.nama_material ?? '-'}
-                        </td>
-                        <td className="border p-2">
+                        </TableCell>
+                        <TableCell>
                           {detail.material_tiang?.nama_material ?? '-'}
-                        </td>
-                        <td className="border p-2">
+                        </TableCell>
+                        <TableCell>
                           {detail.konstruksi?.nama_konstruksi ?? '-'}
-                        </td>
-                        <td className="border p-2">
+                        </TableCell>
+                        <TableCell>
                           {detail.pole_supporter?.nama_pole ?? '-'}
-                        </td>
-                        <td className="border p-2">
+                        </TableCell>
+                        <TableCell>
                           {detail.grounding_termination?.nama_grounding ?? '-'}
-                        </td>
-                        <td className="border p-2">
-                          {detail.panjang_jaringan}
-                        </td>
-                        <td className="border p-2">
+                        </TableCell>
+                        <TableCell>{detail.panjang_jaringan}</TableCell>
+                        <TableCell>
                           Lat: {detail.lat}
                           <br />
                           Long: {detail.long}
-                        </td>
-                        <td className="border p-2 justify-center flex">
+                        </TableCell>
+                        <TableCell className="justify-center flex">
                           {detail.foto && detail.foto !== '-' ? (
                             <Image
                               src={detail.foto}
@@ -470,16 +466,16 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                               No Image
                             </span>
                           )}
-                        </td>
-                        <td className="border p-2">{detail.keterangan}</td>
-                        <td className="border p-2">{detail.petugas_survey}</td>
-                        <td className="border p-2">{detail.id}</td>
-                      </tr>
+                        </TableCell>
+                        <TableCell>{detail.keterangan}</TableCell>
+                        <TableCell>{detail.petugas_survey}</TableCell>
+                        <TableCell>{detail.id}</TableCell>
+                      </TableRow>
                     ))
                   )
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
 
@@ -502,49 +498,47 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
           <div
             className={cn(
-              'overflow-x-auto w-full',
+              'w-full rounded-md border',
               hideCubiclePole ? 'hidden' : 'block'
             )}
           >
-            <table className="w-full border-collapse border">
-              <thead>
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {surveyCubicleHeaders.map((item, index) => (
-                    <th key={index} className="border p-2">
-                      {item}
-                    </th>
+                    <TableHead key={index}>{item}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {isPending ? (
-                  <tr className="text-center">
-                    <td colSpan={10} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={10} className="h-24 text-center">
                       Loading...
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : !survey.cubicle_surveys ||
                   !survey.cubicle_surveys.length ? (
-                  <tr className="text-center">
-                    <td colSpan={10} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={10} className="h-24 text-center">
                       Data tiang cubicle tidak tersedia.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   survey.cubicle_surveys.map((data, index) => (
-                    <tr key={index} className="text-center">
-                      <td className="border p-2">{index + 1}</td>
-                      <td className="border p-2">{data.cubicle_type}</td>
-                      <td className="border p-2">
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{data.cubicle_type}</TableCell>
+                      <TableCell>
                         {data.has_grounding ? 'Ya' : 'Tidak'}
-                      </td>
-                      <td className="border p-2">{data.penyulang}</td>
-                      <td className="border p-2">
+                      </TableCell>
+                      <TableCell>{data.penyulang}</TableCell>
+                      <TableCell>
                         Latitude: {data.lat}
                         <br />
                         Longitude: {data.long}
-                      </td>
-                      <td className="border p-2 justify-center flex">
+                      </TableCell>
+                      <TableCell className="justify-center flex">
                         {data.foto && data.foto !== '-' ? (
                           <Image
                             src={data.foto}
@@ -558,11 +552,11 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                             No Image
                           </span>
                         )}
-                      </td>
-                      <td className="border p-2">{data.keterangan}</td>
-                      <td className="border p-2">{data.petugas_survey}</td>
-                      <td className="border p-2">{data.id}</td>
-                      <td className="border p-2">
+                      </TableCell>
+                      <TableCell>{data.keterangan}</TableCell>
+                      <TableCell>{data.petugas_survey}</TableCell>
+                      <TableCell>{data.id}</TableCell>
+                      <TableCell>
                         <div className="flex gap-1 justify-center">
                           <button
                             onClick={() => handleUpdateCubicle(data)}
@@ -577,12 +571,12 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                             Hapus
                           </button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
 
@@ -605,40 +599,38 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
           <div
             className={cn(
-              'overflow-x-auto w-full',
+              'w-full rounded-md border',
               hideAppTm ? 'hidden' : 'block'
             )}
           >
-            <table className="w-full border-collapse border">
-              <thead>
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {surveyAppTmHeaders.map((item, index) => (
-                    <th key={index} className="border p-2">
-                      {item}
-                    </th>
+                    <TableHead key={index}>{item}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {isPending ? (
-                  <tr className="text-center">
-                    <td colSpan={7} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
                       Loading...
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : !survey.app_tm_surveys || !survey.app_tm_surveys.length ? (
-                  <tr className="text-center">
-                    <td colSpan={7} className="py-4 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
                       Data APP TM tidak tersedia.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   survey.app_tm_surveys.map((data, index) => (
-                    <tr key={index} className="text-center">
-                      <td className="border p-2">{index + 1}</td>
-                      <td className="border p-2">{data.keterangan}</td>
-                      <td className="border p-2">{data.penyulang}</td>
-                      <td className="border p-2 text-start">
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{data.keterangan}</TableCell>
+                      <TableCell>{data.penyulang}</TableCell>
+                      <TableCell className="text-start">
                         {data.AppTmComponent &&
                         data.AppTmComponent.length > 0 ? (
                           <ul className="list-disc pl-4 text-xs">
@@ -652,13 +644,13 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                         ) : (
                           '-'
                         )}
-                      </td>
-                      <td className="border p-2">
+                      </TableCell>
+                      <TableCell>
                         Latitude: {data.lat}
                         <br />
                         Longitude: {data.long}
-                      </td>
-                      <td className="border p-2 justify-center flex">
+                      </TableCell>
+                      <TableCell className="justify-center flex">
                         {data.foto && data.foto !== '-' ? (
                           <Image
                             src={data.foto}
@@ -672,13 +664,13 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                             No Image
                           </span>
                         )}
-                      </td>
-                      <td className="border p-2">{data.id}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell>{data.id}</TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

@@ -17,6 +17,14 @@ import {
   surveyHeaderTableHeader
 } from '../_data/tableHeader'
 import { useGetSurveyReportDetail } from '../_hooks/useGetSurveyReportDetail'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 export default function DetailReportPage({ reportId }: { reportId: string }) {
   const [isMounted, setIsMounted] = useState<boolean>(false)
@@ -124,19 +132,17 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
             </Button>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
                 {surveyHeaderTableHeader.map((item, index) => (
-                  <th key={index} className="border p-2">
-                    {item}
-                  </th>
+                  <TableHead key={index}>{item}</TableHead>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="text-center">
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
                 {surveyHeaderTableHeader.map((header, index) => {
                   const surveyHeaderMap: Record<string, string | number> = {
                     ID: report.data_survey.id,
@@ -146,55 +152,41 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                     'Status Survey': report.data_survey.status_survey,
                     'ID Material Konduktor':
                       report.data_survey.id_material_konduktor
-                    // 'ID User': report.data_survey.user_id
-                    // 'Dibuat Pada': `${format(
-                    //   report.data_survey.created_at,
-                    //   'EEEE, d MMM yyyy HH:mm',
-                    //   { locale: id }
-                    // )} WIB`,
-                    // 'Diperbarui Pada': `${format(
-                    //   report.data_survey.updated_at,
-                    //   'EEEE, d MMM yyyy HH:mm',
-                    //   { locale: id }
-                    // )} WIB`
                   }
 
                   return (
-                    <td key={index} className="border p-2">
+                    <TableCell key={index}>
                       {surveyHeaderMap[header] || ''}
-                    </td>
+                    </TableCell>
                   )
                 })}
-              </tr>
-            </tbody>
-          </table>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
         <div className="flex flex-col gap-4">
           <h4 className="font-medium">Detail Survey</h4>
           {!report.data_survey.survey_details ? (
             <p className="text-sm">Detail survey tidak tersedia.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {surveyDetailTableHeader.map((item, index) => (
-                      <th key={index} className="border p-2">
-                        {item}
-                      </th>
+                      <TableHead key={index}>{item}</TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {report.data_survey.survey_details.map((item, index) => (
-                    <tr key={index} className="text-center">
+                    <TableRow key={index}>
                       {surveyDetailTableHeader.map((header, idx) => {
                         const surveyDetailMap: Record<string, React.ReactNode> =
                           {
                             ID: item.id,
                             'ID Material Tiang': item.id_material_tiang,
                             'ID Konstruksi': item.id_konstruksi,
-                            // 'ID Header': item.id_header,
                             'ID Pole Suporter': item.id_pole_supporter ?? '-',
                             'ID Grounding Termination':
                               item.id_grounding_termination ?? '-',
@@ -222,28 +214,18 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                 ? '-'
                                 : item.keterangan,
                             'Nama Petugas': item.petugas_survey
-                            // 'Dibuat Pada': `${format(
-                            //   item.created_at,
-                            //   'EEEE, d MMM yyyy HH:mm',
-                            //   { locale: id }
-                            // )} WIB`,
-                            // 'Diperbarui Pada': `${format(
-                            //   item.updated_at,
-                            //   'EEEE, d MMM yyyy HH:mm',
-                            //   { locale: id }
-                            // )} WIB`
                           }
 
                         return (
-                          <td key={idx} className="border p-2">
+                          <TableCell key={idx}>
                             {surveyDetailMap[header]}
-                          </td>
+                          </TableCell>
                         )
                       })}
-                    </tr>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>
@@ -255,19 +237,17 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
             report.detail_poles.map((item, index) => (
               <div key={index} className="flex flex-col gap-4">
                 <p>ID Pole: {item.idPole}</p>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border-collapse border border-gray-300">
-                    <thead>
-                      <tr>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
                         {poleTableHeader.map((item, index) => (
-                          <th key={index} className="border p-2">
-                            {item}
-                          </th>
+                          <TableHead key={index}>{item}</TableHead>
                         ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="text-center">
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
                         {poleTableHeader.map((header, idx) => {
                           const poleMap: Record<string, string | number> = {
                             ID: item.data_pole.id,
@@ -275,27 +255,15 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                               item.data_pole.nama_pole_supporter ?? '',
                             'Nama Grounding':
                               item.data_pole.nama_grounding_termination ?? ''
-                            // 'Dibuat Pada': `${format(
-                            //   item.data_pole.created_at,
-                            //   'EEEE, d MMM yyyy HH:mm',
-                            //   { locale: id }
-                            // )} WIB`,
-                            // 'Diperbarui Pada': `${format(
-                            //   item.data_pole.updated_at,
-                            //   'EEEE, d MMM yyyy HH:mm',
-                            //   { locale: id }
-                            // )} WIB`
                           }
 
                           return (
-                            <td key={idx} className="border p-2">
-                              {poleMap[header]}
-                            </td>
+                            <TableCell key={idx}>{poleMap[header]}</TableCell>
                           )
                         })}
-                      </tr>
-                    </tbody>
-                  </table>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </div>
                 <p>Pole Materials</p>
                 {item.materials.length < 2 ? (
@@ -303,20 +271,18 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                     Detail material pole tidak tersedia.
                   </p>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full border-collapse border border-gray-300">
-                      <thead>
-                        <tr>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
                           {materialTableHeader.map((item, index) => (
-                            <th key={index} className="border p-2">
-                              {item}
-                            </th>
+                            <TableHead key={index}>{item}</TableHead>
                           ))}
-                        </tr>
-                      </thead>
-                      <tbody>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                         {item.materials.map((material, materialIdx) => (
-                          <tr key={materialIdx} className="text-center">
+                          <TableRow key={materialIdx}>
                             {materialTableHeader.map((header, idx) => {
                               const materialMap: Record<
                                 string,
@@ -341,16 +307,6 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                   material.data_material.jenis_material,
                                 'Kategori Material':
                                   material.data_material.kategori_material,
-                                // 'Dibuat Pada': `${format(
-                                //   material.data_material.created_at,
-                                //   'EEEE, d MMM yyyy HH:mm',
-                                //   { locale: id }
-                                // )} WIB`,
-                                // 'Diperbarui Pada': `${format(
-                                //   material.data_material.updated_at,
-                                //   'EEEE, d MMM yyyy HH:mm',
-                                //   { locale: id }
-                                // )} WIB`,
                                 'Tipe Pekerjaan': material.tipe_pekerjaan,
                                 Kuantitas: material.kuantitas,
                                 'Total Kuantitas': material.total_kuantitas,
@@ -362,15 +318,15 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                               }
 
                               return (
-                                <td key={idx} className="border p-2">
+                                <TableCell key={idx}>
                                   {materialMap[header]}
-                                </td>
+                                </TableCell>
                               )
                             })}
-                          </tr>
+                          </TableRow>
                         ))}
-                      </tbody>
-                    </table>
+                      </TableBody>
+                    </Table>
                   </div>
                 )}
               </div>
@@ -382,20 +338,18 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
           {!report.detail_tiang ? (
             <p className="text-sm">Detail tiang tidak tersedia.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {materialTableHeaderLite.map((item, index) => (
-                      <th key={index} className="border p-2">
-                        {item}
-                      </th>
+                      <TableHead key={index}>{item}</TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {report.detail_tiang.map((item, index) => (
-                    <tr key={index} className="text-center">
+                    <TableRow key={index}>
                       {materialTableHeaderLite.map((header, idx) => {
                         const materialMap: Record<string, string | number> = {
                           ID: item.data_tiang?.id ?? 0,
@@ -416,16 +370,6 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             item.data_tiang?.jenis_material ?? '',
                           'Kategori Material':
                             item.data_tiang?.kategori_material ?? '',
-                          // 'Dibuat Pada': `${format(
-                          //   item.data_tiang?.created_at ?? '',
-                          //   'EEEE, d MMM yyyy HH:mm',
-                          //   { locale: id }
-                          // )} WIB`,
-                          // 'Diperbarui Pada': `${format(
-                          //   item.data_tiang?.updated_at ?? '',
-                          //   'EEEE, d MMM yyyy HH:mm',
-                          //   { locale: id }
-                          // )} WIB`,
                           'Total Kuantitas': item.total_kuantitas,
                           'Total Berat': item.total_berat,
                           'Total Harga Material': item.total_harga_material,
@@ -434,15 +378,13 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                         }
 
                         return (
-                          <td key={idx} className="border p-2">
-                            {materialMap[header]}
-                          </td>
+                          <TableCell key={idx}>{materialMap[header]}</TableCell>
                         )
                       })}
-                    </tr>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>
@@ -454,19 +396,17 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
             report.detail_konstruksi.map((item, index) => (
               <div key={index} className="flex flex-col gap-4">
                 <p>ID Konstruksi: {item.idKonstruksi}</p>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border-collapse border border-gray-300">
-                    <thead>
-                      <tr>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
                         {constructionTableHeader.map((item, index) => (
-                          <th key={index} className="border p-2">
-                            {item}
-                          </th>
+                          <TableHead key={index}>{item}</TableHead>
                         ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="text-center">
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
                         {constructionTableHeader.map((header, idx) => {
                           const constructionMap: Record<
                             string,
@@ -477,27 +417,17 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                               item.data_konstruksi.nama_konstruksi,
                             'Nomor Konstruksi':
                               item.data_konstruksi.nomor_konstruksi
-                            // 'Dibuat Pada': `${format(
-                            //   item.data_konstruksi.created_at,
-                            //   'EEEE, d MMM yyyy HH:mm',
-                            //   { locale: id }
-                            // )} WIB`,
-                            // 'Diperbarui Pada': `${format(
-                            //   item.data_konstruksi.updated_at,
-                            //   'EEEE, d MMM yyyy HH:mm',
-                            //   { locale: id }
-                            // )} WIB`
                           }
 
                           return (
-                            <td key={idx} className="border p-2">
+                            <TableCell key={idx}>
                               {constructionMap[header]}
-                            </td>
+                            </TableCell>
                           )
                         })}
-                      </tr>
-                    </tbody>
-                  </table>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </div>
                 <p>Material Konstruksi</p>
                 {item.materials.length < 2 ? (
@@ -505,20 +435,18 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                     Detail material konstruksi tidak tersedia.
                   </p>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full border-collapse border border-gray-300">
-                      <thead>
-                        <tr>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
                           {materialTableHeader.map((item, index) => (
-                            <th key={index} className="border p-2">
-                              {item}
-                            </th>
+                            <TableHead key={index}>{item}</TableHead>
                           ))}
-                        </tr>
-                      </thead>
-                      <tbody>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                         {item.materials.map((material, materialIdx) => (
-                          <tr key={materialIdx} className="text-center">
+                          <TableRow key={materialIdx}>
                             {materialTableHeader.map((header, idx) => {
                               const materialMap: Record<
                                 string,
@@ -543,16 +471,6 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                                   material.data_material.jenis_material,
                                 'Kategori Material':
                                   material.data_material.kategori_material,
-                                // 'Dibuat Pada': `${format(
-                                //   material.data_material.created_at,
-                                //   'EEEE, d MMM yyyy HH:mm',
-                                //   { locale: id }
-                                // )} WIB`,
-                                // 'Diperbarui Pada': `${format(
-                                //   material.data_material.updated_at,
-                                //   'EEEE, d MMM yyyy HH:mm',
-                                //   { locale: id }
-                                // )} WIB`,
                                 'Tipe Pekerjaan': material.tipe_pekerjaan,
                                 Kuantitas: material.kuantitas,
                                 'Total Kuantitas': material.total_kuantitas,
@@ -564,15 +482,15 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                               }
 
                               return (
-                                <td key={idx} className="border p-2">
+                                <TableCell key={idx}>
                                   {materialMap[header]}
-                                </td>
+                                </TableCell>
                               )
                             })}
-                          </tr>
+                          </TableRow>
                         ))}
-                      </tbody>
-                    </table>
+                      </TableBody>
+                    </Table>
                   </div>
                 )}
               </div>
@@ -584,20 +502,18 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
           {!report.detail_konduktor ? (
             <p className="text-sm">Detail konduktor tidak tersedia.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {materialTableHeaderLite.map((item, index) => (
-                      <th key={index} className="border p-2">
-                        {item}
-                      </th>
+                      <TableHead key={index}>{item}</TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {report.detail_konduktor.map((item, index) => (
-                    <tr key={index} className="text-center">
+                    <TableRow key={index}>
                       {materialTableHeaderLite.map((header, idx) => {
                         const materialMap: Record<string, string | number> = {
                           ID: item.data_konduktor?.id ?? 0,
@@ -619,16 +535,6 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                             item.data_konduktor?.jenis_material ?? '',
                           'Kategori Material':
                             item.data_konduktor?.kategori_material ?? '',
-                          // 'Dibuat Pada': `${format(
-                          //   item.data_konduktor?.created_at ?? '',
-                          //   'EEEE, d MMM yyyy HH:mm',
-                          //   { locale: id }
-                          // )} WIB`,
-                          // 'Diperbarui Pada': `${format(
-                          //   item.data_konduktor?.updated_at ?? '',
-                          //   'EEEE, d MMM yyyy HH:mm',
-                          //   { locale: id }
-                          // )} WIB`,
                           'Total Kuantitas': item.total_kuantitas,
                           'Total Berat': item.total_berat,
                           'Total Harga Material': item.total_harga_material,
@@ -637,15 +543,13 @@ export default function DetailReportPage({ reportId }: { reportId: string }) {
                         }
 
                         return (
-                          <td key={idx} className="border p-2">
-                            {materialMap[header]}
-                          </td>
+                          <TableCell key={idx}>{materialMap[header]}</TableCell>
                         )
                       })}
-                    </tr>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </div>

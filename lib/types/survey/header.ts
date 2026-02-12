@@ -15,6 +15,7 @@ export interface ISurveyHeader {
   created_at: string
   updated_at: string
   SurveySequance?: ISurveySequence[]
+  excel_archive?: { file_path: string; file_name: string }[]
 }
 
 export interface ICreateSurveyHeader {

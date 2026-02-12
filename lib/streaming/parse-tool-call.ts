@@ -54,7 +54,7 @@ export function parseToolCallXml<T>(
       max_results: rawParameters.max_results
         ? parseInt(rawParameters.max_results, 10)
         : undefined
-    })
+    }) as T
 
     return { tool, parameters }
   } catch (error) {

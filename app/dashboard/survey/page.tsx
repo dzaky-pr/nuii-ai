@@ -12,6 +12,14 @@ import { CreateSurveyHeaderForm } from './_components/header/CreateSurveyHeaderF
 import { UpdateSurveyHeaderForm } from './_components/header/UpdateSurveyHeaderForm'
 import { useGetSurveyHeaderList } from './_hooks/@read/survey-headers'
 import { useDeleteSurveyHeaderMutation } from './_hooks/@create/survey-header'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 const tableHeaders = [
   'No.',
@@ -28,6 +36,9 @@ export default function Page() {
   const [selectedSurvey, setSelectedSurvey] = useState<ISurveyHeader | null>(
     null
   )
+  // Pagination state moved up to avoid conditional hook call error
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [limit, setLimit] = useState<number>(10)
 
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyHeaderList()
@@ -53,6 +64,28 @@ export default function Page() {
 
   if (!isMounted) {
     return null
+  }
+
+  // Pagination processing
+  const totalItems = surveys ? surveys.length : 0
+  const totalPages = Math.ceil(totalItems / limit)
+  const paginatedList = surveys
+    ? surveys.slice((currentPage - 1) * limit, currentPage * limit)
+    : []
+
+  // Pagination handlers
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages))
+  }
+
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLimit = parseInt(e.target.value)
+    setLimit(newLimit)
+    setCurrentPage(1)
   }
 
   return (
@@ -83,42 +116,42 @@ export default function Page() {
             </div>
           </div>
           <div className="mb-4">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border">
-                <thead>
-                  <tr>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {tableHeaders.map((item, index) => (
-                      <th key={index} className="border p-2">
-                        {item}
-                      </th>
+                      <TableHead key={index}>{item}</TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {loadingGetSurveys ? (
-                    <tr className="text-center">
-                      <td colSpan={7} className="py-4 font-medium">
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center">
                         Loading...
-                      </td>
-                    </tr>
-                  ) : !surveys || !surveys.length ? (
-                    <tr className="text-center">
-                      <td colSpan={7} className="py-4 font-medium">
+                      </TableCell>
+                    </TableRow>
+                  ) : totalItems === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center">
                         Data survey tidak tersedia.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
-                    surveys?.map((data, index) => {
+                    paginatedList.map((data, index) => {
                       return (
-                        <tr key={index} className="text-center">
-                          <td className="border p-2">{index + 1}</td>
-                          <td className="border p-2">{data.nama_survey}</td>
-                          <td className="border p-2">{data.lokasi}</td>
-                          <td className="border p-2 ">
+                        <TableRow key={index}>
+                          <TableCell>
+                            {(currentPage - 1) * limit + index + 1}
+                          </TableCell>
+                          <TableCell>{data.nama_survey}</TableCell>
+                          <TableCell>{data.lokasi}</TableCell>
+                          <TableCell>
                             {surveyStatus[data.status_survey]}
-                          </td>
-                          <td className="border p-2">{data.user_id}</td>
-                          <td className="border p-2">
+                          </TableCell>
+                          <TableCell>{data.user_id}</TableCell>
+                          <TableCell>
                             <div className="flex flex-col">
                               <span>
                                 {new Date(data.created_at).toLocaleDateString(
@@ -144,8 +177,8 @@ export default function Page() {
                                 WIB
                               </span>
                             </div>
-                          </td>
-                          <td className="border p-2">
+                          </TableCell>
+                          <TableCell>
                             <div className="flex gap-2 justify-center">
                               <Link href={`/dashboard/survey/${data.id}`}>
                                 <button className="text-blue-600 underline text-sm">
@@ -165,13 +198,49 @@ export default function Page() {
                                 Hapus
                               </button>
                             </div>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       )
                     })
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-4">
+              <div>
+                <span>Show </span>
+                <select
+                  value={limit}
+                  onChange={handleLimitChange}
+                  className="border p-1 rounded"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                <span> entries</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border text-blue-500 hover:text-blue-600 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border text-blue-500 hover:text-blue-600 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         </div>

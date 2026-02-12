@@ -4,6 +4,15 @@ import { formatISOtoGMT7 } from '@/lib/utils/formatIso'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
 import { useGetLog } from '../_hooks/@read/useGetLog'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 export function LogTable() {
   const searchParams = useSearchParams()
@@ -17,6 +26,10 @@ export function LogTable() {
 
   if (!isMounted) return null
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = React.useState<number>(1)
+  const [limit, setLimit] = React.useState<number>(10)
+
   // Filter client-side berdasarkan nama material
   const filteredList = searchTerm
     ? listAll?.filter(material =>
@@ -29,73 +42,135 @@ export function LogTable() {
     ? filteredList.slice().reverse()
     : filteredList
 
+  // Pagination processing
+  const totalItems = sortedList ? sortedList.length : 0
+  const totalPages = Math.ceil(totalItems / limit)
+  const paginatedList = sortedList
+    ? sortedList.slice((currentPage - 1) * limit, currentPage * limit)
+    : []
+
+  // Pagination handlers
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages))
+  }
+
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLimit = parseInt(e.target.value)
+    setLimit(newLimit)
+    setCurrentPage(1)
+  }
+
   return (
-    <div className="overflow-x-auto mt-6">
-      <table className="min-w-full border-collapse border">
-        <thead>
-          <tr>
-            <th className="border p-2">Waktu</th>
-            <th className="border p-2">Tipe Log</th>
-            <th className="border p-2">ID Material</th>
-            <th className="border p-2">ID Tipe Material</th>
-            <th className="border p-2">Nama Material</th>
-            <th className="border p-2">Satuan Material</th>
-            <th className="border p-2">Berat Material</th>
-            <th className="border p-2">Harga Material</th>
-            <th className="border p-2">Pasang RAB</th>
-            <th className="border p-2">Bongkar</th>
-            <th className="border p-2">Jenis Material</th>
-            <th className="border p-2">Kategori Material</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loadingListAll ? (
-            <tr className="text-center">
-              <td colSpan={16} className="py-4 font-medium">
-                Loading...
-              </td>
-            </tr>
-          ) : sortedList?.length === 0 ? (
-            <tr className="text-center">
-              <td colSpan={16} className="py-4 font-medium">
-                Data tidak tersedia.
-              </td>
-            </tr>
-          ) : (
-            sortedList?.map(material => (
-              <tr key={material.id} className="text-center border-t">
-                <td className="border p-2">
-                  {' '}
-                  {material.updated_at
-                    ? formatISOtoGMT7(material.updated_at)
-                    : '-'}
-                </td>
-                <td
-                  className={`border p-2 font-bold ${
-                    material.tipe_log === 'Create'
-                      ? 'text-green-500'
-                      : material.tipe_log === 'Delete'
-                      ? 'text-red-500'
-                      : 'text-blue-500'
-                  }`}
-                >
-                  <pre>{material.tipe_log}</pre>
-                </td>
-                <td className="border p-2">{material.id_material}</td>
-                <td className="border p-2">{material.id_tipe_material}</td>
-                <td className="border p-2">{material.nama_material}</td>
-                <td className="border p-2">{material.satuan_material}</td>
-                <td className="border p-2">{material.berat_material}</td>
-                <td className="border p-2">{material.harga_material}</td>
-                <td className="border p-2">{material.pasang_rab}</td>
-                <td className="border p-2">{material.bongkar}</td>
-                <td className="border p-2">{material.jenis_material}</td>
-                <td className="border p-2">{material.kategori_material}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+    <div className="mt-6">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Waktu</TableHead>
+              <TableHead>Tipe Log</TableHead>
+              <TableHead>ID Material</TableHead>
+              <TableHead>ID Tipe Material</TableHead>
+              <TableHead>Nama Material</TableHead>
+              <TableHead>Satuan Material</TableHead>
+              <TableHead>Berat Material</TableHead>
+              <TableHead>Harga Material</TableHead>
+              <TableHead>Pasang RAB</TableHead>
+              <TableHead>Bongkar</TableHead>
+              <TableHead>Jenis Material</TableHead>
+              <TableHead>Kategori Material</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loadingListAll ? (
+              <TableRow>
+                <TableCell colSpan={12} className="h-24 text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : totalItems === 0 ? (
+              <TableRow>
+                <TableCell colSpan={12} className="h-24 text-center">
+                  Data tidak tersedia.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedList.map(material => (
+                <TableRow key={material.id}>
+                  <TableCell>
+                    {material.updated_at
+                      ? formatISOtoGMT7(material.updated_at)
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={cn(
+                        'font-bold',
+                        material.tipe_log === 'Create'
+                          ? 'text-green-500'
+                          : material.tipe_log === 'Delete'
+                            ? 'text-red-500'
+                            : 'text-blue-500'
+                      )}
+                    >
+                      <pre className="font-sans">{material.tipe_log}</pre>
+                    </span>
+                  </TableCell>
+                  <TableCell>{material.id_material}</TableCell>
+                  <TableCell>{material.id_tipe_material}</TableCell>
+                  <TableCell>{material.nama_material}</TableCell>
+                  <TableCell>{material.satuan_material}</TableCell>
+                  <TableCell>{material.berat_material}</TableCell>
+                  <TableCell>{material.harga_material}</TableCell>
+                  <TableCell>{material.pasang_rab}</TableCell>
+                  <TableCell>{material.bongkar}</TableCell>
+                  <TableCell>{material.jenis_material}</TableCell>
+                  <TableCell>{material.kategori_material}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between mt-4">
+        <div>
+          <span>Show </span>
+          <select
+            value={limit}
+            onChange={handleLimitChange}
+            className="border p-1 rounded"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+          <span> entries</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border text-blue-500 hover:text-blue-600 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border text-blue-500 hover:text-blue-600 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

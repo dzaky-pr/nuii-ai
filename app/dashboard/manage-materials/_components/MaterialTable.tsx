@@ -1,15 +1,24 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import useOverlayStore from '@/lib/hooks/useOverlayStore'
-import { formatISOtoGMT7 } from '@/lib/utils/formatIso'
-import { useSearchParams } from 'next/navigation'
 import React from 'react'
+import { useSearchParams } from 'next/navigation'
+import { formatISOtoGMT7 } from '@/lib/utils/formatIso'
+import { useGetAllList } from '../_hooks/@read/useGetAllMaterials'
+import { useDeleteMaterialMutation } from '../_hooks/@delete/useDeleteMutation'
+import useOverlayStore from '@/lib/hooks/useOverlayStore'
+
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+
 import DeleteMaterialModal from '../_components/DeleteMaterialModal'
 import EditMaterialForm from '../_components/EditMaterialForm'
-
-import { useDeleteMaterialMutation } from '../_hooks/@delete/useDeleteMutation'
-import { useGetAllList } from '../_hooks/@read/useGetAllMaterials'
 
 export function MaterialTable() {
   const searchParams = useSearchParams()
@@ -90,85 +99,88 @@ export function MaterialTable() {
   }
 
   return (
-    <div className="overflow-x-auto mt-6">
-      <table className="min-w-full border-collapse border">
-        <thead>
-          <tr>
-            <th className="border p-2">No.</th>
-            <th className="border p-2">ID Tipe Material</th>
-            <th className="border p-2">Nomor Material</th>
-            <th className="border p-2">Nama Material</th>
-            <th className="border p-2">Satuan Material</th>
-            <th className="border p-2">Berat Material</th>
-            <th className="border p-2">Harga Material</th>
-            <th className="border p-2">Pasang RAB</th>
-            <th className="border p-2">Bongkar</th>
-            <th className="border p-2">Jenis Material</th>
-            <th className="border p-2">Kategori Material</th>
-            <th className="border p-2">Created At</th>
-            <th className="border p-2">Updated At</th>
-            <th className="border p-2">Deleted At</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loadingListAll ? (
-            <tr className="text-center">
-              <td colSpan={16} className="py-4 font-medium">
-                Loading...
-              </td>
-            </tr>
-          ) : totalItems === 0 ? (
-            <tr className="text-center">
-              <td colSpan={16} className="py-4 font-medium">
-                Data tidak tersedia.
-              </td>
-            </tr>
-          ) : (
-            paginatedList.map((material, index) => (
-              <tr key={material.id} className="text-center border-t">
-                <td className="border p-2">
-                  {(currentPage - 1) * limit + index + 1}
-                </td>
-                <td className="border p-2">{material.id_tipe_material}</td>
-                <td className="border p-2">{material.nomor_material}</td>
-                <td className="border p-2">{material.nama_material}</td>
-                <td className="border p-2">{material.satuan_material}</td>
-                <td className="border p-2">{material.berat_material}</td>
-                <td className="border p-2">{material.harga_material}</td>
-                <td className="border p-2">{material.pasang_rab}</td>
-                <td className="border p-2">{material.bongkar}</td>
-                <td className="border p-2">{material.jenis_material}</td>
-                <td className="border p-2">{material.kategori_material}</td>
-                <td className="border p-2">
-                  {material.created_at
-                    ? formatISOtoGMT7(material.created_at)
-                    : '-'}
-                </td>
-                <td className="border p-2">
-                  {material.updated_at
-                    ? formatISOtoGMT7(material.updated_at)
-                    : '-'}
-                </td>
-                <td className="border p-2">
-                  {material.deleted_at
-                    ? formatISOtoGMT7(material.deleted_at)
-                    : '-'}
-                </td>
-                <td className="border p-2 flex justify-center items-center space-x-3">
-                  <EditMaterialForm material={material} />
-                  <Button
-                    className="bg-red-500 hover:bg-red-600 hover:underline"
-                    onClick={() => handleDeleteClick(material.id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+    <div className="mt-6">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>No.</TableHead>
+              <TableHead>ID Tipe Material</TableHead>
+              <TableHead>Nomor Material</TableHead>
+              <TableHead>Nama Material</TableHead>
+              <TableHead>Satuan Material</TableHead>
+              <TableHead>Berat Material</TableHead>
+              <TableHead>Harga Material</TableHead>
+              <TableHead>Pasang RAB</TableHead>
+              <TableHead>Bongkar</TableHead>
+              <TableHead>Jenis Material</TableHead>
+              <TableHead>Kategori Material</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Updated At</TableHead>
+              <TableHead>Deleted At</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loadingListAll ? (
+              <TableRow>
+                <TableCell colSpan={15} className="h-24 text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : totalItems === 0 ? (
+              <TableRow>
+                <TableCell colSpan={15} className="h-24 text-center">
+                  Data tidak tersedia.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedList.map((material, index) => (
+                <TableRow key={material.id}>
+                  <TableCell>{(currentPage - 1) * limit + index + 1}</TableCell>
+                  <TableCell>{material.id_tipe_material}</TableCell>
+                  <TableCell>{material.nomor_material}</TableCell>
+                  <TableCell>{material.nama_material}</TableCell>
+                  <TableCell>{material.satuan_material}</TableCell>
+                  <TableCell>{material.berat_material}</TableCell>
+                  <TableCell>{material.harga_material}</TableCell>
+                  <TableCell>{material.pasang_rab}</TableCell>
+                  <TableCell>{material.bongkar}</TableCell>
+                  <TableCell>{material.jenis_material}</TableCell>
+                  <TableCell>{material.kategori_material}</TableCell>
+                  <TableCell>
+                    {material.created_at
+                      ? formatISOtoGMT7(material.created_at)
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
+                    {material.updated_at
+                      ? formatISOtoGMT7(material.updated_at)
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
+                    {material.deleted_at
+                      ? formatISOtoGMT7(material.deleted_at)
+                      : '-'}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-center items-center space-x-3">
+                      <EditMaterialForm material={material} />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteClick(material.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-between mt-4">
