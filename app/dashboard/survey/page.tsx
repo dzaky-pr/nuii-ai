@@ -17,7 +17,6 @@ const tableHeaders = [
   'No.',
   'Nama Survey',
   'Lokasi',
-  'Tipe',
   'Status',
   'ID Pengguna',
   'Dibuat Pada',
@@ -98,33 +97,23 @@ export default function Page() {
                 <tbody>
                   {loadingGetSurveys ? (
                     <tr className="text-center">
-                      <td colSpan={8} className="py-4 font-medium">
+                      <td colSpan={7} className="py-4 font-medium">
                         Loading...
                       </td>
                     </tr>
                   ) : !surveys || !surveys.length ? (
                     <tr className="text-center">
-                      <td colSpan={8} className="py-4 font-medium">
+                      <td colSpan={7} className="py-4 font-medium">
                         Data survey tidak tersedia.
                       </td>
                     </tr>
                   ) : (
                     surveys?.map((data, index) => {
-                      const isBatchSurvey = data.SurveySequance?.some(
-                        seq => seq.tipe === 'SUTM'
-                      )
                       return (
                         <tr key={index} className="text-center">
                           <td className="border p-2">{index + 1}</td>
                           <td className="border p-2">{data.nama_survey}</td>
                           <td className="border p-2">{data.lokasi}</td>
-                          <td className="border p-2">
-                            <span
-                              className={`px-2 py-1 rounded text-xs font-medium ${isBatchSurvey ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}
-                            >
-                              {isBatchSurvey ? 'Batch' : 'Manual'}
-                            </span>
-                          </td>
                           <td className="border p-2 ">
                             {surveyStatus[data.status_survey]}
                           </td>
@@ -158,13 +147,7 @@ export default function Page() {
                           </td>
                           <td className="border p-2">
                             <div className="flex gap-2 justify-center">
-                              <Link
-                                href={
-                                  isBatchSurvey
-                                    ? `/dashboard/survey/auto-survey/${data.id}`
-                                    : `/dashboard/survey/${data.id}`
-                                }
-                              >
+                              <Link href={`/dashboard/survey/${data.id}`}>
                                 <button className="text-blue-600 underline text-sm">
                                   Lihat Detail
                                 </button>

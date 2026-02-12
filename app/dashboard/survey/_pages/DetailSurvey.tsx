@@ -17,10 +17,11 @@ import {
   useDeleteCubicleMutation
 } from '../_hooks/@create/cubicle'
 
-const surveySequenceHeaders = ['No', 'Tipe', 'Urutan', 'ID']
+const surveySequenceHeaders = ['No', 'Tipe', 'Urutan', 'ID Ref']
 const surveyCubicleHeaders = [
   'No',
   'Tipe Cubicle',
+  'Grounding',
   'Penyulang',
   'Koordinat',
   'Foto',
@@ -33,8 +34,39 @@ const surveyAppTmHeaders = [
   'No',
   'Keterangan',
   'Penyulang',
+  'Komponen',
   'Koordinat',
   'Foto',
+  'ID'
+]
+
+const surveySktmHeaders = [
+  'No',
+  'Penyulang',
+  'Komponen',
+  'Panjang (m)',
+  'Diameter (mm)',
+  'Koordinat',
+  'Arrester',
+  'Foto',
+  'Keterangan',
+  'Petugas',
+  'ID'
+]
+
+const surveySutmHeaders = [
+  'No',
+  'Penyulang',
+  'Konduktor',
+  'Tiang',
+  'Konstruksi',
+  'Pole Supporter',
+  'Grounding',
+  'Panjang (m)',
+  'Koordinat',
+  'Foto',
+  'Keterangan',
+  'Petugas',
   'ID'
 ]
 
@@ -45,6 +77,8 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   const [hideSutmPole, setHideSutmPole] = useState(false)
   const [hideCubiclePole, setHideCubiclePole] = useState(false)
   const [hideAppTm, setHideAppTm] = useState(false)
+  const [hideSktmSection, setHideSktmSection] = useState(false)
+  const [hideSutmSection, setHideSutmSection] = useState(false)
   const [selectedCubicle, setSelectedCubicle] = useState<any>(null)
 
   const { data: survey, isPending } = useGetSurveyDetail(surveyId)
@@ -207,20 +241,26 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                       Loading...
                     </td>
                   </tr>
-                ) : !survey.survey_sequence ||
-                  !survey.survey_sequence.length ? (
+                ) : !survey.SurveySequance || !survey.SurveySequance.length ? (
                   <tr className="text-center">
-                    <td colSpan={6} className="py-4 font-medium">
+                    <td colSpan={4} className="py-4 font-medium">
                       Data urutan tiang tidak tersedia.
                     </td>
                   </tr>
                 ) : (
-                  survey.survey_sequence.map((data, index) => (
+                  survey.SurveySequance.map((data, index) => (
                     <tr key={index} className="text-center">
                       <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{data.tipe}</td>
                       <td className="border p-2">{data.urutan}</td>
-                      <td className="border p-2">{data.id}</td>
+                      <td className="border p-2">
+                        <a
+                          href={`#${data.tipe.toLowerCase()}-section`}
+                          className="text-blue-600 hover:underline font-medium"
+                        >
+                          {data.survey_detail_id}
+                        </a>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -229,7 +269,221 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-4" id="sktm-section">
+          <div className="flex justify-between w-full items-center">
+            <h1 className="text-lg font-semibold">SKTM</h1>
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2"
+              onClick={() => setHideSktmSection(!hideSktmSection)}
+            >
+              {hideSktmSection ? (
+                <Eye className="size-4" />
+              ) : (
+                <EyeOff className="size-4" />
+              )}
+            </Button>
+          </div>
+
+          <div
+            className={cn(
+              'overflow-x-auto w-full',
+              hideSktmSection ? 'hidden' : 'block'
+            )}
+          >
+            <table className="w-full border-collapse border">
+              <thead>
+                <tr>
+                  {surveySktmHeaders.map((item, index) => (
+                    <th key={index} className="border p-2">
+                      {item}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {isPending ? (
+                  <tr className="text-center">
+                    <td colSpan={11} className="py-4 font-medium">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : !survey.sktm_surveys || !survey.sktm_surveys.length ? (
+                  <tr className="text-center">
+                    <td colSpan={11} className="py-4 font-medium">
+                      Data SKTM tidak tersedia.
+                    </td>
+                  </tr>
+                ) : (
+                  survey.sktm_surveys.flatMap(sktm =>
+                    sktm.sktm_details.map((detail, index) => (
+                      <tr
+                        key={`${sktm.id}-${detail.id}`}
+                        className="text-center"
+                      >
+                        <td className="border p-2">{index + 1}</td>
+                        <td className="border p-2">{detail.penyulang}</td>
+                        <td className="border p-2 text-start min-w-[200px]">
+                          {sktm.sktm_components &&
+                          sktm.sktm_components.length > 0 ? (
+                            <ul className="list-disc pl-4 text-xs">
+                              {sktm.sktm_components.map((comp, idx) => (
+                                <li key={idx}>
+                                  {comp.material?.nama_material} (
+                                  {Number(comp.kuantitas)})
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                        <td className="border p-2">
+                          {detail.panjang_jaringan}
+                        </td>
+                        <td className="border p-2">{detail.diameter_kabel}</td>
+                        <td className="border p-2">
+                          Lat: {detail.lat}
+                          <br />
+                          Long: {detail.long}
+                        </td>
+                        <td className="border p-2">
+                          {detail.has_arrester ? 'Ya' : 'Tidak'}
+                        </td>
+                        <td className="border p-2 justify-center flex">
+                          {detail.foto && detail.foto !== '-' ? (
+                            <Image
+                              src={detail.foto}
+                              alt="Foto SKTM"
+                              width={150}
+                              height={150}
+                              className="object-cover"
+                            />
+                          ) : (
+                            <span className="text-gray-400 text-xs italic">
+                              No Image
+                            </span>
+                          )}
+                        </td>
+                        <td className="border p-2">{detail.keterangan}</td>
+                        <td className="border p-2">{detail.petugas_survey}</td>
+                        <td className="border p-2">{detail.id}</td>
+                      </tr>
+                    ))
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-y-4" id="sutm-section">
+          <div className="flex justify-between w-full items-center">
+            <h1 className="text-lg font-semibold">SUTM</h1>
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2"
+              onClick={() => setHideSutmSection(!hideSutmSection)}
+            >
+              {hideSutmSection ? (
+                <Eye className="size-4" />
+              ) : (
+                <EyeOff className="size-4" />
+              )}
+            </Button>
+          </div>
+
+          <div
+            className={cn(
+              'overflow-x-auto w-full',
+              hideSutmSection ? 'hidden' : 'block'
+            )}
+          >
+            <table className="w-full border-collapse border">
+              <thead>
+                <tr>
+                  {surveySutmHeaders.map((item, index) => (
+                    <th key={index} className="border p-2">
+                      {item}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {isPending ? (
+                  <tr className="text-center">
+                    <td colSpan={13} className="py-4 font-medium">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : !survey.sutm_surveys || !survey.sutm_surveys.length ? (
+                  <tr className="text-center">
+                    <td colSpan={13} className="py-4 font-medium">
+                      Data SUTM tidak tersedia.
+                    </td>
+                  </tr>
+                ) : (
+                  survey.sutm_surveys.flatMap(sutm =>
+                    sutm.sutm_details.map((detail, index) => (
+                      <tr
+                        key={`${sutm.id}-${detail.id}`}
+                        className="text-center"
+                      >
+                        <td className="border p-2">{index + 1}</td>
+                        <td className="border p-2">{detail.penyulang}</td>
+                        <td className="border p-2">
+                          {sutm.material_konduktor?.nama_material ?? '-'}
+                        </td>
+                        <td className="border p-2">
+                          {detail.material_tiang?.nama_material ?? '-'}
+                        </td>
+                        <td className="border p-2">
+                          {detail.konstruksi?.nama_konstruksi ?? '-'}
+                        </td>
+                        <td className="border p-2">
+                          {detail.pole_supporter?.nama_pole ?? '-'}
+                        </td>
+                        <td className="border p-2">
+                          {detail.grounding_termination?.nama_grounding ?? '-'}
+                        </td>
+                        <td className="border p-2">
+                          {detail.panjang_jaringan}
+                        </td>
+                        <td className="border p-2">
+                          Lat: {detail.lat}
+                          <br />
+                          Long: {detail.long}
+                        </td>
+                        <td className="border p-2 justify-center flex">
+                          {detail.foto && detail.foto !== '-' ? (
+                            <Image
+                              src={detail.foto}
+                              alt="Foto SUTM"
+                              width={150}
+                              height={150}
+                              className="object-cover"
+                            />
+                          ) : (
+                            <span className="text-gray-400 text-xs italic">
+                              No Image
+                            </span>
+                          )}
+                        </td>
+                        <td className="border p-2">{detail.keterangan}</td>
+                        <td className="border p-2">{detail.petugas_survey}</td>
+                        <td className="border p-2">{detail.id}</td>
+                      </tr>
+                    ))
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-y-4" id="cubicle-section">
           <div className="flex justify-between w-full items-center">
             <h1 className="text-lg font-semibold">Tiang Cubicle</h1>
             <Button
@@ -265,14 +519,14 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
               <tbody>
                 {isPending ? (
                   <tr className="text-center">
-                    <td colSpan={9} className="py-4 font-medium">
+                    <td colSpan={10} className="py-4 font-medium">
                       Loading...
                     </td>
                   </tr>
                 ) : !survey.cubicle_surveys ||
                   !survey.cubicle_surveys.length ? (
                   <tr className="text-center">
-                    <td colSpan={9} className="py-4 font-medium">
+                    <td colSpan={10} className="py-4 font-medium">
                       Data tiang cubicle tidak tersedia.
                     </td>
                   </tr>
@@ -281,6 +535,9 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                     <tr key={index} className="text-center">
                       <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{data.cubicle_type}</td>
+                      <td className="border p-2">
+                        {data.has_grounding ? 'Ya' : 'Tidak'}
+                      </td>
                       <td className="border p-2">{data.penyulang}</td>
                       <td className="border p-2">
                         Latitude: {data.lat}
@@ -288,13 +545,19 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                         Longitude: {data.long}
                       </td>
                       <td className="border p-2 justify-center flex">
-                        <Image
-                          src={data.foto}
-                          alt="Foto cubicle"
-                          width={150}
-                          height={150}
-                          className="object-cover"
-                        />
+                        {data.foto && data.foto !== '-' ? (
+                          <Image
+                            src={data.foto}
+                            alt="Foto cubicle"
+                            width={150}
+                            height={150}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-400 text-xs italic">
+                            No Image
+                          </span>
+                        )}
                       </td>
                       <td className="border p-2">{data.keterangan}</td>
                       <td className="border p-2">{data.petugas_survey}</td>
@@ -323,7 +586,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-4" id="app_tm-section">
           <div className="flex justify-between w-full items-center">
             <h1 className="text-lg font-semibold">APP TM</h1>
             <Button
@@ -359,14 +622,14 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
               <tbody>
                 {isPending ? (
                   <tr className="text-center">
-                    <td colSpan={6} className="py-4 font-medium">
+                    <td colSpan={7} className="py-4 font-medium">
                       Loading...
                     </td>
                   </tr>
                 ) : !survey.app_tm_surveys || !survey.app_tm_surveys.length ? (
                   <tr className="text-center">
-                    <td colSpan={6} className="py-4 font-medium">
-                      Data tiang cubicle tidak tersedia.
+                    <td colSpan={7} className="py-4 font-medium">
+                      Data APP TM tidak tersedia.
                     </td>
                   </tr>
                 ) : (
@@ -375,19 +638,40 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
                       <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{data.keterangan}</td>
                       <td className="border p-2">{data.penyulang}</td>
+                      <td className="border p-2 text-start">
+                        {data.AppTmComponent &&
+                        data.AppTmComponent.length > 0 ? (
+                          <ul className="list-disc pl-4 text-xs">
+                            {data.AppTmComponent.map((comp, idx) => (
+                              <li key={idx}>
+                                {comp.material?.nama_material} ({comp.kuantitas}
+                                )
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
                       <td className="border p-2">
                         Latitude: {data.lat}
                         <br />
                         Longitude: {data.long}
                       </td>
                       <td className="border p-2 justify-center flex">
-                        <Image
-                          src={data.foto}
-                          alt="Foto cubicle"
-                          width={150}
-                          height={150}
-                          className="object-cover"
-                        />
+                        {data.foto && data.foto !== '-' ? (
+                          <Image
+                            src={data.foto}
+                            alt="Foto APP TM"
+                            width={150}
+                            height={150}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-400 text-xs italic">
+                            No Image
+                          </span>
+                        )}
                       </td>
                       <td className="border p-2">{data.id}</td>
                     </tr>

@@ -1,6 +1,7 @@
 import { IDetailAppTm } from './app-tm'
 import { IDetailCubicle } from './cubicle'
-import { IDetailSUTM } from './sutm'
+import { ISktmSurvey } from './sktm'
+import { ISutmSurvey } from './sutm'
 
 export type TSurveyStatus = 'Belum_Disetujui' | 'Disetujui'
 
@@ -36,8 +37,8 @@ export interface ISurveySequence {
 
 export interface ISurveyHeaderDetails extends ISurveyHeader {
   survey_sequence: ISurveySequence[]
-  sktm_surveys: string[]
-  sutm_surveys: IDetailSUTM[]
+  sktm_surveys: ISktmSurvey[]
+  sutm_surveys: ISutmSurvey[]
   cubicle_surveys: IDetailCubicle[]
   app_tm_surveys: IDetailAppTm[]
 }

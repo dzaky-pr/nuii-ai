@@ -23,9 +23,12 @@ import { CameraDialog } from '../dialog/Camera'
 import { CloseSheetsConfirmationDialog } from '../dialog/CloseSheetsConfirm'
 import { MapsPickerDialog } from '../dialog/MapsPicker'
 
-interface ICreateSKTMForm
-  extends Omit<ICreateFirstSKTM, 'id_termination_masuk'> {
+interface ICreateSKTMForm extends Omit<
+  ICreateFirstSKTM,
+  'id_termination_masuk'
+> {
   id_termination: number
+  id_kabel: number
 }
 
 export function CreateSKTMForm({
@@ -39,6 +42,8 @@ export function CreateSKTMForm({
 
   const cameraRef = useRef<any>(null)
   const { materials, loadingMaterials } = useGetMaterials('terminasi', 'SKTM')
+  const { materials: cableMaterials, loadingMaterials: loadingCableMaterials } =
+    useGetMaterials('kabel', 'SKTM')
 
   //#region  //*=========== Sheets & Dialog Manager ===========
   const { isOpen, close, open } = useOverlayStore()
@@ -204,6 +209,27 @@ export function CreateSKTMForm({
                       options={materials}
                       onValueChange={onChange}
                       placeholder="Pilih material terminasi"
+                    />
+                  )}
+                />
+              </div>
+
+              {/* ID Kabel - NEW */}
+              <div className="grid gap-2">
+                <Label required htmlFor="kabel">
+                  Material Kabel
+                </Label>
+                <Controller
+                  name="id_kabel"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { onChange, value } }) => (
+                    <SearchableCombobox
+                      value={value ?? undefined}
+                      isLoading={loadingCableMaterials}
+                      options={cableMaterials}
+                      onValueChange={onChange}
+                      placeholder="Pilih material kabel"
                     />
                   )}
                 />
