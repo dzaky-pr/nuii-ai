@@ -282,7 +282,8 @@ export default function RoutingMachine({
     apiRoutes,
     apiPoles,
     setRoute,
-    setInstructionText
+    setInstructionText,
+    finalWaypoints
   ])
 
   return null
