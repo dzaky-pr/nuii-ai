@@ -17,7 +17,8 @@ export default function WaypointMarkers({
           position={waypoint}
           eventHandlers={{
             click: () => {
-              if (onRemoveWaypoint && window.confirm(`Hapus titik awal?`)) {
+              // Removed window.confirm - parent should handle confirmation if needed
+              if (onRemoveWaypoint) {
                 onRemoveWaypoint()
               }
             }

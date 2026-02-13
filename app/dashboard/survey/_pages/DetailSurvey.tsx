@@ -25,6 +25,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 
 const surveySequenceHeaders = ['No', 'Tipe', 'Urutan', 'ID Ref']
 const surveyCubicleHeaders = [
@@ -89,6 +90,8 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   const [hideSktmSection, setHideSktmSection] = useState(false)
   const [hideSutmSection, setHideSutmSection] = useState(false)
   const [selectedCubicle, setSelectedCubicle] = useState<any>(null)
+  const [cubicleToDelete, setCubicleToDelete] = useState<number | null>(null)
+  const [showApproveConfirm, setShowApproveConfirm] = useState(false)
 
   const { data: survey, isPending } = useGetSurveyDetail(surveyId)
 
@@ -101,6 +104,8 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   const sutmFormId = 'create-sutm-form-sheets'
   const cubicleFormId = 'create-cubicle-form-sheets'
   const updateCubicleFormId = 'update-cubicle-form-sheets'
+  const deleteCubicleDialogId = 'delete-cubicle-confirm-dialog'
+  const approveSurveyDialogId = 'approve-survey-confirm-dialog'
 
   const handleUpdateCubicle = (cubicleData: any) => {
     setSelectedCubicle(cubicleData)
@@ -108,32 +113,41 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   }
 
   const handleDeleteCubicle = (id: number) => {
-    if (confirm('Apakah Anda yakin ingin menghapus cubicle ini?')) {
-      deleteCubicleMutation.mutate(id)
+    setCubicleToDelete(id)
+    open(deleteCubicleDialogId)
+  }
+
+  const confirmDeleteCubicle = () => {
+    if (cubicleToDelete !== null) {
+      deleteCubicleMutation.mutate(cubicleToDelete)
+      setCubicleToDelete(null)
     }
   }
 
   const handleApprove = () => {
+    setShowApproveConfirm(true)
+    open(approveSurveyDialogId)
+  }
+
+  const confirmApprove = () => {
     if (!survey) return
 
-    if (confirm('Apakah Anda yakin ingin menyetujui survey ini?')) {
-      // Try to find id_material_konduktor from SUTM surveys if available
-      // Backend validation requires this field.
-      // If not SUTM, we default to 1 (assuming it's a valid ID in DB) to satisfy validator.
-      // This is a workaround for backend schema requiring it even if irrelevant for non-SUTM.
-      const idMaterialKonduktor =
-        survey.sutm_surveys?.[0]?.id_material_konduktor || 1
+    // Try to find id_material_konduktor from SUTM surveys if available
+    // Backend validation requires this field.
+    // If not SUTM, we default to 1 (assuming it's a valid ID in DB) to satisfy validator.
+    // This is a workaround for backend schema requiring it even if irrelevant for non-SUTM.
+    const idMaterialKonduktor =
+      survey.sutm_surveys?.[0]?.id_material_konduktor || 1
 
-      updateSurveyMutation.mutate({
-        id: survey.id,
-        nama_survey: survey.nama_survey,
-        nama_pekerjaan: survey.nama_pekerjaan,
-        lokasi: survey.lokasi,
-        user_id: survey.user_id,
-        status_survey: 'Disetujui',
-        id_material_konduktor: idMaterialKonduktor
-      })
-    }
+    updateSurveyMutation.mutate({
+      id: survey.id,
+      nama_survey: survey.nama_survey,
+      nama_pekerjaan: survey.nama_pekerjaan,
+      lokasi: survey.lokasi,
+      user_id: survey.user_id,
+      status_survey: 'Disetujui',
+      id_material_konduktor: idMaterialKonduktor
+    })
   }
 
   useEffect(() => {
@@ -718,6 +732,23 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
         sheetId={updateCubicleFormId}
         surveyId={Number(surveyId)}
         cubicleData={selectedCubicle}
+      />
+      <ConfirmDialog
+        dialogId={deleteCubicleDialogId}
+        title="Hapus Cubicle"
+        description="Apakah Anda yakin ingin menghapus cubicle ini? Data yang sudah dihapus tidak dapat dikembalikan."
+        onConfirm={confirmDeleteCubicle}
+        confirmText="Hapus"
+        cancelText="Batal"
+        variant="destructive"
+      />
+      <ConfirmDialog
+        dialogId={approveSurveyDialogId}
+        title="Setujui Survey"
+        description="Apakah Anda yakin ingin menyetujui survey ini? Survey yang sudah disetujui akan masuk ke laporan."
+        onConfirm={confirmApprove}
+        confirmText="Setujui"
+        cancelText="Batal"
       />
     </>
   )

@@ -26,6 +26,8 @@ import {
   SortDirection
 } from '@/components/shared/SortableTableHead'
 import { useSearchParams } from 'next/navigation'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
+import { Eye, Pencil, Trash2 } from 'lucide-react'
 
 const tableHeaders = [
   'No.',
@@ -42,6 +44,7 @@ export default function Page() {
   const [selectedSurvey, setSelectedSurvey] = useState<ISurveyHeader | null>(
     null
   )
+  const [surveyToDelete, setSurveyToDelete] = useState<number | null>(null)
   // Pagination state moved up to avoid conditional hook call error
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [limit, setLimit] = useState<number>(10)
@@ -98,10 +101,17 @@ export default function Page() {
   const { mutate: deleteSurvey } = useDeleteSurveyHeaderMutation()
 
   const { open } = useOverlayStore()
+  const deleteDialogId = 'delete-survey-confirm-dialog'
 
   const handleDeleteSurvey = (id: number) => {
-    if (confirm('Apakah Anda yakin ingin menghapus survey ini?')) {
-      deleteSurvey(id)
+    setSurveyToDelete(id)
+    open(deleteDialogId)
+  }
+
+  const confirmDelete = () => {
+    if (surveyToDelete !== null) {
+      deleteSurvey(surveyToDelete)
+      setSurveyToDelete(null)
     }
   }
 
@@ -265,23 +275,35 @@ export default function Page() {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2 justify-center">
-                              <Link href={`/dashboard/survey/${data.id}`}>
-                                <button className="text-blue-600 underline text-sm">
-                                  Lihat Detail
-                                </button>
-                              </Link>
-                              <button
+                              <Button
+                                asChild
+                                variant="ghost"
+                                size="sm"
+                                className="h-8"
+                              >
+                                <Link href={`/dashboard/survey/${data.id}`}>
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  Detail
+                                </Link>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8"
                                 onClick={() => openUpdateForm(data)}
-                                className="text-green-600 underline text-sm"
                               >
+                                <Pencil className="h-4 w-4 mr-1" />
                                 Update
-                              </button>
-                              <button
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                                 onClick={() => handleDeleteSurvey(data.id)}
-                                className="text-red-600 underline text-sm"
                               >
+                                <Trash2 className="h-4 w-4 mr-1" />
                                 Hapus
-                              </button>
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -332,6 +354,15 @@ export default function Page() {
       </div>
       <CreateSurveyHeaderForm />
       <UpdateSurveyHeaderForm surveyData={selectedSurvey || undefined} />
+      <ConfirmDialog
+        dialogId={deleteDialogId}
+        title="Hapus Survey"
+        description="Apakah Anda yakin ingin menghapus survey ini? Data yang sudah dihapus tidak dapat dikembalikan."
+        onConfirm={confirmDelete}
+        confirmText="Hapus"
+        cancelText="Batal"
+        variant="destructive"
+      />
     </>
   )
 }
