@@ -3,7 +3,7 @@ import { clerkClient } from '@clerk/nextjs/server'
 
 import { redirect } from 'next/navigation'
 import { LogTable } from './_components/LogTable'
-import { SearchLog } from './_components/SearchLog'
+
 import LogHistoryTitle from './_components/Title'
 
 export default async function ManageMaterials(params: {
@@ -24,7 +24,7 @@ export default async function ManageMaterials(params: {
   return (
     <div className="container mx-auto min-h-screen h-full p-6 bg-background">
       <LogHistoryTitle />
-      <SearchLog />
+
       <LogTable />
     </div>
   )

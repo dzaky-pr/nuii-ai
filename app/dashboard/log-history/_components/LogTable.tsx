@@ -12,6 +12,18 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { TableFilter } from '@/components/shared/TableFilter'
+import {
+  SortableTableHead,
+  SortDirection
+} from '@/components/shared/SortableTableHead'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 export function LogTable() {
@@ -24,30 +36,76 @@ export function LogTable() {
   const [currentPage, setCurrentPage] = React.useState<number>(1)
   const [limit, setLimit] = React.useState<number>(10)
 
+  // Sorting State
+  const [sortKey, setSortKey] = React.useState<string | null>(null)
+  const [sortDirection, setSortDirection] = React.useState<SortDirection>(null)
+  const [statusFilter, setStatusFilter] = React.useState<string>('all')
+
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
 
+  // Filter client-side
+  const filteredList = React.useMemo(() => {
+    if (!listAll) return []
+
+    return listAll.filter(item => {
+      // Search Filter
+      const matchesSearch = searchTerm
+        ? item.nama_material.toLowerCase().includes(searchTerm.toLowerCase())
+        : true
+
+      // Status Filter
+      const matchesStatus =
+        statusFilter === 'all'
+          ? true
+          : item.tipe_log.toLowerCase() === statusFilter.toLowerCase()
+
+      return matchesSearch && matchesStatus
+    })
+  }, [listAll, searchTerm, statusFilter])
+
+  // Sorting Logic
+  const sortedList = React.useMemo(() => {
+    if (!filteredList) return []
+    if (!sortKey || !sortDirection) return filteredList
+
+    return [...filteredList].sort((a, b) => {
+      const aValue = (a as any)[sortKey]
+      const bValue = (b as any)[sortKey]
+
+      // Handle nested properties (simple version)
+      if (sortKey === 'nama_material' && a.nama_material && b.nama_material) {
+        return sortDirection === 'asc'
+          ? a.nama_material.localeCompare(b.nama_material)
+          : b.nama_material.localeCompare(a.nama_material)
+      }
+
+      if (aValue === bValue) return 0
+
+      const comparison = aValue > bValue ? 1 : -1
+      return sortDirection === 'asc' ? comparison : -comparison
+    })
+  }, [filteredList, sortKey, sortDirection])
+
   if (!isMounted) return null
 
-  // Filter client-side berdasarkan nama material
-  const filteredList = searchTerm
-    ? listAll?.filter(material =>
-        material.nama_material.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : listAll
-
-  // Reverse urutan: terbaru (di akhir array) muncul paling atas
-  const sortedList = filteredList
-    ? filteredList.slice().reverse()
-    : filteredList
-
   // Pagination processing
-  const totalItems = sortedList ? sortedList.length : 0
+  const totalItems = sortedList.length
   const totalPages = Math.ceil(totalItems / limit)
-  const paginatedList = sortedList
-    ? sortedList.slice((currentPage - 1) * limit, currentPage * limit)
-    : []
+  const paginatedList = sortedList.slice(
+    (currentPage - 1) * limit,
+    currentPage * limit
+  )
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
 
   // Pagination handlers
   const handlePreviousPage = () => {
@@ -65,23 +123,128 @@ export function LogTable() {
   }
 
   return (
-    <div className="mt-6">
+    <div className="mt-6 flex flex-col gap-4">
+      {/* Search & Status Filter */}
+      <div className="flex flex-col sm:flex-row justify-between w-full gap-4">
+        <TableFilter
+          placeholder="Filter log by material or user..."
+          className="w-full sm:w-auto"
+        />
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <span className="text-sm font-medium">Type:</span>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="create">Create</SelectItem>
+              <SelectItem value="update">Update</SelectItem>
+              <SelectItem value="delete">Delete</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Waktu</TableHead>
-              <TableHead>Tipe Log</TableHead>
-              <TableHead>ID Material</TableHead>
-              <TableHead>ID Tipe Material</TableHead>
-              <TableHead>Nama Material</TableHead>
-              <TableHead>Satuan Material</TableHead>
-              <TableHead>Berat Material</TableHead>
-              <TableHead>Harga Material</TableHead>
-              <TableHead>Pasang RAB</TableHead>
-              <TableHead>Bongkar</TableHead>
-              <TableHead>Jenis Material</TableHead>
-              <TableHead>Kategori Material</TableHead>
+              <SortableTableHead
+                sortKey="updated_at"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Waktu
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="tipe_log"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Tipe Log
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="id_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                ID Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="id_tipe_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                ID Tipe Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="nama_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Nama Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="satuan_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Satuan Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="berat_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Berat Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="harga_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Harga Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="pasang_rab"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Pasang RAB
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="bongkar"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Bongkar
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="jenis_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Jenis Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="kategori_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Kategori Material
+              </SortableTableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

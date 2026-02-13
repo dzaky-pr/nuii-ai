@@ -4,7 +4,8 @@ import { ICreateSurveyHeader } from '@/lib/types/survey'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError, AxiosResponse } from 'axios'
 import { toast } from 'sonner'
-import { surveyHeaderKeys } from '../query-key'
+import { useRouter } from 'next/navigation'
+import { surveyHeaderKeys, surveyKeys } from '../query-key'
 
 export function useCreateSurveyHeaderMutation() {
   const queryClient = useQueryClient()
@@ -18,7 +19,7 @@ export function useCreateSurveyHeaderMutation() {
     onSuccess: () => {
       toast.success('Survey berhasil ditambahkan!')
 
-      queryClient.invalidateQueries({ queryKey: surveyHeaderKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: surveyKeys.all })
     },
     onError: err => {
       toast.error('Survey gagal ditambahkan, silakan coba lagi!')
@@ -39,7 +40,7 @@ export function useDeleteSurveyHeaderMutation() {
     onSuccess: () => {
       toast.success('Survey berhasil dihapus!')
 
-      queryClient.invalidateQueries({ queryKey: surveyHeaderKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: surveyKeys.all })
     },
     onError: err => {
       toast.error('Survey gagal dihapus, silakan coba lagi!')
@@ -50,6 +51,7 @@ export function useDeleteSurveyHeaderMutation() {
 
 export function useUpdateSurveyHeaderMutation() {
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   return useMutation<
     AxiosResponse<ApiResponse<unknown>>,
@@ -61,11 +63,12 @@ export function useUpdateSurveyHeaderMutation() {
         id_header: id,
         header: data
       }),
-    onSuccess: () => {
-      toast.success('Survey berhasil diupdate!')
+    onSuccess: async () => {
+      toast.success('Survey berhasil disetujui! Silakan cek halaman report.')
 
-      queryClient.invalidateQueries({ queryKey: surveyHeaderKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: surveyHeaderKeys.details() })
+      await queryClient.invalidateQueries({ queryKey: surveyKeys.all })
+      await queryClient.invalidateQueries({ queryKey: ['surveyReportList'] })
+      router.push('/dashboard/survey')
     },
     onError: err => {
       toast.error('Survey gagal diupdate, silakan coba lagi!')

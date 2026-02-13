@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { surveyStatus } from '@/lib/constants'
@@ -20,6 +20,12 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { TableFilter } from '@/components/shared/TableFilter'
+import {
+  SortableTableHead,
+  SortDirection
+} from '@/components/shared/SortableTableHead'
+import { useSearchParams } from 'next/navigation'
 
 const tableHeaders = [
   'No.',
@@ -42,6 +48,52 @@ export default function Page() {
 
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyHeaderList()
+  // Sorting State
+  const [sortKey, setSortKey] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null)
+
+  const searchParams = useSearchParams()
+  const searchTerm = searchParams.get('search') ?? ''
+
+  // Client-side filtering
+  const filteredSurveys = searchTerm
+    ? surveys?.filter(survey =>
+        survey.nama_survey.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : surveys
+
+  // Sorting Logic
+  const sortedList = React.useMemo(() => {
+    if (!filteredSurveys) return []
+    if (!sortKey || !sortDirection) return filteredSurveys
+
+    return [...filteredSurveys].sort((a, b) => {
+      const aValue = (a as any)[sortKey]
+      const bValue = (b as any)[sortKey]
+
+      if (aValue === bValue) return 0
+
+      const comparison = aValue > bValue ? 1 : -1
+      return sortDirection === 'asc' ? comparison : -comparison
+    })
+  }, [filteredSurveys, sortKey, sortDirection])
+
+  // Pagination processing
+  const totalItems = sortedList.length
+  const totalPages = Math.ceil(totalItems / limit)
+  const paginatedList = sortedList.slice(
+    (currentPage - 1) * limit,
+    currentPage * limit
+  )
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
 
   const { mutate: deleteSurvey } = useDeleteSurveyHeaderMutation()
 
@@ -65,13 +117,6 @@ export default function Page() {
   if (!isMounted) {
     return null
   }
-
-  // Pagination processing
-  const totalItems = surveys ? surveys.length : 0
-  const totalPages = Math.ceil(totalItems / limit)
-  const paginatedList = surveys
-    ? surveys.slice((currentPage - 1) * limit, currentPage * limit)
-    : []
 
   // Pagination handlers
   const handlePreviousPage = () => {
@@ -110,19 +155,59 @@ export default function Page() {
               >
                 <Link href="/dashboard/survey/maps">
                   <Route className="size-4 text-white mr-2 mb-0.5" /> Rute &
-                  Estimasi
+                  Estimasi SUTM
                 </Link>
               </Button>
             </div>
           </div>
-          <div className="mb-4">
+          <div className="mb-4 flex flex-col gap-4">
+            <TableFilter placeholder="Filter nama survey..." />
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {tableHeaders.map((item, index) => (
-                      <TableHead key={index}>{item}</TableHead>
-                    ))}
+                    <TableHead>No.</TableHead>
+                    <SortableTableHead
+                      sortKey="nama_survey"
+                      currentSortKey={sortKey}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Nama Survey
+                    </SortableTableHead>
+                    <SortableTableHead
+                      sortKey="lokasi"
+                      currentSortKey={sortKey}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Lokasi
+                    </SortableTableHead>
+                    <SortableTableHead
+                      sortKey="status_survey"
+                      currentSortKey={sortKey}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Status
+                    </SortableTableHead>
+                    <SortableTableHead
+                      sortKey="user_id"
+                      currentSortKey={sortKey}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      ID Pengguna
+                    </SortableTableHead>
+                    <SortableTableHead
+                      sortKey="created_at"
+                      currentSortKey={sortKey}
+                      currentSortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Dibuat Pada
+                    </SortableTableHead>
+                    <TableHead>Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -16,6 +16,11 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { TableFilter } from '@/components/shared/TableFilter'
+import {
+  SortableTableHead,
+  SortDirection
+} from '@/components/shared/SortableTableHead'
 
 import DeleteMaterialModal from '../_components/DeleteMaterialModal'
 import EditMaterialForm from '../_components/EditMaterialForm'
@@ -38,25 +43,59 @@ export function MaterialTable() {
   const modalId = 'delete-material-modal'
   const { open, close } = useOverlayStore()
 
+  // Sorting State
+  const [sortKey, setSortKey] = React.useState<string | null>(null)
+  const [sortDirection, setSortDirection] = React.useState<SortDirection>(null)
+
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
 
+  // Filter client-side berdasarkan nama material
+  const filteredList = React.useMemo(() => {
+    return searchTerm
+      ? listAll?.filter(material =>
+          material.nama_material
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+      : listAll
+  }, [searchTerm, listAll])
+
+  // Sorting Logic
+  const sortedList = React.useMemo(() => {
+    if (!filteredList) return []
+    if (!sortKey || !sortDirection) return filteredList
+
+    return [...filteredList].sort((a, b) => {
+      const aValue = (a as any)[sortKey]
+      const bValue = (b as any)[sortKey]
+
+      if (aValue === bValue) return 0
+
+      const comparison = aValue > bValue ? 1 : -1
+      return sortDirection === 'asc' ? comparison : -comparison
+    })
+  }, [filteredList, sortKey, sortDirection])
+
   if (!isMounted) return null
 
-  // Filter client-side berdasarkan nama material
-  const filteredList = searchTerm
-    ? listAll?.filter(material =>
-        material.nama_material.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : listAll
-
   // Pagination: hitung total items & pages, dan ambil data untuk halaman saat ini
-  const totalItems = filteredList ? filteredList.length : 0
+  const totalItems = sortedList.length
   const totalPages = Math.ceil(totalItems / limit)
-  const paginatedList = filteredList
-    ? filteredList.slice((currentPage - 1) * limit, currentPage * limit)
-    : []
+  const paginatedList = sortedList.slice(
+    (currentPage - 1) * limit,
+    currentPage * limit
+  )
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
 
   const handleDeleteClick = (materialId: number) => {
     setMaterialToDelete(materialId)
@@ -99,25 +138,121 @@ export function MaterialTable() {
   }
 
   return (
-    <div className="mt-6">
+    <div className="mt-6 flex flex-col gap-4">
+      {/* Search Filter */}
+      <div className="flex justify-start w-full">
+        <TableFilter placeholder="Search by material name..." />
+      </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>No.</TableHead>
-              <TableHead>ID Tipe Material</TableHead>
-              <TableHead>Nomor Material</TableHead>
-              <TableHead>Nama Material</TableHead>
-              <TableHead>Satuan Material</TableHead>
-              <TableHead>Berat Material</TableHead>
-              <TableHead>Harga Material</TableHead>
-              <TableHead>Pasang RAB</TableHead>
-              <TableHead>Bongkar</TableHead>
-              <TableHead>Jenis Material</TableHead>
-              <TableHead>Kategori Material</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Updated At</TableHead>
-              <TableHead>Deleted At</TableHead>
+              <SortableTableHead
+                sortKey="id_tipe_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                ID Tipe Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="nomor_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Nomor Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="nama_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Nama Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="satuan_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Satuan Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="berat_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Berat Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="harga_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Harga Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="pasang_rab"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Pasang RAB
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="bongkar"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Bongkar
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="jenis_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Jenis Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="kategori_material"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Kategori Material
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="created_at"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Created At
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="updated_at"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Updated At
+              </SortableTableHead>
+              <SortableTableHead
+                sortKey="deleted_at"
+                currentSortKey={sortKey}
+                currentSortDirection={sortDirection}
+                onSort={handleSort}
+              >
+                Deleted At
+              </SortableTableHead>
               <TableHead className="text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>

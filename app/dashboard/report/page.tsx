@@ -15,7 +15,7 @@ import { baseURL } from '@/lib/tools/api'
 import { useAuth } from '@clerk/nextjs'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import {
@@ -26,6 +26,12 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { TableFilter } from '@/components/shared/TableFilter'
+import {
+  SortableTableHead,
+  SortDirection
+} from '@/components/shared/SortableTableHead'
+import { useSearchParams } from 'next/navigation'
 
 import UploadFile from '@/components/upload-file'
 import { jobOptions } from '@/lib/constants'
@@ -61,6 +67,53 @@ export default function ReportPage() {
   const { getToken, userId } = useAuth()
   const { data: surveys, isPending: loadingGetSurveys } =
     useGetSurveyReportList()
+  const searchParams = useSearchParams()
+  const searchTerm = searchParams.get('search') ?? ''
+
+  // Sorting State
+  const [sortKey, setSortKey] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null)
+
+  // Client-side filtering
+  const filteredSurveys = searchTerm
+    ? surveys?.filter(survey =>
+        survey.nama_survey.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : surveys
+
+  // Sorting Logic
+  const sortedList = React.useMemo(() => {
+    if (!filteredSurveys) return []
+    if (!sortKey || !sortDirection) return filteredSurveys
+
+    return [...filteredSurveys].sort((a, b) => {
+      const aValue = (a as any)[sortKey]
+      const bValue = (b as any)[sortKey]
+
+      if (aValue === bValue) return 0
+
+      const comparison = aValue > bValue ? 1 : -1
+      return sortDirection === 'asc' ? comparison : -comparison
+    })
+  }, [filteredSurveys, sortKey, sortDirection])
+
+  // Pagination processing
+  const totalItems = sortedList.length
+  const totalPages = Math.ceil(totalItems / limit)
+  const paginatedList = sortedList.slice(
+    (currentPage - 1) * limit,
+    currentPage * limit
+  )
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
+
   const { conductors, loadingConductors } = useGetConductors()
   const { mutate: uploadExcel, isPending: uploadLoading } =
     useUploadExcelArchiveMutation()
@@ -202,13 +255,6 @@ export default function ReportPage() {
     }
   }
 
-  // Pagination processing
-  const totalItems = surveys ? surveys.length : 0
-  const totalPages = Math.ceil(totalItems / limit)
-  const paginatedList = surveys
-    ? surveys.slice((currentPage - 1) * limit, currentPage * limit)
-    : []
-
   // Pagination handlers
   const handlePreviousPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 1))
@@ -230,12 +276,13 @@ export default function ReportPage() {
         <h2 className="text-lg font-bold mb-4">Data Report</h2>
         <Sheet open={isUploadSheetOpen} onOpenChange={setIsUploadSheetOpen}>
           <SheetTrigger asChild>
-            <Button
+            {/* //!! Need fix because have some major BUGS! */}
+            {/* <Button
               size="sm"
               className="bg-blue-500 hover:bg-blue-600 text-white"
             >
               Upload Excel
-            </Button>
+            </Button> */}
           </SheetTrigger>
           <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
             <SheetHeader>
@@ -335,14 +382,46 @@ export default function ReportPage() {
         </Sheet>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-col gap-4">
+        <TableFilter placeholder="Filter nama survey..." />
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                {tableHeader.map((item, index) => (
-                  <TableHead key={index}>{item}</TableHead>
-                ))}
+                <TableHead>#</TableHead>
+                <SortableTableHead
+                  sortKey="nama_survey"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Nama Survey
+                </SortableTableHead>
+                <SortableTableHead
+                  sortKey="lokasi"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Lokasi
+                </SortableTableHead>
+                <SortableTableHead
+                  sortKey="updated_at"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Diperbarui Pada
+                </SortableTableHead>
+                <SortableTableHead
+                  sortKey="user_id"
+                  currentSortKey={sortKey}
+                  currentSortDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  ID Pengguna
+                </SortableTableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

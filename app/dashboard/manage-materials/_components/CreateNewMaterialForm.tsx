@@ -72,7 +72,7 @@ export default function CreateNewMaterialForm() {
           </Button>
         </SheetTrigger>
         <Button className="bg-slate-500 px-4 py-2 rounded-lg hover:bg-slate-600">
-          <Link href="/dashboard/log-history">Log History</Link>
+          <Link href="/dashboard/log-history">Log Material</Link>
         </Button>
       </div>
       <SheetContent className="w-full sm:max-w-lg p-6">
