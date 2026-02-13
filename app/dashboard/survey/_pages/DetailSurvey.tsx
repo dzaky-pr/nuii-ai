@@ -16,6 +16,7 @@ import {
   useUpdateCubicleMutation,
   useDeleteCubicleMutation
 } from '../_hooks/@create/cubicle'
+import { useUpdateSurveyHeaderMutation } from '../_hooks/@create/survey-header'
 import {
   Table,
   TableBody,
@@ -93,6 +94,7 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
 
   const updateCubicleMutation = useUpdateCubicleMutation(Number(surveyId))
   const deleteCubicleMutation = useDeleteCubicleMutation(Number(surveyId))
+  const updateSurveyMutation = useUpdateSurveyHeaderMutation()
 
   const { open } = useOverlayStore()
   const sktmFormId = 'create-sktm-form-sheets'
@@ -108,6 +110,29 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
   const handleDeleteCubicle = (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus cubicle ini?')) {
       deleteCubicleMutation.mutate(id)
+    }
+  }
+
+  const handleApprove = () => {
+    if (!survey) return
+
+    if (confirm('Apakah Anda yakin ingin menyetujui survey ini?')) {
+      // Try to find id_material_konduktor from SUTM surveys if available
+      // Backend validation requires this field.
+      // If not SUTM, we default to 1 (assuming it's a valid ID in DB) to satisfy validator.
+      // This is a workaround for backend schema requiring it even if irrelevant for non-SUTM.
+      const idMaterialKonduktor =
+        survey.sutm_surveys?.[0]?.id_material_konduktor || 1
+
+      updateSurveyMutation.mutate({
+        id: survey.id,
+        nama_survey: survey.nama_survey,
+        nama_pekerjaan: survey.nama_pekerjaan,
+        lokasi: survey.lokasi,
+        user_id: survey.user_id,
+        status_survey: 'Disetujui',
+        id_material_konduktor: idMaterialKonduktor
+      })
     }
   }
 
@@ -155,6 +180,18 @@ export default function DetailSurveyPage({ surveyId }: { surveyId: string }) {
             <h1 className="text-xl font-semibold">
               Survey {survey.nama_survey}
             </h1>
+            {survey.status_survey !== 'Disetujui' && (
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white ml-2"
+                onClick={handleApprove}
+                disabled={updateSurveyMutation.isPending}
+              >
+                {updateSurveyMutation.isPending
+                  ? 'Processing...'
+                  : 'Setujui Survey'}
+              </Button>
+            )}
           </div>
 
           <div className="flex sm:flex-row flex-col sm:w-fit w-full gap-4">

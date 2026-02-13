@@ -58,7 +58,7 @@ export function useUpdateSurveyHeaderMutation() {
   >({
     mutationFn: async ({ id, ...data }) =>
       await api.put('/survey/update-header', {
-        idHeader: id,
+        id_header: id,
         header: data
       }),
     onSuccess: () => {
