@@ -84,6 +84,7 @@
     "remark-math": "^6.0.0",
     "rlayers": "^3.8.0",
     "sonner": "^2.0.7",
+    "styled-components": "^6.3.9",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "xlsx": "^0.18.5",
