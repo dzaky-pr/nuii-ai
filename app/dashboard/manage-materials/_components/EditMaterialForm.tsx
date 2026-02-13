@@ -67,7 +67,7 @@ export default function EditMaterialForm({ material }: EditMaterialFormProps) {
           Edit Material
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg p-6">
+      <SheetContent className="w-full sm:max-w-lg p-6 overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Edit Material</SheetTitle>
         </SheetHeader>

@@ -108,7 +108,7 @@ export function UpdateSurveyHeaderForm({
     <>
       <FormProvider {...methods}>
         <Sheet open={isOpen[sheetId]} onOpenChange={handleClose}>
-          <SheetContent className="w-full sm:max-w-md">
+          <SheetContent className="w-full sm:max-w-md overflow-y-auto">
             <SheetHeader>
               <SheetTitle>Update Survey Header</SheetTitle>
               <SheetDescription>

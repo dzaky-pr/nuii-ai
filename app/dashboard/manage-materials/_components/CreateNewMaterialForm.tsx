@@ -75,7 +75,7 @@ export default function CreateNewMaterialForm() {
           <Link href="/dashboard/log-history">Log Material</Link>
         </Button>
       </div>
-      <SheetContent className="w-full sm:max-w-lg p-6">
+      <SheetContent className="w-full sm:max-w-lg p-6 overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Create New Material</SheetTitle>
           <SheetDescription>Masukkan detail material baru</SheetDescription>
