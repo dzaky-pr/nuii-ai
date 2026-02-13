@@ -1,3 +1,8 @@
+export interface ITipeMaterial {
+  id: number
+  tipe_material: string
+}
+
 export interface IMaterial {
   id: number
   id_tipe_material: number

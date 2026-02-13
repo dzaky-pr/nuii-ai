@@ -11,13 +11,21 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useCreateMaterialMutation } from '../_hooks/@create/useCreateNewMaterialMutation'
+import { useGetAllTipeMaterial } from '../_hooks/@read/useGetAllTipeMaterial'
 
 export type CreateNewMaterial = {
   id_tipe_material: number
@@ -37,7 +45,9 @@ export default function CreateNewMaterialForm() {
 
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false)
   const { mutate, isPending } = useCreateMaterialMutation()
-  const { register, handleSubmit, reset } = useForm<CreateNewMaterial>()
+  const { register, handleSubmit, reset, control } =
+    useForm<CreateNewMaterial>()
+  const { listTipeMaterial, loadingListTipeMaterial } = useGetAllTipeMaterial()
 
   const onSubmit = (data: CreateNewMaterial) => {
     mutate(data, {
@@ -73,11 +83,32 @@ export default function CreateNewMaterialForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid gap-1">
             <Label htmlFor="id_tipe_material">ID Tipe Material</Label>
-            <Input
-              id="id_tipe_material"
-              type="number"
-              defaultValue={1}
-              {...register('id_tipe_material', { valueAsNumber: true })}
+            <Controller
+              control={control}
+              name="id_tipe_material"
+              render={({ field }) => (
+                <Select
+                  onValueChange={val => field.onChange(Number(val))}
+                  defaultValue={field.value?.toString()}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih Tipe Material" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {loadingListTipeMaterial ? (
+                      <SelectItem value="loading" disabled>
+                        Loading...
+                      </SelectItem>
+                    ) : (
+                      listTipeMaterial?.map(tipe => (
+                        <SelectItem key={tipe.id} value={tipe.id.toString()}>
+                          {tipe.tipe_material}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
             />
           </div>
           <div className="grid gap-1">
